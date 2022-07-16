@@ -3,6 +3,8 @@
 #ifndef UTIL_XOSHIRO_HPP_
 #define UTIL_XOSHIRO_HPP_
 
+#include <stdint.h>
+
 #include <util/system_bits.hpp>
 
 namespace rand {
@@ -88,7 +90,5 @@ rand::t next() {
 #endif // 32b/64b
 
 } // namespace rand
-
-#endif // ifndef BITS
 
 #endif // UTIL_XOSHIRO_HPP_
