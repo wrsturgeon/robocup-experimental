@@ -32,4 +32,5 @@ jobs:
       - name: Code safety & successful compilation
         run: |
           git submodule update --init --remote
+          sudo apt-get upgrade clang++
           make
