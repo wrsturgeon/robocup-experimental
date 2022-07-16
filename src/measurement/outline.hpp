@@ -3,14 +3,14 @@
 
 
 
-class Outline {
-public:
-  void sample();
-private:
-  constexpr 
-};
+// class Outline {
+// public:
+//   void sample();
+// private:
+//   constexpr 
+// };
 
-static constexpr Outline FIELD_OUTLINE
+// static constexpr Outline FIELD_OUTLINE = ...
 
 
 

@@ -29,7 +29,8 @@ jobs:
         run: ./code_checker.sh
 
       # Runs a single command using the runners shell
-      - name: Code safety & successful compilation
+      - name: Successful compilation
         run: |
           git submodule update --init --remote
+          make test_compile_all
           make

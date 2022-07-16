@@ -15,4 +15,4 @@ public:
 
 
 
-#endif MEASUREMENT_METRIC_HPP_
+#endif // MEASUREMENT_METRIC_HPP_

@@ -2,6 +2,7 @@
 #define UTIL_CONSTEXPR_MATH_HPP_
 
 #include <stdint.h>
+#include <type_traits>
 
 #include <util/specifiers.hpp>
 
