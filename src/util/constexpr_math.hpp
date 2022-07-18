@@ -11,6 +11,7 @@
 // Bit-shifting operator accepting negative shifts.
 template <typename T, uint8_t bits>
 INLINE constexpr T rshift(T x) {
+  static_assert(std::is_integral<T>::value, "Can't rshift a non-integral type");
   if constexpr (bits < 0) {
     return x << -bits;
   } else {
@@ -21,9 +22,9 @@ INLINE constexpr T rshift(T x) {
 
 
 // Log base 2.
-template <typename T>
+template <typename T = size_t>
 constexpr uint8_t lg(T x) {
-  static_assert(std::is_integral<T>::value, "T must be an integral type");
+  static_assert(std::is_integral<T>::value, "Can't lg a non-integral type");
   return x ? 1 + lg(x >> 1) : 0;
 }
 

@@ -5,8 +5,9 @@
 
 // class Outline {
 // public:
+//   Outline(Outline const&) = delete;
 //   void sample();
-// private:
+// protected:
 //   constexpr 
 // };
 

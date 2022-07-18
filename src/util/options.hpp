@@ -1,7 +1,10 @@
+#ifndef UTIL_OPTIONS_HPP_
+#define UTIL_OPTIONS_HPP_
+
+
+
 // Detects system architecture (32b/64b) and inform various algorithms accordingly.
 // Compile with the compiler argument -D_BITS={32,64} (whichever it is)
-
-// This is effectively our #include guard
 #ifndef BITS
 
 #ifndef _BITS
@@ -15,3 +18,13 @@
 #endif // 32/64
 
 #endif // BITS
+
+
+
+#ifndef TRAINING
+#define TRAINING 0
+#endif // TRAINING
+
+
+
+#endif // UTIL_OPTIONS_HPP_
