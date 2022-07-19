@@ -18,9 +18,11 @@ using t = uint64_t; // rand::t
 // https://prng.di.unimi.it/xoshiro256plusplus.c
 
 /*  Written in 2019 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+
 To the extent possible under law, the author has dedicated all copyright
 and related and neighboring rights to this software to the public domain
 worldwide. This software is distributed without any warranty.
+
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
@@ -54,9 +56,11 @@ using t = uint32_t; // rand::t
 // https://prng.di.unimi.it/xoshiro128plusplus.c
 
 /*  Written in 2019 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+
 To the extent possible under law, the author has dedicated all copyright
 and related and neighboring rights to this software to the public domain
 worldwide. This software is distributed without any warranty.
+
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
