@@ -1,6 +1,7 @@
 #ifndef UTIL_CONSTEXPR_MATH_HPP_
 #define UTIL_CONSTEXPR_MATH_HPP_
 
+#include <stddef.h>
 #include <stdint.h>
 #include <type_traits>
 
