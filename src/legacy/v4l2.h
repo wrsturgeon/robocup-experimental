@@ -8,10 +8,11 @@
 
 // Holy mother of fuck why are we importing so many headers
 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <stdint.h>
-// #include <string.h>
+#include <stddef.h> // size_t
+#include <stdio.h>
+#include <string.h> // strcmp
+void *malloc(size_t sz);
+void free(void *ptr);
 
 // #include <unistd.h>
 // #include <fcntl.h>
