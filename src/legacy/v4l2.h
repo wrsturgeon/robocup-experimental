@@ -11,6 +11,7 @@
 #include <errno.h>      // errno
 #include <fcntl.h>      // open
 #include <stddef.h>     // size_t
+#include <stdio.h>      // fprintf
 #include <string.h>     // strcmp
 #include <sys/ioctl.h>  // ioctl
 void *malloc(size_t sz);
