@@ -15,6 +15,7 @@
 #include <string.h>     // strcmp
 #include <sys/ioctl.h>  // ioctl
 #include <sys/mman.h>   // mmap
+#include <unistd.h>     // close
 void *malloc(size_t sz);
 void free(void *ptr);
 
