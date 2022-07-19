@@ -60,12 +60,12 @@ int v4l2_query_menu(v4l2_device *vdev, struct v4l2_queryctrl *queryctrl) {
   struct v4l2_querymenu querymenu;
 
   querymenu.id = queryctrl->id;
-  for  (querymenu.index  = queryctrl->minimum;
-        querymenu.index <= queryctrl->maximum;
+  for  (querymenu.index  = (unsigned) queryctrl->minimum;
+        querymenu.index <= (unsigned) queryctrl->maximum;
         querymenu.index ++) {
     if (!ioctl(vdev->fd, VIDIOC_QUERYMENU, &querymenu)) {
       vdev->menu_map = add_query_node(vdev->menu_map,
-            querymenu.name, &querymenu, sizeof querymenu);
+            (char *) querymenu.name, &querymenu, sizeof querymenu);
     } else { fprintf(stderr, "Could not query menu %d\n", querymenu.index); }
   }
   return 0;
@@ -94,7 +94,7 @@ int v4l2_query_ctrl(v4l2_device *vdev, unsigned int addr_begin, unsigned int add
       case V4L2_CTRL_TYPE_BOOLEAN:
       case V4L2_CTRL_TYPE_BUTTON:
         vdev->ctrl_map = add_query_node(vdev->ctrl_map,
-              queryctrl.name, &queryctrl, sizeof queryctrl);
+              (char *) queryctrl.name, &queryctrl, sizeof queryctrl);
         break;
       default:
         break;
@@ -116,7 +116,7 @@ int v4l2_error(char const *error_msg) {
 
 
 int v4l2_uninit_mmap(v4l2_device *vdev) {
-  for (int i = 0; i < NBUFFERS; ++i) {
+  for (unsigned int i = 0; i < NBUFFERS; ++i) {
     if (munmap(vdev->buffer[i], vdev->buf_len[i]) == -1) {
       return v4l2_error("munmap");
     }
@@ -143,9 +143,8 @@ int v4l2_init_mmap(v4l2_device *vdev) {
   vdev->buffer = malloc(req.count * sizeof(void *));
   vdev->buf_len = malloc(req.count * sizeof(int));
 
-  int i = 0;
   struct v4l2_buffer buf;
-  for (i = 0; i < req.count; ++i) {
+  for (unsigned int i = 0; i < req.count; ++i) {
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = i;
@@ -284,7 +283,7 @@ int v4l2_init(v4l2_device *vdev) {
 int v4l2_stream_on(v4l2_device *vdev) {
   printf("IN v4l2_stream_on %d \n", vdev->count);
   struct v4l2_buffer buf;
-  for (int i = 0; i < NBUFFERS; i++) {
+  for (unsigned int i = 0; i < NBUFFERS; i++) {
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = i;

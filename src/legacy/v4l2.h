@@ -8,20 +8,20 @@
 
 // Holy mother of fuck why are we importing so many headers
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <stdint.h>
+// #include <string.h>
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
+// #include <unistd.h>
+// #include <fcntl.h>
+// #include <errno.h>
 
-#include <sys/ioctl.h>
-#include <sys/mman.h>
+// #include <sys/ioctl.h>
+// #include <sys/mman.h>
 
-#include <assert.h>
-#include <ctype.h>
+// #include <assert.h>
+// #include <ctype.h>
 
 #include <linux/videodev2.h>
 
