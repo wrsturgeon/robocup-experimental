@@ -8,6 +8,7 @@
 
 // Holy mother of fuck why are we importing so many headers
 
+#include <assert.h>     // assert
 #include <errno.h>      // errno
 #include <fcntl.h>      // open
 #include <stddef.h>     // size_t
