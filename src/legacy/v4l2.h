@@ -8,21 +8,13 @@
 
 // Holy mother of fuck why are we importing so many headers
 
-#include <stddef.h> // size_t
-#include <stdio.h>
-#include <string.h> // strcmp
+#include <errno.h>      // errno
+#include <fcntl.h>      // open
+#include <stddef.h>     // size_t
+#include <string.h>     // strcmp
+#include <sys/ioctl.h>  // ioctl
 void *malloc(size_t sz);
 void free(void *ptr);
-
-// #include <unistd.h>
-// #include <fcntl.h>
-// #include <errno.h>
-
-#include <sys/ioctl.h>
-// #include <sys/mman.h>
-
-// #include <assert.h>
-// #include <ctype.h>
 
 #include <linux/videodev2.h>
 
