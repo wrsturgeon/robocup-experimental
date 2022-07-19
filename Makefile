@@ -1,6 +1,6 @@
 .PHONY: test_compile_all
 
-COMMON_FLAGS=-D_BITS=$$(getconf LONG_BIT) -I./src -I./eigen -I./naoqi_driver/include -march=native -funit-at-a-time -Wall -Wextra -Werror
+COMMON_FLAGS=-D_BITS=$$(getconf LONG_BIT) -I./src -I./eigen -I./naoqi_driver/include -march=native -funit-at-a-time -Wall -Wextra -Werror -D_XOPEN_SOURCE=700
 CPPFLAGS=-std=c++20 ${COMMON_FLAGS}
 CFLAGS=-std=c17 ${COMMON_FLAGS}
 
