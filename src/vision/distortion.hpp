@@ -17,14 +17,17 @@
  */
 class Lens {
 public:
+  Lens(Lens const&) = delete;
+  Lens(int16_t radial = 0, int16_t tangential_x = 0, int16_t tangential_y = 0) :
+        radial{radial}, tangential_x{tangential_x}, tangential_y{tangential_y}, inv_lr{128} {}
   template <uint32_t diag_sq> INLINE pxpos_t undistort(pxpos_t px);
   template <uint32_t diag_sq> INLINE pxpos_t redistort(pxpos_t px);
 protected:
-  int16_t radial = 0; // 8 bits used; extra for smooth gradient descent
-  int16_t tangential_x = 0;
-  int16_t tangential_y = 0;
+  int16_t radial; // 8 bits used; extra for smooth gradient descent
+  int16_t tangential_x;
+  int16_t tangential_y;
   // uint16_t zoom = 16384;
-  uint16_t inv_lr = 128; // Inverse learning rate: increment s.t. lr=0 over time
+  uint16_t inv_lr = 128; // Inverse learning rate: increment over time
 };
 
 
@@ -36,7 +39,7 @@ protected:
  */
 template <uint32_t diag_sq>
 INLINE pxpos_t Lens::redistort(pxpos_t px) {
-  uint16_t r2 = rshift<lg(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
+  uint16_t r2 = cm::rshift<cm::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
   int16_t scaled = (radial * r2 /* 32-bit */) >> 16 /* 16-bit */; // Multiplied by the learnable parameter.
   return pxpos_t{
         static_cast<int16_t>(((px.x << 16) + (px.y * tangential_y)) / (65536 + scaled)),
