@@ -6,14 +6,15 @@
 #include <stdint.h>
 
 #include <util/options.hpp>
+#include <util/specifiers.hpp>
 
-namespace rand {
+namespace rnd {
 
 
 
 #if BITS == 64
 
-using t = uint64_t; // rand::t
+using t = uint64_t; // rnd::t
 
 // https://prng.di.unimi.it/xoshiro256plusplus.c
 
@@ -26,14 +27,14 @@ worldwide. This software is distributed without any warranty.
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
-static constexpr inline rand::t rotl(const rand::t x) { return (x << k) | (x >> (64 - k)); }
+static constexpr INLINE rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (64 - k)); }
 
-static rand::t s[4] = {0xe220a8397b1dcdaf, 0x6e789e6aa1b965f4, 0x6c45d188009454f, 0xf88bb8a8724c81ec};
+static rnd::t s[4] = {0xe220a8397b1dcdaf, 0x6e789e6aa1b965f4, 0x6c45d188009454f, 0xf88bb8a8724c81ec};
 
-rand::t next() {
-	const rand::t result = rotl<23>(s[0] + s[3]) + s[0];
+rnd::t next() {
+	const rnd::t result = rotl<23>(s[0] + s[3]) + s[0];
 
-	const rand::t t = s[1] << 17;
+	const rnd::t t = s[1] << 17;
 
 	s[2] ^= s[0];
 	s[3] ^= s[1];
@@ -51,7 +52,7 @@ rand::t next() {
 
 #elif BITS == 32
 
-using t = uint32_t; // rand::t
+using t = uint32_t; // rnd::t
 
 // https://prng.di.unimi.it/xoshiro128plusplus.c
 
@@ -64,14 +65,14 @@ worldwide. This software is distributed without any warranty.
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
-static inline rand::t rotl(const rand::t x) { return (x << k) | (x >> (32 - k)); }
+static INLINE rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (32 - k)); }
 
-static rand::t s[4] = {0x7b1dcdaf, 0xa1b965f4, 0x8009454f, 0x724c81ec};
+static rnd::t s[4] = {0x7b1dcdaf, 0xa1b965f4, 0x8009454f, 0x724c81ec};
 
-rand::t next() {
-	const rand::t result = rotl<7>(s[0] + s[3]) + s[0];
+rnd::t next() {
+	const rnd::t result = rotl<7>(s[0] + s[3]) + s[0];
 
-	const rand::t t = s[1] << 9;
+	const rnd::t t = s[1] << 9;
 
 	s[2] ^= s[0];
 	s[3] ^= s[1];
@@ -89,6 +90,6 @@ rand::t next() {
 
 #endif // 32b/64b
 
-} // namespace rand
+} // namespace rnd
 
 #endif // UTIL_XOSHIRO_HPP_
