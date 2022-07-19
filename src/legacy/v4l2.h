@@ -6,8 +6,6 @@
 #define INVERT 0
 #define NBUFFERS 2
 
-// Holy mother of fuck why are we importing so many headers
-
 #include <assert.h>     // assert
 #include <errno.h>      // errno
 #include <fcntl.h>      // open
