@@ -29,7 +29,7 @@ public:
 
 
 // Relies on pxpos_t
-#include <vision/distortion.hpp> // Lens
+#include <vision/distortion.hpp>
 
 
 
