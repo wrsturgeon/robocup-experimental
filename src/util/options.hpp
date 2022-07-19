@@ -50,8 +50,7 @@
 
 
 #ifndef NAO_HEIGHT_MM
-// This could be incredibly wrong please check
-#define NAO_HEIGHT_MM 250
+#define NAO_HEIGHT_MM 500 // TODO: this is a ROUGH ESTIMATE
 #endif // NAO_HEIGHT_MM
 
 

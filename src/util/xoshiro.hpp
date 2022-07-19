@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 
+#include <util/options.hpp>
 #include <util/specifiers.hpp>
 
 namespace rnd {
