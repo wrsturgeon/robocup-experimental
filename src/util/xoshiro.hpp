@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include <util/system_bits.hpp>
+#include <util/options.hpp>
 
 namespace rand {
 
