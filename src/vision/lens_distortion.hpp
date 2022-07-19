@@ -23,7 +23,7 @@ static int16_t LENS_LAMBDA = 256; // 8 bits used; extra 8 for smooth gradient de
  */
 template <uint32_t diag_sq>
 INLINE pxpos_t lens_undistort(pxpos_t pos) {
-  uint16_t r2 = rshift<lg(diag_sq) - 16>((pos.x * pos.x) + (pos.y * pos.y)); // 16 bits, scaled to account for image size.
+  uint16_t r2 = cm::rshift<cm::lgp1(diag_sq) - 16>((pos.x * pos.x) + (pos.y * pos.y)); // 16 bits, scaled to account for image size.
   int16_t scaled = (LENS_LAMBDA * r2 /* 32-bit */) >> 16 /* 16-bit */; // Multiplied by the learnable parameter.
   static constexpr uint32_t one = 1 << 16; // Making sure it's a compile-time constant; see below
   return pxpos_t{
