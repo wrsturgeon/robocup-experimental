@@ -9,14 +9,12 @@
 #include <assert.h>     // assert
 #include <errno.h>      // errno
 #include <fcntl.h>      // open
-#include <stddef.h>     // size_t
 #include <stdio.h>      // fprintf
+#include <stdlib.h>     // malloc
 #include <string.h>     // strcmp
 #include <sys/ioctl.h>  // ioctl
 #include <sys/mman.h>   // mmap
 #include <unistd.h>     // close
-void *malloc(size_t sz);
-void free(void *ptr);
 
 #include <linux/videodev2.h>
 
