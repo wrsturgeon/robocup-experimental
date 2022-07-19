@@ -27,8 +27,8 @@ INLINE pxpos_t lens_undistort(pxpos_t pos) {
   int16_t scaled = (LENS_LAMBDA * r2 /* 32-bit */) >> 16 /* 16-bit */; // Multiplied by the learnable parameter.
   static constexpr uint32_t one = 1 << 16; // Making sure it's a compile-time constant; see below
   return pxpos_t{
-        .x = static_cast<pxidx_t>((pos.x << 16) / (one + scaled)),
-        .y = static_cast<pxidx_t>((pos.y << 16) / (one + scaled))};
+        static_cast<pxidx_t>((pos.x << 16) / (one + scaled)),
+        static_cast<pxidx_t>((pos.y << 16) / (one + scaled))};
 }
 
 
