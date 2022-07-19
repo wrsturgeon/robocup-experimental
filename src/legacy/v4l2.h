@@ -7,13 +7,13 @@
 #define NBUFFERS 2
 
 // #include <assert.h>     // assert
-// #include <errno.h>      // errno
+#include <errno.h>      // errno
 // #include <fcntl.h>      // open
 // #include <stddef.h>     // size_t
-// #include <stdio.h>      // fprintf
+#include <stdio.h>      // fprintf
 #include <stdlib.h>     // malloc
-// #include <string.h>     // strcmp
-// #include <sys/ioctl.h>  // ioctl
+#include <string.h>     // strcmp
+#include <sys/ioctl.h>  // ioctl
 // #include <sys/mman.h>   // mmap
 // #include <unistd.h>     // close
 
