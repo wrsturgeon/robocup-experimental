@@ -14,6 +14,7 @@
 #include <stdio.h>      // fprintf
 #include <string.h>     // strcmp
 #include <sys/ioctl.h>  // ioctl
+#include <sys/mman.h>   // mmap
 void *malloc(size_t sz);
 void free(void *ptr);
 
