@@ -1,25 +1,48 @@
-#ifndef IMAGE_API_HPP_
-#define IMAGE_API_HPP_
+#ifndef VISION_IMAGE_API_HPP_
+#define VISION_IMAGE_API_HPP_
 
 #include <stdint.h>
 #include <type_traits>
 
+#include <unsupported/Eigen/CXX11/TensorSymmetry>
+
+#include <util/options.hpp>     // IMAGE_W/H
+#include <util/specifiers.hpp>  // INLINE
 
 
-// Enough to store a pixel's location on some axis in any practical image.
-using pxlin_t = int16_t;
-using pxsqr_t = uint32_t;
-static_assert(sizeof(pxsqr_t) == sizeof(pxlin_t) << 1, "pxsqr_t must be twice pxlin_t");
-static_assert(!std::is_signed<pxsqr_t>::value, "pxsqr_t must be unsigned");
+
+using pxidx_t = int16_t;
 
 // {0, 0} is the center of the image; expand outward from there
 class pxpos_t {
 public:
-  pxlin_t const x = 0;
-  pxlin_t const y = 0;
-  pxsqr_t r2() const { return (x * x) + (y * y); }
+  pxpos_t(pxpos_t const&) = delete;
+  explicit pxpos_t(pxidx_t x = 0, pxidx_t y = 0) : x{x}, y{y} {}
+  operator std::string() const { return '(' +
+        std::to_string(x) + "x, " +
+        std::to_string(y) + "y)"; }
+  pxidx_t const x = 0;
+  pxidx_t const y = 0;
+  uint32_t r2() const { return (x * x) + (y * y); }
 };
 
 
 
-#endif // IMAGE_API_HPP_
+// Relies on pxpos_t
+#include <vision/lens_distortion.hpp>
+
+
+
+class NaoImage {
+public:
+  NaoImage(NaoImage const&) = delete;
+protected:
+  static constexpr int format = Eigen::StorageOptions::RowMajor;
+  using imsize_t = Eigen::Sizes<IMAGE_W, IMAGE_H, 3>;
+  using internal_t = Eigen::TensorFixedSize<uint8_t, imsize_t, format, pxidx_t>;
+  internal_t internal; // Underlying Eigen tensor holding pixel values
+};
+
+
+
+#endif // VISION_IMAGE_API_HPP_
