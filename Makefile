@@ -10,4 +10,7 @@ test_compile_all:
 	rm -f ./tmp_compiled
 
 units: ./src/measurement/units.hpp
-	clang++ ./src/measurement/units.hpp -o ./units ${COMMON_FLAGS}
+	clang++ ./src/measurement/units.hpp -o ./units ${CPPFLAGS}
+
+shit: ./shit.cpp
+	clang++ ./shit.cpp -o ./shit ${CPPFLAGS}
