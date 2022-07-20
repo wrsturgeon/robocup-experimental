@@ -44,5 +44,7 @@
 .DS_Store
 
 # IDE files
-.vscode
-.idea
+.vscode/
+.idea/
+
+naoqi-sdk/

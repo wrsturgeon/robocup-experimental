@@ -24,14 +24,5 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
-      - name: Code style & safety
-        run: ./code_checker.sh
-
-      # Runs a single command using the runners shell
       - name: Successful compilation
-        run: |
-          git submodule update --init --remote
-          sudo apt-get install libsdl2-dev
-          make test_compile_all DISPLAY_ON=1
-          # make DISPLAY_ON=1
+        run: ./compile.sh test
