@@ -1,7 +1,7 @@
-// Some edits to Blackman & Vigna's xoshiro PRNGs.
-
 #ifndef UTIL_XOSHIRO_HPP_
 #define UTIL_XOSHIRO_HPP_
+
+// Some edits to Blackman & Vigna's xoshiro PRNGs.
 
 #include <stdint.h>
 

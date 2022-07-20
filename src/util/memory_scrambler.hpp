@@ -1,7 +1,7 @@
-#if TRAINING
-
 #ifndef UTIL_MEMORY_SCRAMBLER_HPP_
 #define UTIL_MEMORY_SCRAMBLER_HPP_
+
+#if TRAINING
 
 #include <stdint.h>
 
@@ -60,6 +60,6 @@ Memory const *const Scrambler<abits>::store_and_recall(Memory const *const curre
 
 
 
-#endif // UTIL_MEMORY_HPP_
-
 #endif // TRAINING
+
+#endif // UTIL_MEMORY_HPP_
