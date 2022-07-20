@@ -1,7 +1,7 @@
 #ifndef DISPLAY_WINDOW_HPP_
 #define DISPLAY_WINDOW_HPP_
 
-// #if DISPLAY
+#if DISPLAY
 
 #include <SDL.h>
 
@@ -36,6 +36,6 @@ int main() {
 
 
 
-// #endif // DISPLAY
+#endif // DISPLAY
 
 #endif // DISPLAY_WINDOW_HPP_
