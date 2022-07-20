@@ -6,8 +6,8 @@
 
 
 struct GameData {
-  pos_t nao_pos;
-  pos_t ball_pos;
+  Position nao_pos;
+  Position ball_pos;
 };
 
 
