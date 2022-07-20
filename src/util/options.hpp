@@ -27,7 +27,9 @@
 
 
 
-#ifdef _IMAGE_H
+#ifndef _IMAGE_H
+#define IMAGE_H 960
+#else
 
 #if _IMAGE_H > 0
 #define IMAGE_H _IMAGE_H
@@ -35,22 +37,20 @@
 #error "_IMAGE_H <= 0"
 #endif // _IMAGE_H > 0
 
-#else
-#error "Compile with argument -D_IMAGE_H=<image height>"
 #endif // ifdef _IMAGE_H
 
 
 
-#ifdef _IMAGE_W
+#ifndef _IMAGE_W
+#define IMAGE_W 1280
+#else
 
 #if _IMAGE_W > 0
 #define IMAGE_W _IMAGE_W
 #else
 #error "_IMAGE_W <= 0"
 #endif // _IMAGE_W > 0
-#else
 
-#error "Compile with argument -D_IMAGE_W=<image width>"
 #endif // ifdef _IMAGE_W
 
 
@@ -68,11 +68,11 @@
 
 
 
-#ifdef _DISPLAY
-#define DISPLAY _DISPLAY
+#ifdef _DISPLAY_ON
+#define DISPLAY_ON _DISPLAY_ON
 #else
-#define DISPLAY 0
-#endif // ifdef _DISPLAY
+#define DISPLAY_ON 0
+#endif // ifdef _DISPLAY_ON
 
 
 
