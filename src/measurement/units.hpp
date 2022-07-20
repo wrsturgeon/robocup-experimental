@@ -50,8 +50,8 @@ public:
   Position(Position const&) = delete;
   Position(int16_t x_mm, int16_t y_mm) : x{x_mm}, y{y_mm} {}
   operator std::string() const { return '(' +
-        static_cast<std::string>(x) + "x, " +
-        static_cast<std::string>(y) + "y)"; }
+        static_cast<std::string>(x) + " x, " +
+        static_cast<std::string>(y) + " y)"; }
   friend std::ostream& operator<<(std::ostream& os, Position const& p) { return os << static_cast<std::string>(p); }
 protected:
   pos_t x, y;
