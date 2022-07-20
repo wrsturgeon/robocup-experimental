@@ -37,6 +37,12 @@ esac
 
 # Detect architecture
 BITS=$(getconf LONG_BIT)
+if [ "${OS}" = 'mac' ]
+then
+  CORES=$(sysctl -n hw.ncpu)
+else
+  CORES=$(nproc --all)
+fi
 
 
 
@@ -74,7 +80,7 @@ then
     cd SDL && \
     mkdir build && cd build && \
     ../configure && \
-    make -j$(nproc --all) && \
+    make -j${CORES} && \
     sudo make install)
 fi
 
@@ -98,9 +104,9 @@ ALL="${FLAGS} ${MACROS} ${INCLUDES}"
 
 if [ "${TEST}" -eq 1 ]
 then
-  ./code_checker.sh
-  find ./src -type f -name '*.*pp' | xargs -t -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}
-  find ./src -type f -name '*.c' | xargs -t -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}
+  ./code-checker
+  find ./src -type f -name '*.*pp' | xargs -t -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
+  find ./src -type f -name '*.c' | xargs -t -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
 	rm -f ./tmp_compiled
 fi
 
