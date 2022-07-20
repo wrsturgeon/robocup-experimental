@@ -34,4 +34,4 @@ jobs:
           git submodule update --init --remote
           sudo apt-get install libsdl2-dev
           make test_compile_all DISPLAY=1
-          make DISPLAY=1
+          # make DISPLAY=1
