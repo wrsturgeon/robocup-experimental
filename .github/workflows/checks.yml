@@ -25,4 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       - name: Successful compilation
-        run: ./compile test
+        run: |
+          sudo apt-get -qq install -y libsdl2-dev # impatience lol
+          ./compile test

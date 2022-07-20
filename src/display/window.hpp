@@ -24,21 +24,21 @@ struct ColorData {
   uint16_t r, g, b;
 };
 
-class ICCProfile {
-public:
-  ICCProfile(ICCProfile const&) = delete;
-  ICCProfile() = delete;
-  ~ICCProfile() { SDL_free(data); }
-  operator void const *const() const { return data; }
-protected:
-  friend class Window;
-  ICCProfile(SDL_Window *const w, size_t *const s);
-  void *const data;
-};
+// class ICCProfile {
+// public:
+//   ICCProfile(ICCProfile const&) = delete;
+//   ICCProfile() = delete;
+//   ~ICCProfile() { SDL_free(data); }
+//   operator void const *const() const { return data; }
+// protected:
+//   friend class Window;
+//   ICCProfile(SDL_Window *const w, size_t *const s);
+//   void *const data;
+// };
 
-ICCProfile::ICCProfile(SDL_Window *const w, size_t *const s) : data{SDL_GetWindowICCProfile(w, s)} {
-  if (!data) throw std::runtime_error{std::string{"Failed to get ICC profile: "} + SDL_GetError()};
-}
+// ICCProfile::ICCProfile(SDL_Window *const w, size_t *const s) : data{SDL_GetWindowICCProfile(w, s)} {
+//   if (!data) throw std::runtime_error{std::string{"Failed to get ICC profile: "} + SDL_GetError()};
+// }
 
 
 
@@ -63,12 +63,12 @@ protected:
   void const* data(char const *const name) { return SDL_GetWindowData(window, name); }
   uint32_t flags() { return SDL_GetWindowFlags(window); }
   bool input_grabbed() { return SDL_GetWindowGrab(window); }
-  ICCProfile icc_profile(size_t s) { return ICCProfile(window, &s); }
-  bool keyboard_grabbed() { return SDL_GetWindowKeyboardGrab(window); }
+  // ICCProfile icc_profile(size_t s) { return ICCProfile(window, &s); }
+  // bool keyboard_grabbed() { return SDL_GetWindowKeyboardGrab(window); }
   Coordinate max_size() { Coordinate c; SDL_GetWindowMaximumSize(window, &c.x, &c.y); return c; }
   Coordinate min_size() { Coordinate c; SDL_GetWindowMinimumSize(window, &c.x, &c.y); return c; }
-  bool mouse_grabbed() { return SDL_GetWindowMouseGrab(window); }
-  SDL_Rect const* mouse_rect() { return SDL_GetWindowMouseRect(window); }
+  // bool mouse_grabbed() { return SDL_GetWindowMouseGrab(window); }
+  // SDL_Rect const* mouse_rect() { return SDL_GetWindowMouseRect(window); }
   Coordinate position() { Coordinate c; SDL_GetWindowPosition(window, &c.x, &c.y); return c; }
   Coordinate size() { Coordinate c; SDL_GetWindowSize(window, &c.x, &c.y); return c; }
   char const* title() { return SDL_GetWindowTitle(window); }
