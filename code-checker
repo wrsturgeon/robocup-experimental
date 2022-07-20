@@ -2,6 +2,7 @@
 
 set -e
 shopt -s nullglob # Don't iterate if there are no elements to do so
+echo -e 'Checking style & safety...\n\n\n'
 
 EXIT_CODE=0
 
@@ -22,6 +23,13 @@ do
   if [ "${dirname}" != "$(echo ${dirname} | tr '[:upper:]' '[:lower:]')" ]
   then
     echo -e "Please lowercase folder ${dir}\n\n\n"
+    EXIT_CODE=1
+  fi
+
+  # Make sure the folder has its own README
+  if [ ! -f "${dir}/README.md" ]
+  then
+    echo -e "Please create a README.md in ${dir}\n\n\n"
     EXIT_CODE=1
   fi
 
@@ -76,7 +84,7 @@ done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo "All good!"
+  echo -e "All good!\n\n\n"
 fi
 
 exit ${EXIT_CODE}
