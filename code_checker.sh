@@ -19,7 +19,7 @@ do
   fi
 done
 
-for file in ./src/display/**
+for file in $(find ./src/display -type f)
 do
   if [ "$(sed '4q;d' ${file})" != '#if DISPLAY' ]
   then
