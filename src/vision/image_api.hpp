@@ -2,12 +2,11 @@
 #define VISION_IMAGE_API_HPP_
 
 #include <stdint.h>
-#include <type_traits>
 
+#include <alloca.h>
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
 #include <util/options.hpp>     // IMAGE_W/H
-#include <util/specifiers.hpp>  // INLINE
 
 
 
