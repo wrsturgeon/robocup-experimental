@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ '*' ]
+  # pull_request:
+  #   branches: [ '*' ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -32,5 +32,6 @@ jobs:
       - name: Successful compilation
         run: |
           git submodule update --init --remote
-          make test_compile_all
-          make
+          sudo apt-get install libsdl2-dev
+          make test_compile_all DISPLAY=1
+          # make DISPLAY=1
