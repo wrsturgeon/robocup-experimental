@@ -51,6 +51,7 @@ public:
   operator std::string() const { return '(' +
         static_cast<std::string>(x) + "x, " +
         static_cast<std::string>(y) + "y)"; }
+  friend std::ostream& operator<<(std::ostream& os, Position const& p) { return os << static_cast<std::string>(p); }
 protected:
   pos_t x, y;
 };
