@@ -1,3 +1,5 @@
+#include <options.hpp>
+#if UTIL_ENABLED
 #ifndef UTIL_CONSTEXPR_MATH_HPP_
 #define UTIL_CONSTEXPR_MATH_HPP_
 
@@ -7,7 +9,7 @@
 
 #include <util/specifiers.hpp>
 
-namespace cm {
+namespace util {
 
 
 
@@ -33,6 +35,8 @@ constexpr uint8_t lgp1(T x) {
 
 
 
-} // namespace cm
+} // namespace util
 
 #endif // UTIL_CONSTEXPR_MATH_HPP_
+
+#endif // UTIL_ENABLED

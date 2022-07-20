@@ -1,5 +1,7 @@
-#ifndef MEASUREMENT_UNITS_HPP_
-#define MEASUREMENT_UNITS_HPP_
+#include <options.hpp>
+#if MEASURE_ENABLED
+#ifndef MEASURE_UNITS_HPP_
+#define MEASURE_UNITS_HPP_
 
 #include <iostream>
 #include <math.h>
@@ -8,7 +10,9 @@
 #include <alloca.h>   // For some reason Eigen needs this, but it's probably my fault -- check later
 #include <Eigen/Core> // Eigen::bfloat16
 
-#include <util/options.hpp>
+#include <options.hpp>
+
+namespace measure {
 
 
 
@@ -59,4 +63,8 @@ protected:
 
 
 
-#endif // MEASUREMENT_UNITS_HPP_
+} // namespace measure
+
+#endif // MEASURE_UNITS_HPP_
+
+#endif // MEASURE_ENABLED

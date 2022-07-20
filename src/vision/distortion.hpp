@@ -1,12 +1,16 @@
+#include <options.hpp>
+#if VISION_ENABLED
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
 #include <math.h>
 
-#include <measurement/units.hpp>    // idx_t
+#include <measure/units.hpp>    // idx_t
 #include <util/constexpr_math.hpp>  // rshift
 #include <util/specifiers.hpp>      // INLINE
 #include <vision/image_api.hpp>     // int16_t
+
+namespace vision {
 
 
 
@@ -39,7 +43,7 @@ protected:
  */
 template <uint32_t diag_sq>
 INLINE pxpos_t Lens::redistort(pxpos_t px) {
-  uint16_t r2 = cm::rshift<cm::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
+  uint16_t r2 = util::rshift<util::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
   int16_t scaled = (radial * r2 /* 32-bit */) >> 16 /* 16-bit */; // Multiplied by the learnable parameter.
   return pxpos_t{
         static_cast<int16_t>(((px.x << 16) + (px.y * tangential_y)) / (65536 + scaled)),
@@ -48,4 +52,8 @@ INLINE pxpos_t Lens::redistort(pxpos_t px) {
 
 
 
+} // namespace vision
+
 #endif // VISION_DISTORTION_HPP_
+
+#endif // VISION_ENABLED

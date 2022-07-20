@@ -1,19 +1,21 @@
-#ifndef UTIL_MEMORY_SCRAMBLER_HPP_
-#define UTIL_MEMORY_SCRAMBLER_HPP_
-
-#if TRAINING
+#include <options.hpp>
+#if TRAINING_ENABLED
+#ifndef TRAINING_MEMORY_SCRAMBLER_HPP_
+#define TRAINING_MEMORY_SCRAMBLER_HPP_
 
 #include <stdint.h>
 
-#include <measurement/units.hpp>
-#include <util/xoshiro.hpp>
+#include <measure/units.hpp>
+#include <rnd/xoshiro.hpp>
 #include <vision/image_api.hpp>
+
+namespace training {
 
 
 
 struct Memory {
-  Position nao_pos, ball_pos;
-  NaoImage img;
+  measure::Position nao_pos, ball_pos;
+  vision::NaoImage img;
 };
 
 
@@ -27,7 +29,7 @@ class Scrambler {
 public:
   Scrambler(Scrambler const&) = delete;
   Scrambler() : rnd_uses_left{0} {}
-  Memory const *const store_and_recall(Memory const *const current); // THIS CAN AND WILL BE NULL FOR THE FIRST (1<<abits) CALLS
+  Memory const* store_and_recall(Memory const *const current); // THIS CAN AND WILL BE NULL FOR THE FIRST (1<<abits) CALLS
 protected:
   static_assert(abits, "Scrambler abits can't be 0");
   static constexpr size_t n = static_cast<size_t>(1) << abits;
@@ -46,7 +48,7 @@ protected:
  * Randomly indexes, replaces that entry, and returns the older one.
  */
 template <uint8_t abits>
-Memory const *const Scrambler<abits>::store_and_recall(Memory const *const current) {
+Memory const* Scrambler<abits>::store_and_recall(Memory const *const current) {
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
     rnd_persistent = rnd::next();
@@ -60,6 +62,8 @@ Memory const *const Scrambler<abits>::store_and_recall(Memory const *const curre
 
 
 
-#endif // TRAINING
+} // namespace training
 
-#endif // UTIL_MEMORY_HPP_
+#endif // TRAINING_MEMORY_SCRAMBLER_HPP_
+
+#endif // TRAINING_ENABLED

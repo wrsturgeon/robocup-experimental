@@ -1,3 +1,5 @@
+#include <options.hpp>
+#if VISION_ENABLED
 #ifndef VISION_IMAGE_API_HPP_
 #define VISION_IMAGE_API_HPP_
 
@@ -6,9 +8,9 @@
 #include <alloca.h>
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
-#include <util/options.hpp>     // IMAGE_W/H
+#include <options.hpp>     // IMAGE_W/H
 
-
+namespace vision {
 
 using pxidx_t = int16_t;
 
@@ -25,10 +27,12 @@ public:
   uint32_t r2() const { return (x * x) + (y * y); }
 };
 
-
+} // Close namespace temporarily for #include
 
 // Relies on pxpos_t
 #include <vision/distortion.hpp> // Lens
+
+namespace vision { // Reopen
 
 
 
@@ -44,4 +48,8 @@ protected:
 
 
 
+} // namespace vision
+
 #endif // VISION_IMAGE_API_HPP_
+
+#endif // VISION_ENABLED
