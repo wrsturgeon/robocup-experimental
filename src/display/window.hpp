@@ -1,5 +1,5 @@
-#ifndef DISPLAY_SDL_HPP_
-#define DISPLAY_SDL_HPP_
+#ifndef DISPLAY_WINDOW_HPP_
+#define DISPLAY_WINDOW_HPP_
 #include <util/options.hpp>
 #if DISPLAY_ON
 
@@ -193,4 +193,4 @@ uint32_t Window::pixel_format() {
 
 #endif // DISPLAY_ON
 
-#endif // DISPLAY_SDL_HPP_
+#endif // DISPLAY_WINDOW_HPP_
