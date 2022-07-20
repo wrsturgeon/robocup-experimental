@@ -6,6 +6,8 @@
 !*/
 !.*
 !Makefile
+!compile
+!code-checker
 
 # Prerequisites
 *.d
