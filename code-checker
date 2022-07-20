@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 EXIT_CODE=0
 
@@ -23,7 +23,9 @@ for file in $(find ./src/display -type f)
 do
   if [ "$(sed '3q;d' ${file})" != '#include <util/options.hpp>' ] || [ "$(sed '4q;d' ${file})" != '#if DISPLAY_ON' ]
   then
-    echo -e "Please conditionally compile all ./src/DISPLAY_ON files with \"#if DISPLAY_ON\"; should be disabled on Nao"
+    echo -e "Please conditionally compile all ./src/display files with \"#if DISPLAY_ON\" \
+          (and ofc \"#include <util/options.hpp>\") at lines 3-4; \
+          compiling a display is useless on Nao and wastes a ton of memory"
     EXIT_CODE=1
   fi
 done

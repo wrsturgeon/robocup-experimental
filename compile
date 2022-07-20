@@ -66,7 +66,7 @@ then
   
   # Remove the horrific filename extension
   # The resulting folder (naoqi-sdk) is .gitignore'd
-  find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -t -I{} mv {} ./naoqi-sdk
+  find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
   
   # Delete the original compressed file
   rm naoqi-sdk.tar.gz
@@ -88,7 +88,7 @@ fi
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
-MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_IMAGE_W=1280 -D_IMAGE_H=960 -D_DISPLAY_ON=${TEST} -D_XOPEN_SOURCE=700"
+MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_DISPLAY_ON=${TEST} -D_XOPEN_SOURCE=700"
 INCLUDES="-I./src -I./eigen -I./naoqi_driver/include"
 FLAGS="-march=native -funit-at-a-time -Wall -Wextra -Werror"
 
