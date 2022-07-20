@@ -31,14 +31,15 @@ class pos_t {
 public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
   pos_t(pos_t const&) = delete;
-  pos_t(int16_t mm) : internal{mm << 1} { assert((internal >> 1) == mm); }
-  bf16_t mm() const { return bf16_t(ldexpf(internal, -1)); }
+  pos_t(int16_t mm) : internal(mm << lc) { assert((internal >> lc) == mm); }
+  bf16_t mm() const { return bf16_t(ldexpf(internal, -lc)); }
   bf16_t meters() const { return mm() / bf16_t(1000.f); }
-  operator std::string() const { return std::to_string((internal >> 1) / 1000.f) + 'm'; }
+  operator std::string() const { return std::to_string((internal >> lc) / 1000.f) + 'm'; }
   friend std::ostream& operator<<(std::ostream& os, pos_t const& p) { return os << static_cast<std::string>(p); }
 protected:
   int16_t internal;
   explicit operator int16_t() const { return internal; }
+  static constexpr uint8_t lc = 1; // lg(conversion to mm)
 };
 
 
