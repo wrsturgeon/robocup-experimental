@@ -58,7 +58,7 @@ then
   # https://www.softbankrobotics.com/emea/en/support/nao-6/downloads-softwares/former-versions
 
   # Download
-  wget -O naoqi-sdk.tar.gz "https://community-static.aldebaran.com/resources/2.1.4.13/sdk-c%2B%2B/naoqi-sdk-2.1.4.13-${OS}${BITS}.tar.gz"
+  wget -q -O naoqi-sdk.tar.gz "https://community-static.aldebaran.com/resources/2.1.4.13/sdk-c%2B%2B/naoqi-sdk-2.1.4.13-${OS}${BITS}.tar.gz"
   
   # Unpack
   # This is going to make Git go berserk
