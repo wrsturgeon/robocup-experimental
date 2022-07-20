@@ -12,7 +12,7 @@ template <pxidx_t W, pxidx_t H>
 class Pyramid {
 public:
 protected:
-  static constexpr n_layers = cm::lgp1((H > W) ? H : W);
+  static constexpr uint8_t n_layers = cm::lgp1((H > W) ? H : W);
   NaoImage const img[n_layers];
 };
 
