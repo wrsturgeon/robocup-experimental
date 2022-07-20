@@ -1,8 +1,12 @@
-#ifndef MEASUREMENT_FIELD_LINES_HPP_
-#define MEASUREMENT_FIELD_LINES_HPP_
+#include <options.hpp>
+#if MEASURE_ENABLED
+#ifndef MEASURE_FIELD_LINES_HPP_
+#define MEASURE_FIELD_LINES_HPP_
 
-#include <measurement/units.hpp>
-#include <util/xoshiro.hpp>
+#include <measure/units.hpp>
+#include <rnd/xoshiro.hpp>
+
+namespace measure {
 
 
 
@@ -85,4 +89,10 @@ Position sample_field_lines() {
   } while (true);
 }
 
-#endif // MEASUREMENT_FIELD_LINES_HPP_
+
+
+} // namespace measure
+
+#endif // MEASURE_FIELD_LINES_HPP_
+
+#endif // MEASURE_ENABLED

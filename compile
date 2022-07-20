@@ -88,7 +88,7 @@ fi
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
-MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_DISPLAY_ON=${TEST} -D_XOPEN_SOURCE=700"
+MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
 INCLUDES="-I./src -I./eigen -I./naoqi_driver/include"
 FLAGS="-march=native -funit-at-a-time -Wall -Wextra -Werror"
 
@@ -98,6 +98,15 @@ then
   INCLUDES="${INCLUDES} $(sdl2-config --cflags)"
 else
   FLAGS="${FLAGS} -Ofast"
+fi
+
+if [ "${TEST}" -eq 1 ]
+then
+  for dir in ./src/*/
+  do
+    DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
+    FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
+  done
 fi
 
 ALL="${FLAGS} ${MACROS} ${INCLUDES}"

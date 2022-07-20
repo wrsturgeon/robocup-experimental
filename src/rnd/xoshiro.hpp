@@ -1,11 +1,13 @@
-#ifndef UTIL_XOSHIRO_HPP_
-#define UTIL_XOSHIRO_HPP_
+#include <options.hpp>
+#if RND_ENABLED
+#ifndef RND_XOSHIRO_HPP_
+#define RND_XOSHIRO_HPP_
 
 // Some edits to Blackman & Vigna's xoshiro PRNGs.
 
 #include <stdint.h>
 
-#include <util/options.hpp>
+#include <options.hpp>
 #include <util/specifiers.hpp>
 
 namespace rnd {
@@ -92,4 +94,6 @@ rnd::t next() {
 
 } // namespace rnd
 
-#endif // UTIL_XOSHIRO_HPP_
+#endif // RND_XOSHIRO_HPP_
+
+#endif // RND_ENABLED
