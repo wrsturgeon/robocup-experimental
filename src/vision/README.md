@@ -1,0 +1,1 @@
+Methods for perceiving the world from visual input to the robot.
