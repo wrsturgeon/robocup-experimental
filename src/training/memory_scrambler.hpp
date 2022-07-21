@@ -3,6 +3,7 @@
 #ifndef TRAINING_MEMORY_SCRAMBLER_HPP_
 #define TRAINING_MEMORY_SCRAMBLER_HPP_
 
+#include <SDL.h>
 #include <stdint.h>
 
 #include <measure/units.hpp>

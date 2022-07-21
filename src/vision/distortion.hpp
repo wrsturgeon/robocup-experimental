@@ -3,6 +3,7 @@
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
+#include <SDL.h>
 #include <math.h>
 
 #include <measure/units.hpp>        // idx_t

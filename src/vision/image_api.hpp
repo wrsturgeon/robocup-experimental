@@ -3,6 +3,7 @@
 #ifndef VISION_IMAGE_API_HPP_
 #define VISION_IMAGE_API_HPP_
 
+#include <SDL.h>
 #include <stdint.h>
 
 #include <alloca.h> // For some reason Eigen needs this--again probably my fault, will look into it

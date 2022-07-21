@@ -3,6 +3,8 @@
 #ifndef VISION_PYRAMID_HPP_
 #define VISION_PYRAMID_HPP_
 
+#include <SDL.h>
+
 #include <util/constexpr_math.hpp>
 #include <vision/image_api.hpp>
 
