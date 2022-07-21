@@ -3,16 +3,35 @@
 set -eu # Exit on first error
 shopt -s nullglob # Don't iterate if there are no elements to do so
 
+# Verify arguments
 if [ $# -ne 2 ]
 then
   echo "Syntax: ${0} <player name> <jersey #>"
   exit 1
 fi
 
+# Check for root permissions
+if [ "${EUID}" -eq 0 ]
+then
+  echo "Please don't run as root"
+  exit 1
+fi
 
 
-read -n 1 -p "Please plug in your UNFORMATTED >2GB flash drive and confirm that you're ready [y/n]: "
-echo '' # Newline after user input
+
+echo
+echo 'About to start the reflash process. Please make sure you have the following things ready to go:'
+echo '  - Unformatted >2GB flash drive'
+echo '  - Ethernet cable that can plug in to your computer'
+echo
+
+read -n 1 -p "If you're ready, please plug in your flash drive, then confirm that you wouldn't mind permanently erasing EVERYTHING on it [y/n]: "
+if [ -z "${REPLY}" ]
+then
+  echo 'No input given; exiting'
+  exit 1
+fi
+echo # Newline after unterminated user input
 if [ ${REPLY} != y ]
 then
   exit 1
@@ -20,17 +39,32 @@ fi
 
 
 
-rm -rf flash && mkdir flash && cd flash
-
-
-
 # Detect OS
 case "$(uname -s)" in
   Darwin)
     OS=mac
+    LIST_DRIVES='diskutil list external physical'
+    UNMOUNT='diskutil unmountDisk'
+    echo
+    echo 'Please go to System Preferences > Security & Privacy > Privacy > Full Disk Access and check if Terminal is enabled.'
+    echo "If so, type 'y'; otherwise, do it, then CLOSE AND QUIT Terminal before trying this again. (Don't forget to turn it off again after you're done!)"
+    read -n 1 -p "Does Terminal have full-disk access? [y/n]: "
+    if [ -z "${REPLY}" ]
+    then
+      echo 'No input given; exiting'
+      exit 1
+    fi
+    echo # Newline after unterminated user input
+    if [ ${REPLY} != y ]
+    then
+      exit 1
+    fi
+    brew install pv 2>/dev/null
     ;;
   Linux)
     OS=linux
+    LIST_DRIVES=
+    sudo apt-get install pv
     ;;
   *)
     echo "Unsupported OS"
@@ -43,10 +77,50 @@ BITS=$(getconf LONG_BIT)
 
 
 
+# Erase USB
+echo
+echo 'Listing external devices:'
+echo
+${LIST_DRIVES}
+echo
+echo 'Which of the above partitions is the USB flash drive?'
+echo '(If nothing showed up, please make sure the USB is plugged in.)'
+echo 'Press enter without typing anything to abort.'
+read -p "If you're ABSOLUTELY SURE, please copy the exact path from above (e.g. /dev/...): "
+if [ -z ${REPLY} ]
+then
+  echo 'Aborted without incident'
+  exit 0
+fi
+if [ "${REPLY:0:5}" != '/dev/' ]
+then
+  echo 'Invalid path; exiting'
+  exit 1
+fi
+if [ ${REPLY:0:10} = '/dev/rdisk' ]
+then
+  DRIVE=${REPLY}
+elif [ ${REPLY:0:9} = '/dev/disk' ]
+then
+  DRIVE="/dev/r${REPLY:5}"
+else
+  echo 'Invalid path; exiting'
+  exit 1
+fi
+echo
+# sudo su root -c "echo 'Wiping... 🚽🧻'; pv < /dev/zero > ${DRIVE} -s 2G -S"
+diskutil zeroDisk force short ${DRIVE}
+
+
+
 # Download OpenNAO (thanks, UTAustin Villa!)
-wget -O opennao.opn https://www.cs.utexas.edu/~AustinVilla/software/opennao-atom-system-image-2.1.4.13_2015-08-27.opn
+if [ ! -f ~/opennao.opn ]
+then
+  wget -O ~/opennao.opn https://www.cs.utexas.edu/~AustinVilla/software/opennao-atom-system-image-2.1.4.13_2015-08-27.opn
+fi
 
 # Download Flasher
+rm -rf ./flasher*
 wget -O flasher.tar.gz https://community-static.aldebaran.com/resources/2.1.0.19/flasher-2.1.0.19-${OS}${BITS}.tar.gz
 tar -xzf flasher.tar.gz
 find . -type d -maxdepth 1 -iname 'flasher*' -print -quit | xargs -I{} mv {} ./flasher
@@ -54,6 +128,31 @@ rm flasher.tar.gz
 
 
 
-echo -e "\nPlease read these instructions to follow after entering your password:\n1. Wait a few seconds, then click the newly opened window (may be behind everything)\n2. In the first box, select ${PWD}/opennao.opn\n3. In the second, select your flash drive\n4. Enable factory reset\n5. Click Write\n\nPrompting for password to run SoftBank's official flasher..."
-set +e; sudo ./flasher/flasher ./opennao.opn; set -e # If this doesn't work, still delete the folder
-cd .. && rm -r ./flash
+# Flash the USB (with user input)
+echo
+echo 'Next steps:'
+echo '  1. Wait a few seconds, then click the newly opened window (may be behind everything)'
+echo '  2. In the first box, select ~/opennao.opn'
+echo '  3. In the second, select your flash drive'
+echo '  4. Enable factory reset'
+echo '  5. Click Write'
+echo
+# Temporarily disable exit-on-fail since we want to delete the folder either way
+set +e; ./flasher/flasher ./opennao.opn; set -e
+rm -r ./flasher
+
+
+
+echo 'Next steps:'
+echo '  1. Remove the USB and plug it into the NAO'
+echo '  2. Press the chest button until it starts the reset (~5 seconds)'
+echo '  3. Plug your computer into the NAO'
+echo '  4. Wait about 20 minutes'
+echo
+
+read -n 1 -p "Please plug in your UNFORMATTED >2GB flash drive and confirm that you're ready [y/n]: "
+echo # Newline after user input
+if [ ${REPLY} != y ]
+then
+  exit 1
+fi
