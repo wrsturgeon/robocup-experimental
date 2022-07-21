@@ -14,6 +14,8 @@ namespace sdl {
 
 
 
+class WindowClosedError : public std::runtime_error { using std::runtime_error::runtime_error; };
+
 struct BorderSizes {
   int left, right, top, bottom;
 };
@@ -188,6 +190,20 @@ MEMBER_INLINE uint32_t Window::pixel_format() {
         SDL_GetError()};
   return r;
 }
+
+
+
+class Popup : public Window {
+public:
+  Popup(int w, int h, char const *const title = "UPennalizers")
+        : Window{w, h, title} {
+    try {
+      do {
+        handle_events();
+      } while (true);
+    } catch (WindowClosedError) {}
+  }
+};
 
 
 

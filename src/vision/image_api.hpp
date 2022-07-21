@@ -5,9 +5,10 @@
 
 #include <stdint.h>
 
-#include <alloca.h>
+#include <alloca.h> // For some reason Eigen needs this--again probably my fault, will look into it
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
+#include <sdl/window.hpp>
 #include <util/specifiers.hpp>
 
 namespace vision {
@@ -39,12 +40,17 @@ namespace vision { // Reopen
 class NaoImage {
 public:
   NaoImage(NaoImage const&) = delete;
+  MEMBER_INLINE void popup();
 protected:
   static constexpr int format = Eigen::StorageOptions::RowMajor;
   using imsize_t = Eigen::Sizes<IMAGE_W, IMAGE_H, 3>;
   using internal_t = Eigen::TensorFixedSize<uint8_t, imsize_t, format, pxidx_t>;
   internal_t internal; // Underlying Eigen tensor holding pixel values
 };
+
+MEMBER_INLINE void NaoImage::popup() {
+  sdl::Popup(IMAGE_W, IMAGE_H);
+}
 
 
 
