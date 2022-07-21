@@ -137,8 +137,8 @@ ALL="${FLAGS} ${MACROS} ${INCLUDES}"
 if [ "${TEST}" -eq 1 ]
 then
   ./code-checker
-  find ./src -type f -name '*.*pp' | xargs -t -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
-  find ./src -type f -name '*.c' | xargs -t -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
+  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
+  find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
 	rm -f ./tmp_compiled
 fi
 
