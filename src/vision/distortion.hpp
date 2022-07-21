@@ -3,12 +3,13 @@
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
+#include <vision/image_api.hpp>     // int16_t
+
 #include <math.h>
 
 #include <measure/units.hpp>        // idx_t
 #include <util/constexpr_math.hpp>  // rshift
 #include <util/specifiers.hpp>      // INLINE
-#include <vision/image_api.hpp>     // int16_t
 
 namespace vision {
 

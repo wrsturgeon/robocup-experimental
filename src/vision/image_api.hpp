@@ -3,12 +3,13 @@
 #ifndef VISION_IMAGE_API_HPP_
 #define VISION_IMAGE_API_HPP_
 
+#include <sdl/window.hpp>
+
 #include <stdint.h>
 
 #include <alloca.h> // For some reason Eigen needs this--again probably my fault, will look into it
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
-#include <sdl/window.hpp>
 #include <util/specifiers.hpp>
 
 namespace vision {
