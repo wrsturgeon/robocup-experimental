@@ -1,38 +1,47 @@
 #!/bin/bash
 
 # Exit on first error
-set -e
+set -eu
 
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Collecting data on OS & intended build
 
+# Read command-line argument for build type
 DEBUG=0
 TEST=0
+NAO=0
 case "${1}" in
   release)
     ;; # for now
   debug)
-    DEBUG=1;;
+    DEBUG=1
+    ;;
   test)
     DEBUG=1
-    TEST=1;;
+    TEST=1
+    ;;
+  nao)
+    NAO=1
+    ;;
   *)
-    echo "Syntax: ${0} <release|debug|test>"
-    exit 1;;
+    echo "Syntax: ${0} <nao|release|debug|test>"
+    exit 1
+    ;;
 esac
 
-# Detect operating system
+# Detect operating system & CMake
 case "$(uname -s)" in
   Darwin)
-    OS=mac;;
+    OS=mac
+    ;;
   Linux)
-    OS=linux;;
-  CYGWIN*|MINGW32*|MSYS*|MINGW*)
-    OS=windows;; # my condolences
+    OS=linux
+    ;;
   *)
     echo "Unsupported OS"
-    exit 1;;
+    exit 1
+    ;;
 esac
 
 # Detect architecture
@@ -51,6 +60,14 @@ fi
 # Download updated submodules (Eigen, etc.)
 git submodule update --init --recursive
 
+# Install QIBuild
+if [ -z $(which qibuild) ]
+then
+  rm -rf ./.qi
+  cd ./qibuild && pip install . && cd ..
+  qibuild config --wizard
+fi
+
 # Download NaoQI SDK if not already present
 if [ ! -d ./naoqi-sdk ]
 then
@@ -64,12 +81,12 @@ then
   # This is going to make Git go berserk
   tar -xzf naoqi-sdk.tar.gz
   
+  # Delete the original compressed file
+  rm naoqi-sdk.tar.gz
+  
   # Remove the horrific filename extension
   # The resulting folder (naoqi-sdk) is .gitignore'd
   find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
-  
-  # Delete the original compressed file
-  rm naoqi-sdk.tar.gz
 fi
 
 if [ "${DEBUG}" -eq 1 ]
@@ -89,17 +106,19 @@ fi
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
-INCLUDES="-I./src -I./eigen -I./naoqi_driver/include"
-FLAGS="-march=native -funit-at-a-time -Wall -Wextra -Werror"
+INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include"
+FLAGS="-march=native -funit-at-a-time -fomit-frame-pointer -Wall -Wextra -Werror"
 
 if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -g -O0"
   INCLUDES="${INCLUDES} $(sdl2-config --cflags)"
+  MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
   FLAGS="${FLAGS} -Ofast"
 fi
 
+# Enable every module if we're testing
 if [ "${TEST}" -eq 1 ]
 then
   for dir in ./src/*/
@@ -114,8 +133,8 @@ ALL="${FLAGS} ${MACROS} ${INCLUDES}"
 if [ "${TEST}" -eq 1 ]
 then
   ./code-checker
-  find ./src -type f -name '*.*pp' | xargs -t -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
-  find ./src -type f -name '*.c' | xargs -t -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
+  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
+  find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
 	rm -f ./tmp_compiled
 fi
 

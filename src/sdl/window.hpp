@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <util/specifiers.hpp>
+
 namespace sdl {
 
 
@@ -51,27 +53,27 @@ protected:
   bool const owns_sdl_init;
   SDL_Window* window;
   SDL_Surface* surface;
-  void handle_events();
-  BorderSizes border_sizes();
-  int display_index();
-  SDL_DisplayMode display_mode();
-  ColorData gamma_ramp();
-  uint32_t id();
-  float opacity();
-  uint32_t pixel_format();
-  float brightness() { return SDL_GetWindowBrightness(window); }
-  void const* data(char const *const name) { return SDL_GetWindowData(window, name); }
-  uint32_t flags() { return SDL_GetWindowFlags(window); }
-  bool input_grabbed() { return SDL_GetWindowGrab(window); }
-  // ICCProfile icc_profile(size_t s) { return ICCProfile(window, &s); }
-  // bool keyboard_grabbed() { return SDL_GetWindowKeyboardGrab(window); }
-  Coordinate max_size() { Coordinate c; SDL_GetWindowMaximumSize(window, &c.x, &c.y); return c; }
-  Coordinate min_size() { Coordinate c; SDL_GetWindowMinimumSize(window, &c.x, &c.y); return c; }
-  // bool mouse_grabbed() { return SDL_GetWindowMouseGrab(window); }
-  // SDL_Rect const* mouse_rect() { return SDL_GetWindowMouseRect(window); }
-  Coordinate position() { Coordinate c; SDL_GetWindowPosition(window, &c.x, &c.y); return c; }
-  Coordinate size() { Coordinate c; SDL_GetWindowSize(window, &c.x, &c.y); return c; }
-  char const* title() { return SDL_GetWindowTitle(window); }
+  MEMBER_INLINE void handle_events();
+  MEMBER_INLINE BorderSizes border_sizes();
+  MEMBER_INLINE int display_index();
+  MEMBER_INLINE SDL_DisplayMode display_mode();
+  MEMBER_INLINE ColorData gamma_ramp();
+  MEMBER_INLINE uint32_t id();
+  MEMBER_INLINE float opacity();
+  MEMBER_INLINE uint32_t pixel_format();
+  MEMBER_INLINE float brightness() { return SDL_GetWindowBrightness(window); }
+  MEMBER_INLINE void const* data(char const *const name) { return SDL_GetWindowData(window, name); }
+  MEMBER_INLINE uint32_t flags() { return SDL_GetWindowFlags(window); }
+  MEMBER_INLINE bool input_grabbed() { return SDL_GetWindowGrab(window); }
+  // MEMBER_INLINE ICCProfile icc_profile(size_t s) { return ICCProfile(window, &s); }
+  // MEMBER_INLINE bool keyboard_grabbed() { return SDL_GetWindowKeyboardGrab(window); }
+  MEMBER_INLINE Coordinate max_size() { Coordinate c; SDL_GetWindowMaximumSize(window, &c.x, &c.y); return c; }
+  MEMBER_INLINE Coordinate min_size() { Coordinate c; SDL_GetWindowMinimumSize(window, &c.x, &c.y); return c; }
+  // MEMBER_INLINE bool mouse_grabbed() { return SDL_GetWindowMouseGrab(window); }
+  // MEMBER_INLINE SDL_Rect const* mouse_rect() { return SDL_GetWindowMouseRect(window); }
+  MEMBER_INLINE Coordinate position() { Coordinate c; SDL_GetWindowPosition(window, &c.x, &c.y); return c; }
+  MEMBER_INLINE Coordinate size() { Coordinate c; SDL_GetWindowSize(window, &c.x, &c.y); return c; }
+  MEMBER_INLINE char const* title() { return SDL_GetWindowTitle(window); }
 };
 
 
@@ -115,7 +117,7 @@ Window::~Window() {
 
 
 
-void Window::handle_events() {
+MEMBER_INLINE void Window::handle_events() {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
@@ -129,7 +131,7 @@ void Window::handle_events() {
 
 
 
-BorderSizes Window::border_sizes() {
+MEMBER_INLINE BorderSizes Window::border_sizes() {
   BorderSizes s;
   if (SDL_GetWindowBordersSize(window, &s.top, &s.left, &s.bottom, &s.right)) {
     throw std::runtime_error{
@@ -139,7 +141,7 @@ BorderSizes Window::border_sizes() {
   return s;
 }
 
-int Window::display_index() {
+MEMBER_INLINE int Window::display_index() {
   int r = SDL_GetWindowDisplayIndex(window);
   if (r < 0) throw std::runtime_error{
         std::string{"Couldn't get window display index: "} +
@@ -147,7 +149,7 @@ int Window::display_index() {
   return r;
 }
 
-SDL_DisplayMode Window::display_mode() {
+MEMBER_INLINE SDL_DisplayMode Window::display_mode() {
   SDL_DisplayMode m;
   if (SDL_GetWindowDisplayMode(window, &m)) throw std::runtime_error{
         std::string{"Couldn't get window display mode: "} +
@@ -155,7 +157,7 @@ SDL_DisplayMode Window::display_mode() {
   return m;
 }
 
-ColorData Window::gamma_ramp() {
+MEMBER_INLINE ColorData Window::gamma_ramp() {
   ColorData c;
   if (SDL_GetWindowGammaRamp(window, &c.r, &c.g, &c.b)) throw std::runtime_error{
         std::string{"Couldn't get window gamma ramp: "} +
@@ -163,7 +165,7 @@ ColorData Window::gamma_ramp() {
   return c;
 }
 
-uint32_t Window::id() {
+MEMBER_INLINE uint32_t Window::id() {
   uint32_t r = SDL_GetWindowID(window);
   if (!r) throw std::runtime_error{
         std::string{"Couldn't get window ID: "} +
@@ -171,7 +173,7 @@ uint32_t Window::id() {
   return r;
 }
 
-float Window::opacity() {
+MEMBER_INLINE float Window::opacity() {
   float r;
   if (SDL_GetWindowOpacity(window, &r)) throw std::runtime_error{
         std::string{"Couldn't get window opacity: "} +
@@ -179,7 +181,7 @@ float Window::opacity() {
   return r;
 }
 
-uint32_t Window::pixel_format() {
+MEMBER_INLINE uint32_t Window::pixel_format() {
   uint32_t r = SDL_GetWindowPixelFormat(window);
   if (r == SDL_PIXELFORMAT_UNKNOWN) throw std::runtime_error{
         std::string{"Couldn't get window pixel format: "} +

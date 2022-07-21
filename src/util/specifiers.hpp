@@ -7,7 +7,8 @@ namespace util {
 
 
 
-#define INLINE __attribute__((always_inline)) inline
+#define MEMBER_INLINE inline __attribute__((always_inline))
+#define INLINE static MEMBER_INLINE
 
 
 

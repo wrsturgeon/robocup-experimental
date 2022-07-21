@@ -8,7 +8,7 @@
 #include <alloca.h>
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
-#include <options.hpp>     // IMAGE_W/H
+#include <util/specifiers.hpp>
 
 namespace vision {
 
@@ -19,12 +19,12 @@ class pxpos_t {
 public:
   pxpos_t(pxpos_t const&) = delete;
   explicit pxpos_t(pxidx_t x = 0, pxidx_t y = 0) : x{x}, y{y} {}
-  operator std::string() const { return '(' +
+  MEMBER_INLINE operator std::string() const { return '(' +
         std::to_string(x) + "x, " +
         std::to_string(y) + "y)"; }
   pxidx_t const x = 0;
   pxidx_t const y = 0;
-  uint32_t r2() const { return (x * x) + (y * y); }
+  MEMBER_INLINE uint32_t r2() const { return (x * x) + (y * y); }
 };
 
 } // Close namespace temporarily for #include
