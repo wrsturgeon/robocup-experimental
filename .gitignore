@@ -7,7 +7,6 @@
 !.*
 !Makefile
 !compile
-!code-checker
 !reflash
 
 # Prerequisites
@@ -43,6 +42,9 @@
 *.exe
 *.out
 *.app
+
+# Debug info
+*.dSYM
 
 # Mac Finder attributes
 .DS_Store
