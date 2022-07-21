@@ -107,7 +107,7 @@ fi
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
 INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include"
-FLAGS="-march=native -funit-at-a-time -fomit-frame-pointer -Wall -Wextra -Werror"
+FLAGS="-Wall -Wextra -Werror"
 
 if [ "${DEBUG}" -eq 1 ]
 then
@@ -115,7 +115,7 @@ then
   INCLUDES="${INCLUDES} $(sdl2-config --cflags)"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
-  FLAGS="${FLAGS} -Ofast"
+  FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer -static"
 fi
 
 # Enable every module if we're testing
