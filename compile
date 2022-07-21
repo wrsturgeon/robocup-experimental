@@ -31,14 +31,14 @@ case "${1}" in
 esac
 
 # Detect operating system
+NOSTATIC=
 case "$(uname -s)" in
   Darwin)
     OS=mac
-    NOSTATIC='YES'
+    NOSTATIC=YES
     ;;
   Linux)
     OS=linux
-    NOSTATIC=''
     ;;
   *)
     echo "Unsupported OS"
@@ -48,7 +48,7 @@ esac
 
 # Detect architecture
 BITS=$(getconf LONG_BIT)
-if [ "${OS}" = 'mac' ]
+if [ ${OS} = mac ]
 then
   CORES=$(sysctl -n hw.ncpu)
 else
