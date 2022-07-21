@@ -132,15 +132,17 @@ then
   done
 fi
 
-ALL="${FLAGS} ${MACROS} ${INCLUDES}"
+ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
 
 if [ "${TEST}" -eq 1 ]
 then
-  ./code-checker
-  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL}; \
-  find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL}; \
+  ./scripts/code-checker.sh
+  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS}
+  if [ ${OS} != mac ]
+  then
+    find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS}
+  fi
 	rm -f ./tmp_compiled
 fi
 
-set -x
-clang++ -std=c++20 -o run ./src/main.cpp ${ALL}
+clang++ -std=c++20 -o run ./src/main.cpp ${ALL_FLAGS}
