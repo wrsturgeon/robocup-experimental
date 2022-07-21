@@ -29,7 +29,7 @@ class Scrambler {
 public:
   Scrambler(Scrambler const&) = delete;
   Scrambler() : rnd_uses_left{0} {}
-  Memory const* store_and_recall(Memory const *const current); // THIS CAN AND WILL BE NULL FOR THE FIRST (1<<abits) CALLS
+  MEMBER_INLINE Memory const* store_and_recall(Memory const *const current); // THIS CAN AND WILL BE NULL FOR THE FIRST (1<<abits) CALLS
 protected:
   static_assert(abits, "Scrambler abits can't be 0");
   static constexpr size_t n = static_cast<size_t>(1) << abits;
@@ -48,7 +48,7 @@ protected:
  * Randomly indexes, replaces that entry, and returns the older one.
  */
 template <uint8_t abits>
-Memory const* Scrambler<abits>::store_and_recall(Memory const *const current) {
+MEMBER_INLINE Memory const* Scrambler<abits>::store_and_recall(Memory const *const current) {
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
     rnd_persistent = rnd::next();

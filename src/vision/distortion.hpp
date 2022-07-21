@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-#include <measure/units.hpp>    // idx_t
+#include <measure/units.hpp>        // idx_t
 #include <util/constexpr_math.hpp>  // rshift
 #include <util/specifiers.hpp>      // INLINE
 #include <vision/image_api.hpp>     // int16_t
@@ -24,8 +24,8 @@ public:
   Lens(Lens const&) = delete;
   Lens(int16_t radial = 0, int16_t tangential_x = 0, int16_t tangential_y = 0) :
         radial{radial}, tangential_x{tangential_x}, tangential_y{tangential_y}, inv_lr{128} {}
-  template <uint32_t diag_sq> INLINE pxpos_t undistort(pxpos_t px);
-  template <uint32_t diag_sq> INLINE pxpos_t redistort(pxpos_t px);
+  template <uint32_t diag_sq> MEMBER_INLINE pxpos_t undistort(pxpos_t px);
+  template <uint32_t diag_sq> MEMBER_INLINE pxpos_t redistort(pxpos_t px);
 protected:
   int16_t radial; // 8 bits used; extra for smooth gradient descent
   int16_t tangential_x;
@@ -42,7 +42,7 @@ protected:
  *   x' = x / (1 + radial * x^2)
  */
 template <uint32_t diag_sq>
-INLINE pxpos_t Lens::redistort(pxpos_t px) {
+MEMBER_INLINE pxpos_t Lens::redistort(pxpos_t px) {
   uint16_t r2 = util::rshift<util::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
   int16_t scaled = (radial * r2 /* 32-bit */) >> 16 /* 16-bit */; // Multiplied by the learnable parameter.
   return pxpos_t{

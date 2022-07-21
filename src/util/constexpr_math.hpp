@@ -28,7 +28,7 @@ INLINE constexpr T rshift(T x) {
 
 // Log base-2, plus one (floored).
 template <typename T = size_t>
-constexpr uint8_t lgp1(T x) {
+INLINE constexpr uint8_t lgp1(T x) {
   static_assert(std::is_integral<T>::value, "Can't lgp1 a non-integral type");
   return x ? 1 + lgp1(x >> 1) : 0;
 }

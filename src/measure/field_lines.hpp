@@ -5,12 +5,13 @@
 
 #include <measure/units.hpp>
 #include <rnd/xoshiro.hpp>
+#include <util/specifiers.hpp>
 
 namespace measure {
 
 
 
-Position sample_field_lines() {
+INLINE Position sample_field_lines() {
   static constexpr uint8_t rnd_uses = BITS >> 4; // 16b each time
   static rnd::t rnd_persistent;
   static uint8_t rnd_uses_left = 0;

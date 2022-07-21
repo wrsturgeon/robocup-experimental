@@ -7,7 +7,6 @@
 
 #include <stdint.h>
 
-#include <options.hpp>
 #include <util/specifiers.hpp>
 
 namespace rnd {
@@ -29,11 +28,11 @@ worldwide. This software is distributed without any warranty.
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
-static constexpr INLINE rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (64 - k)); }
+INLINE constexpr rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (64 - k)); }
 
 static rnd::t s[4] = {0xe220a8397b1dcdaf, 0x6e789e6aa1b965f4, 0x6c45d188009454f, 0xf88bb8a8724c81ec};
 
-rnd::t next() {
+INLINE rnd::t next() {
 	const rnd::t result = rotl<23>(s[0] + s[3]) + s[0];
 
 	const rnd::t t = s[1] << 17;
@@ -67,11 +66,11 @@ worldwide. This software is distributed without any warranty.
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
 template <uint8_t k>
-static INLINE rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (32 - k)); }
+INLINE constexpr rnd::t rotl(const rnd::t x) { return (x << k) | (x >> (32 - k)); }
 
 static rnd::t s[4] = {0x7b1dcdaf, 0xa1b965f4, 0x8009454f, 0x724c81ec};
 
-rnd::t next() {
+INLINE rnd::t next() {
 	const rnd::t result = rotl<7>(s[0] + s[3]) + s[0];
 
 	const rnd::t t = s[1] << 9;
