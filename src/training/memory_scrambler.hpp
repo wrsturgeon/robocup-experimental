@@ -3,11 +3,12 @@
 #ifndef TRAINING_MEMORY_SCRAMBLER_HPP_
 #define TRAINING_MEMORY_SCRAMBLER_HPP_
 
+#include <vision/image_api.hpp>
+
 #include <stdint.h>
 
 #include <measure/units.hpp>
 #include <rnd/xoshiro.hpp>
-#include <vision/image_api.hpp>
 
 namespace training {
 

@@ -3,8 +3,8 @@
 #ifndef VISION_PYRAMID_HPP_
 #define VISION_PYRAMID_HPP_
 
-#include <util/constexpr_math.hpp>
 #include <vision/image_api.hpp>
+#include <util/constexpr_math.hpp>
 
 namespace vision {
 

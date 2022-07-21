@@ -88,11 +88,12 @@ then
   # Download SDL2 if not already present
   sdl2-config --version > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
-    cd SDL && \
+    cd ./SDL && \
     mkdir build && cd build && \
     ../configure && \
     make -j${CORES} && \
-    sudo make install)
+    sudo make install && \
+    cd .. && sudo rm -rf ./SDL)
 fi
 
 
