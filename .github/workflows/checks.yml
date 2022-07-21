@@ -28,3 +28,5 @@ jobs:
         run: |
           sudo apt-get -qq install -y libsdl2-dev # impatience lol
           ./compile test
+          ./compile release
+          ./run
