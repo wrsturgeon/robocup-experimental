@@ -34,10 +34,11 @@ esac
 case "$(uname -s)" in
   Darwin)
     OS=mac
-    NOSTATIC=YES
+    NOSTATIC='YES'
     ;;
   Linux)
     OS=linux
+    NOSTATIC=''
     ;;
   *)
     echo "Unsupported OS"
