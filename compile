@@ -25,7 +25,7 @@ case "${1}" in
     NAO=1
     ;;
   *)
-    echo "Syntax: ${0} <nao|release|debug|test>"
+    echo "Syntax: ${0} <nao|release|debug|test> modules to enable ..."
     exit 1
     ;;
 esac
@@ -34,9 +34,11 @@ esac
 case "$(uname -s)" in
   Darwin)
     OS=mac
+    NOSTATIC='YES'
     ;;
   Linux)
     OS=linux
+    NOSTATIC=''
     ;;
   *)
     echo "Unsupported OS"
@@ -98,16 +100,25 @@ fi
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
-INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include"
-FLAGS="-Wall -Wextra -Werror"
+INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
+FLAGS="-Wall -Wextra -Werror -Wno-unused-command-line-argument"
+
+# Enable selected modules
+for arg in "${@:2}"; do
+  MACROS="${MACROS} -D_$(echo ${arg} | tr '[:lower:]' '[:upper:]')_ENABLED=1"
+done
 
 if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -g -O0"
-  INCLUDES="${INCLUDES} $(sdl2-config --cflags)"
+  INCLUDES="${INCLUDES}"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
-  FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer -static"
+  FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer"
+  if [ -z "${NOSTATIC}" ]
+  then
+    FLAGS="${FLAGS} -static"
+  fi
 fi
 
 # Enable every module if we're testing
@@ -130,4 +141,5 @@ then
 	rm -f ./tmp_compiled
 fi
 
+set -x
 clang++ -std=c++20 -o run ./src/main.cpp ${ALL}
