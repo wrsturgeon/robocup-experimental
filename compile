@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Exit on first error
-set -eu
+set -eu # Exit on first error
+shopt -s nullglob # Don't iterate if there are no elements to do so
 
 
 

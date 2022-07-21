@@ -1,10 +1,12 @@
 #!/bin/bash
 
-set -eu
+set -eu # Exit on first error
 shopt -s nullglob # Don't iterate if there are no elements to do so
 echo -e 'Checking style & safety...\n\n\n'
 
 EXIT_CODE=0
+
+
 
 # Assert only '#include <...>' and not '#include "..."'
 if grep -Rn ./src -e '#include "'
@@ -13,11 +15,15 @@ then
   EXIT_CODE=1
 fi
 
+
+
 # Assert #include guards & namespaces
 for dir in ./src/*/
 do
   dirname=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev)
   DIRUPPER=$(echo ${dirname} | tr '[:lower:]' '[:upper:]')
+
+
 
   # Make sure folder name is lowercase
   if [ "${dirname}" != "$(echo ${dirname} | tr '[:upper:]' '[:lower:]')" ]
@@ -26,12 +32,16 @@ do
     EXIT_CODE=1
   fi
 
+
+
   # Make sure the folder has its own README
   if [ ! -f "${dir}/README.md" ]
   then
     echo -e "Please create a README.md in ${dir}\n\n\n"
     EXIT_CODE=1
   fi
+
+
 
   # Make sure this folder is known to src/options.hpp
   if ! grep -qw "_${DIRUPPER}_ENABLED" ./src/options.hpp
@@ -40,10 +50,14 @@ do
     EXIT_CODE=1
   fi
 
+
+
   for file in ${dir}*.hpp
   do
     filename=$(echo ${file} | rev | cut -d/ -f1 | rev)
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr '.' '_')
+
+
 
     # Include guards at the top
     if [ "$(head -n5 ${file} | tr -d '\n')" != "#include <options.hpp>#if ${DIRUPPER}_ENABLED#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
@@ -52,6 +66,8 @@ do
       EXIT_CODE=1
     fi
 
+
+
     # Ending those guards & namespace
     if [ "$(tail -n6 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_#endif // ${DIRUPPER}_ENABLED" ]
     then
@@ -59,12 +75,16 @@ do
       EXIT_CODE=1
     fi
 
+
+
     # Ending newline
     if [ ! -z "$(tail -c1 ${file})" ]
     then
       echo -e "Missing newline at the end of ${file}\n\n\n"
       EXIT_CODE=1
     fi
+
+
 
     # No #includes inside namespace
     LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
@@ -79,8 +99,12 @@ do
       fi
     fi
 
+
+
   done
 done
+
+
 
 if [ ${EXIT_CODE} -eq 0 ]
 then

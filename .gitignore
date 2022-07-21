@@ -8,6 +8,7 @@
 !Makefile
 !compile
 !code-checker
+!reflash
 
 # Prerequisites
 *.d

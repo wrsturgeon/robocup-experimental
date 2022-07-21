@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -eu # Exit on first error
+shopt -s nullglob # Don't iterate if there are no elements to do so
+
+if [ $# -ne 2 ]
+then
+  echo "Syntax: ${0} <player name> <jersey #>"
+  exit 1
+fi
+
+
+
+read -n 1 -p "Please plug in your UNFORMATTED >2GB flash drive and confirm that you're ready [y/n]: "
+echo '' # Newline after user input
+if [ ${REPLY} != y ]
+then
+  exit 1
+fi
+
+
+
+rm -rf flash && mkdir flash && cd flash
+
+
+
+# Detect OS
+case "$(uname -s)" in
+  Darwin)
+    OS=mac
+    ;;
+  Linux)
+    OS=linux
+    ;;
+  *)
+    echo "Unsupported OS"
+    exit 1
+    ;;
+esac
+
+# Detect architecture
+BITS=$(getconf LONG_BIT)
+
+
+
+# Download OpenNAO (thanks, UTAustin Villa!)
+wget -O opennao.opn https://www.cs.utexas.edu/~AustinVilla/software/opennao-atom-system-image-2.1.4.13_2015-08-27.opn
+
+# Download Flasher
+wget -O flasher.tar.gz https://community-static.aldebaran.com/resources/2.1.0.19/flasher-2.1.0.19-${OS}${BITS}.tar.gz
+tar -xzf flasher.tar.gz
+find . -type d -maxdepth 1 -iname 'flasher*' -print -quit | xargs -I{} mv {} ./flasher
+rm flasher.tar.gz
+
+
+
+echo -e "\nPlease read these instructions to follow after entering your password:\n1. Wait a few seconds, then click the newly opened window (may be behind everything)\n2. In the first box, select ${PWD}/opennao.opn\n3. In the second, select your flash drive\n4. Enable factory reset\n5. Click Write\n\nPrompting for password to run SoftBank's official flasher..."
+set +e; sudo ./flasher/flasher ./opennao.opn; set -e # If this doesn't work, still delete the folder
+cd .. && rm -r ./flash
