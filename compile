@@ -100,7 +100,7 @@ fi
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
 INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-Wall -Wextra -Werror"
+FLAGS="-Wall -Wextra -Werror -Wno-unused-command-line-argument"
 
 # Enable selected modules
 for arg in "${@:2}"; do
