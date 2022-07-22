@@ -1,4 +1,3 @@
-#include <options.hpp>
 #if MEASURE_ENABLED
 #ifndef MEASURE_UNITS_HPP_
 #define MEASURE_UNITS_HPP_
@@ -8,8 +7,6 @@
 #include <stdint.h>
 
 #include <eigen.hpp>
-
-#include <util/specifiers.hpp>
 
 namespace measure {
 
@@ -66,4 +63,6 @@ protected:
 
 #endif // MEASURE_UNITS_HPP_
 
+#else // MEASURE_ENABLED
+#pragma message("Skipping units.hpp; measure module disabled")
 #endif // MEASURE_ENABLED

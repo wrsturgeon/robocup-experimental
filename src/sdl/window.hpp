@@ -1,4 +1,3 @@
-#include <options.hpp>
 #if SDL_ENABLED
 #ifndef SDL_WINDOW_HPP_
 #define SDL_WINDOW_HPP_
@@ -8,7 +7,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <util/specifiers.hpp>
 #include <vision/image_api.hpp>
 
 namespace sdl {
@@ -34,7 +32,8 @@ struct ColorData {
 class Window {
 public:
   Window(Window const&) = delete;
-  Window(int w, int h, char const *const title);
+  Window(int w, int h, char const *const title = "UPennalizers");
+  template <vision::pxidx_t w, vision::pxidx_t h> Window(vision::NaoImage<w, h> const& img, char const *const title = "UPennalizers");
   ~Window();
 protected:
 
@@ -45,7 +44,7 @@ protected:
 
   // Custom member functions
   MEMBER_INLINE void handle_events();
-  MEMBER_INLINE void display();
+  template <vision::pxidx_t w, vision::pxidx_t h> MEMBER_INLINE void display(vision::NaoImage<w, h> const& img);
 
   // Ported from C-style SDL
   MEMBER_INLINE BorderSizes border_sizes();
@@ -70,7 +69,7 @@ protected:
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Custom member functions
 
-Window::Window(int w, int h, char const *const title = "UPennalizers")
+Window::Window(int w, int h, char const *const title)
       : owns_sdl_init{!SDL_WasInit(SDL_INIT_VIDEO)} {
   if (owns_sdl_init) {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)) throw std::runtime_error{
@@ -100,6 +99,19 @@ Window::Window(int w, int h, char const *const title = "UPennalizers")
 
 
 
+template <vision::pxidx_t w, vision::pxidx_t h>
+Window::Window(vision::NaoImage<w, h> const& surface, char const *const title)
+      : Window::Window::Window{w, h, title} {
+  display(surface);
+  try {
+    do {
+      handle_events();
+    } while (true);
+  } catch (WindowClosedError) {}
+}
+
+
+
 Window::~Window() {
   SDL_DestroyWindow(window);
   if (owns_sdl_init) {
@@ -114,7 +126,7 @@ MEMBER_INLINE void Window::handle_events() {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
-        throw std::runtime_error{"Window manually closed"};
+        throw WindowClosedError{"Window manually closed"};
       default:
         SDL_UpdateWindowSurface(window);
     }
@@ -123,8 +135,9 @@ MEMBER_INLINE void Window::handle_events() {
 
 
 
-MEMBER_INLINE void Window::display(vision::NaoImage const& img) {
-  SDL_BlitSurface(img, nullptr, surface, nullptr);
+template <vision::pxidx_t w, vision::pxidx_t h>
+MEMBER_INLINE void Window::display(vision::NaoImage<w, h> const& img) {
+  SDL_BlitSurface(img.surface(), nullptr, surface, nullptr);
 }
 
 
@@ -191,24 +204,10 @@ MEMBER_INLINE uint32_t Window::pixel_format() {
 
 
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Specialized subclasses
-
-class Popup : public Window {
-public:
-  Popup(int w, int h, char const *const title = "UPennalizers")
-        : Window{w, h, title} {
-    try {
-      do {
-        handle_events();
-      } while (true);
-    } catch (WindowClosedError) {}
-  }
-};
-
-
-
 } // namespace sdl
 
 #endif // SDL_WINDOW_HPP_
 
+#else // SDL_ENABLED
+#pragma message("Skipping window.hpp; sdl module disabled")
 #endif // SDL_ENABLED

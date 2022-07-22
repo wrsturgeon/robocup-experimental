@@ -1,4 +1,3 @@
-#include <options.hpp>
 #if RND_ENABLED
 #ifndef RND_XOSHIRO_HPP_
 #define RND_XOSHIRO_HPP_
@@ -6,8 +5,6 @@
 // Some edits to Blackman & Vigna's xoshiro PRNGs.
 
 #include <stdint.h>
-
-#include <util/specifiers.hpp>
 
 namespace rnd {
 
@@ -95,4 +92,6 @@ INLINE rnd::t next() {
 
 #endif // RND_XOSHIRO_HPP_
 
+#else // RND_ENABLED
+#pragma message("Skipping xoshiro.hpp; rnd module disabled")
 #endif // RND_ENABLED

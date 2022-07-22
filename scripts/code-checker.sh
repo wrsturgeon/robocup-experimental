@@ -20,6 +20,20 @@ then
   EXIT_CODE=1
 fi
 
+# Assert no manual <options.hpp>
+if grep -Rn ./src -e 'options.hpp' --exclude=options.hpp
+then
+  echo -e "Please don't manually #include <options.hpp>; it's included automatically\n\n\n"
+  EXIT_CODE=1
+fi
+
+# Assert no manual <specifiers.hpp>
+if grep -Rn ./src -e 'specifiers.hpp' --exclude=specifiers.hpp
+then
+  echo -e "Please don't manually #include <specifiers.hpp>; it's included automatically\n\n\n"
+  EXIT_CODE=1
+fi
+
 # Assert #include guards & namespaces
 for dir in ./src/*/
 do
@@ -53,16 +67,16 @@ do
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr '.' '_')
 
     # Include guards at the top
-    if [ "$(head -n5 ${file} | tr -d '\n')" != "#include <options.hpp>#if ${DIRUPPER}_ENABLED#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
+    if [ "$(head -n4 ${file} | tr -d '\n')" != "#if ${DIRUPPER}_ENABLED#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
     then
-      echo -e "Missing or unsafe #include guards at the top of ${file}; please use the following:\n\n#include <options.hpp>\n#if ${DIRUPPER}_ENABLED\n#ifndef ${DIRUPPER}_${FILEUPPER}_\n#define ${DIRUPPER}_${FILEUPPER}_\n\n[your #includes]\n\nnamespace ${dirname} {\n\n\n"
+      echo -e "Missing or unsafe #include guards at the top of ${file}; please use the following:\n\n#if ${DIRUPPER}_ENABLED\n#ifndef ${DIRUPPER}_${FILEUPPER}_\n#define ${DIRUPPER}_${FILEUPPER}_\n\n[your #includes]\n\nnamespace ${dirname} {\n\n\n"
       EXIT_CODE=1
     fi
 
     # Ending those guards & namespace
-    if [ "$(tail -n6 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_#endif // ${DIRUPPER}_ENABLED" ]
+    if [ "$(tail -n8 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_#else // ${DIRUPPER}_ENABLED#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")#endif // ${DIRUPPER}_ENABLED" ]
     then
-      echo -e "Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n\n} // namespace ${dirname}\n\n#endif // ${DIRUPPER}_${FILEUPPER}_\n\n#endif // ${DIRUPPER}_ENABLED\n\n\n"
+      echo -e "Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n\n} // namespace ${dirname}\n\n#endif // ${DIRUPPER}_${FILEUPPER}_\n\n#else // ${DIRUPPER}_ENABLED\n#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")\n#endif // ${DIRUPPER}_ENABLED\n\n\n"
       EXIT_CODE=1
     fi
 
@@ -79,7 +93,8 @@ do
     then
       echo -e "Please use \`namespace ${dirname}\` in ${file}\n\n\n"
     else
-      if [ "$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)" -gt "${LAST_NAMESPACE}" ]
+      LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
+      if [ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ]
       then
         echo -e "Please make sure all headers are #include'd before opening a namespace in ${file}\n\n\n"
         EXIT_CODE=1

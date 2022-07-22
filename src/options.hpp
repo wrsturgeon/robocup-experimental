@@ -1,7 +1,4 @@
-#ifndef UTIL_OPTIONS_HPP_
-#define UTIL_OPTIONS_HPP_
-
-
+// No include guards; taken care of in code_checker.sh
 
 // Detects system architecture (32b/64b) and inform various algorithms accordingly.
 // Compile with the compiler argument -D_BITS={32,64} (whichever it is)
@@ -109,7 +106,3 @@
 #else
 #define TRAINING_ENABLED 0
 #endif // ifdef _TRAINING_ENABLED
-
-
-
-#endif // UTIL_OPTIONS_HPP_
