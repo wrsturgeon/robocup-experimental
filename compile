@@ -147,10 +147,10 @@ if [ "${TEST}" -eq 1 ]
 then
   ./scripts/code-checker.sh
   find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linker okay
-  # if [ ${OS} != mac ]
-  # then
-  #   find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linkier okay
-  # fi
+  if [ ${OS} != mac ]
+  then
+    find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linkier okay
+  fi
 	rm -f ./tmp_compiled
 fi
 
