@@ -1,11 +1,9 @@
-#include <options.hpp>
 #if MEASURE_ENABLED
 #ifndef MEASURE_FIELD_LINES_HPP_
 #define MEASURE_FIELD_LINES_HPP_
 
 #include <measure/units.hpp>
 #include <rnd/xoshiro.hpp>
-#include <util/specifiers.hpp>
 
 namespace measure {
 
@@ -96,4 +94,6 @@ INLINE Position sample_field_lines() {
 
 #endif // MEASURE_FIELD_LINES_HPP_
 
+#else // MEASURE_ENABLED
+#pragma message("Skipping field_lines.hpp; measure module disabled")
 #endif // MEASURE_ENABLED

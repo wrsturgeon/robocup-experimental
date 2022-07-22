@@ -1,15 +1,14 @@
-#include <options.hpp>
 #if VISION_ENABLED
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
-#include <vision/image_api.hpp>     // int16_t
+#include <vision/image_api.hpp>
 
 #include <math.h>
 
 #include <measure/units.hpp>        // idx_t
 #include <util/constexpr_math.hpp>  // rshift
-#include <util/specifiers.hpp>      // INLINE
+#include <vision/pxpos.hpp>         // pxpos_t
 
 namespace vision {
 
@@ -57,4 +56,6 @@ MEMBER_INLINE pxpos_t Lens::redistort(pxpos_t px) {
 
 #endif // VISION_DISTORTION_HPP_
 
+#else // VISION_ENABLED
+#pragma message("Skipping distortion.hpp; vision module disabled")
 #endif // VISION_ENABLED

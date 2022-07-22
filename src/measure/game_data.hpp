@@ -1,4 +1,3 @@
-#include <options.hpp>
 #if MEASURE_ENABLED
 #ifndef MEASURE_GAME_DATA_HPP_
 #define MEASURE_GAME_DATA_HPP_
@@ -20,4 +19,6 @@ struct GameData {
 
 #endif // MEASURE_GAME_DATA_HPP_
 
+#else // MEASURE_ENABLED
+#pragma message("Skipping game_data.hpp; measure module disabled")
 #endif // MEASURE_ENABLED

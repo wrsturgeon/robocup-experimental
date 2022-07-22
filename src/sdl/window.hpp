@@ -1,4 +1,3 @@
-#include <options.hpp>
 #if SDL_ENABLED
 #ifndef SDL_WINDOW_HPP_
 #define SDL_WINDOW_HPP_
@@ -8,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <util/specifiers.hpp>
+#include <vision/image_api.hpp>
 
 namespace sdl {
 
@@ -28,34 +27,26 @@ struct ColorData {
   uint16_t r, g, b;
 };
 
-// class ICCProfile {
-// public:
-//   ICCProfile(ICCProfile const&) = delete;
-//   ICCProfile() = delete;
-//   ~ICCProfile() { SDL_free(data); }
-//   operator void const *const() const { return data; }
-// protected:
-//   friend class Window;
-//   ICCProfile(SDL_Window *const w, size_t *const s);
-//   void *const data;
-// };
-
-// ICCProfile::ICCProfile(SDL_Window *const w, size_t *const s) : data{SDL_GetWindowICCProfile(w, s)} {
-//   if (!data) throw std::runtime_error{std::string{"Failed to get ICC profile: "} + SDL_GetError()};
-// }
-
 
 
 class Window {
 public:
   Window(Window const&) = delete;
-  Window(int w, int h, char const *const title);
+  Window(int w, int h, char const *const title = "UPennalizers");
+  template <vision::pxidx_t w, vision::pxidx_t h> Window(vision::NaoImage<w, h> const& img, char const *const title = "UPennalizers");
   ~Window();
 protected:
+
+  // Member variables
   bool const owns_sdl_init;
   SDL_Window* window;
   SDL_Surface* surface;
+
+  // Custom member functions
   MEMBER_INLINE void handle_events();
+  template <vision::pxidx_t w, vision::pxidx_t h> MEMBER_INLINE void display(vision::NaoImage<w, h> const& img);
+
+  // Ported from C-style SDL
   MEMBER_INLINE BorderSizes border_sizes();
   MEMBER_INLINE int display_index();
   MEMBER_INLINE SDL_DisplayMode display_mode();
@@ -67,12 +58,8 @@ protected:
   MEMBER_INLINE void const* data(char const *const name) { return SDL_GetWindowData(window, name); }
   MEMBER_INLINE uint32_t flags() { return SDL_GetWindowFlags(window); }
   MEMBER_INLINE bool input_grabbed() { return SDL_GetWindowGrab(window); }
-  // MEMBER_INLINE ICCProfile icc_profile(size_t s) { return ICCProfile(window, &s); }
-  // MEMBER_INLINE bool keyboard_grabbed() { return SDL_GetWindowKeyboardGrab(window); }
   MEMBER_INLINE Coordinate max_size() { Coordinate c; SDL_GetWindowMaximumSize(window, &c.x, &c.y); return c; }
   MEMBER_INLINE Coordinate min_size() { Coordinate c; SDL_GetWindowMinimumSize(window, &c.x, &c.y); return c; }
-  // MEMBER_INLINE bool mouse_grabbed() { return SDL_GetWindowMouseGrab(window); }
-  // MEMBER_INLINE SDL_Rect const* mouse_rect() { return SDL_GetWindowMouseRect(window); }
   MEMBER_INLINE Coordinate position() { Coordinate c; SDL_GetWindowPosition(window, &c.x, &c.y); return c; }
   MEMBER_INLINE Coordinate size() { Coordinate c; SDL_GetWindowSize(window, &c.x, &c.y); return c; }
   MEMBER_INLINE char const* title() { return SDL_GetWindowTitle(window); }
@@ -80,7 +67,9 @@ protected:
 
 
 
-Window::Window(int w, int h, char const *const title = "UPennalizers")
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Custom member functions
+
+Window::Window(int w, int h, char const *const title)
       : owns_sdl_init{!SDL_WasInit(SDL_INIT_VIDEO)} {
   if (owns_sdl_init) {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)) throw std::runtime_error{
@@ -110,6 +99,19 @@ Window::Window(int w, int h, char const *const title = "UPennalizers")
 
 
 
+template <vision::pxidx_t w, vision::pxidx_t h>
+Window::Window(vision::NaoImage<w, h> const& surface, char const *const title)
+      : Window::Window::Window{w, h, title} {
+  display(surface);
+  try {
+    do {
+      handle_events();
+    } while (true);
+  } catch (WindowClosedError) {}
+}
+
+
+
 Window::~Window() {
   SDL_DestroyWindow(window);
   if (owns_sdl_init) {
@@ -124,7 +126,7 @@ MEMBER_INLINE void Window::handle_events() {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
-        throw std::runtime_error{"Window manually closed"};
+        throw WindowClosedError{"Window manually closed"};
       default:
         SDL_UpdateWindowSurface(window);
     }
@@ -132,6 +134,15 @@ MEMBER_INLINE void Window::handle_events() {
 }
 
 
+
+template <vision::pxidx_t w, vision::pxidx_t h>
+MEMBER_INLINE void Window::display(vision::NaoImage<w, h> const& img) {
+  SDL_BlitSurface(img.surface(), nullptr, surface, nullptr);
+}
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Ported from C-style SDL
 
 MEMBER_INLINE BorderSizes Window::border_sizes() {
   BorderSizes s;
@@ -193,22 +204,10 @@ MEMBER_INLINE uint32_t Window::pixel_format() {
 
 
 
-class Popup : public Window {
-public:
-  Popup(int w, int h, char const *const title = "UPennalizers")
-        : Window{w, h, title} {
-    try {
-      do {
-        handle_events();
-      } while (true);
-    } catch (WindowClosedError) {}
-  }
-};
-
-
-
 } // namespace sdl
 
 #endif // SDL_WINDOW_HPP_
 
+#else // SDL_ENABLED
+#pragma message("Skipping window.hpp; sdl module disabled")
 #endif // SDL_ENABLED
