@@ -37,19 +37,22 @@ namespace vision { // Reopen
 
 
 
+template <pxidx_t w = IMAGE_W, pxidx_t h = IMAGE_H>
 class NaoImage {
 public:
   NaoImage(NaoImage const&) = delete;
   MEMBER_INLINE void popup();
+  operator SDL_Surface*() { return SDL_CreateRGBSurfaceWithFormatFrom(internal.data(), w, h, 24, 3 * w, SDL_PIXELFORMAT_RGB24); }
 protected:
   static constexpr int format = Eigen::StorageOptions::RowMajor;
-  using imsize_t = Eigen::Sizes<IMAGE_W, IMAGE_H, 3>;
+  using imsize_t = Eigen::Sizes<w, h, 3>;
   using internal_t = Eigen::TensorFixedSize<uint8_t, imsize_t, format, pxidx_t>;
   internal_t internal; // Underlying Eigen tensor holding pixel values
 };
 
-MEMBER_INLINE void NaoImage::popup() {
-  sdl::Popup(IMAGE_W, IMAGE_H);
+template <pxidx_t w = IMAGE_W, pxidx_t h = IMAGE_H>
+MEMBER_INLINE void NaoImage<w, h>::popup() {
+  sdl::Popup(w, h);
 }
 
 
