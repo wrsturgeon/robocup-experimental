@@ -101,23 +101,23 @@ fi
 if [ "${DEBUG}" -eq 1 ]
 then
   # Download SDL2 if not already present
-  sdl2-config --version > /dev/null || (\
+  sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
     cd ./SDL && \
     mkdir build && cd build && \
     ../configure && \
     make -j${CORES} && \
     sudo make install && \
-    cd .. && sudo rm -rf ./SDL)
+    cd ../.. && sudo rm -r ./SDL)
 fi
 
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
-MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
+MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG}"
 INCLUDES="-I./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-Wall -Wextra -Werror"
+FLAGS="-std=c++20 -Wall -Wextra -Werror"
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -152,11 +152,7 @@ ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
 if [ "${TEST}" -eq 1 ]
 then
   find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linker okay
-  if [ ${OS} != mac ]
-  then
-    find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linkier okay
-  fi
 	rm -f ./tmp_compiled
 fi
 
-clang++ -std=c++20 -o run ./src/main.cpp ${ALL_FLAGS}
+clang++ -o run ./src/main.cpp ${ALL_FLAGS}
