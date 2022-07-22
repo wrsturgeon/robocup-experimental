@@ -56,7 +56,7 @@ case "$(uname -s)" in
     sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev
     ;;
   *)
-    echo "Unsupported OS"
+    echo 'Unsupported OS'
     exit 1
     ;;
 esac
@@ -117,7 +117,7 @@ fi
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG}"
 INCLUDES="-I./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-std=c++20 -Wall -Wextra -Werror"
+FLAGS='-std=c++20 -Wall -Wextra -Werror'
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -127,7 +127,6 @@ done
 if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -g -O0"
-  INCLUDES="${INCLUDES}"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
   FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer"
@@ -151,8 +150,12 @@ ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
 
 if [ "${TEST}" -eq 1 ]
 then
+  echo 'Checking compilation...'
   find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linker okay
 	rm -f ./tmp_compiled
+  echo 'All good!'
 fi
 
+echo 'Compiling...'
 clang++ -o run ./src/main.cpp ${ALL_FLAGS}
+echo 'Done!'
