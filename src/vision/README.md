@@ -1,1 +1,3 @@
-Methods for perceiving the world from visual input to the robot.
+## Vision
+
+Methods for ~~perceiving~~ constructing the world around us.
