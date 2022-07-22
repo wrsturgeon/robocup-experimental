@@ -101,14 +101,14 @@ fi
 if [ "${DEBUG}" -eq 1 ]
 then
   # Download SDL2 if not already present
-  sdl2-config --version > /dev/null || (\
+  sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
     cd ./SDL && \
     mkdir build && cd build && \
     ../configure && \
     make -j${CORES} && \
     sudo make install && \
-    cd .. && sudo rm -r ./SDL)
+    cd ../.. && sudo rm -r ./SDL)
 fi
 
 
