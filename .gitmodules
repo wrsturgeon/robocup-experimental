@@ -4,6 +4,3 @@
 [submodule "naoqi_driver"]
 	path = naoqi_driver
 	url = https://github.com/ros-naoqi/naoqi_driver
-[submodule "SDL"]
-	path = SDL
-	url = https://github.com/libsdl-org/SDL.git

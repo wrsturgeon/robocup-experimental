@@ -13,6 +13,13 @@ then
   EXIT_CODE=1
 fi
 
+# Assert <eigen.h> and not any of Eigen's headers
+if grep -Rn ./src -e '#include' --exclude=eigen.hpp | grep Eigen
+then
+  echo -e "Please #include <eigen.hpp> instead of Eigen's internal headers\n\n\n"
+  EXIT_CODE=1
+fi
+
 # Assert #include guards & namespaces
 for dir in ./src/*/
 do

@@ -3,6 +3,13 @@
 # Exit on first error
 set -eu
 
+syntaxerr() { echo "Syntax: ${0} <nao|release|debug|test> modules to enable ..."; exit 1; }
+
+if [ ${#} -lt 1 ]
+then
+  syntaxerr
+fi
+
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Collecting data on OS & intended build
@@ -25,8 +32,7 @@ case "${1}" in
     NAO=1
     ;;
   *)
-    echo "Syntax: ${0} <nao|release|debug|test> modules to enable ..."
-    exit 1
+    syntaxerr
     ;;
 esac
 
@@ -39,6 +45,9 @@ case "$(uname -s)" in
   Linux)
     OS=linux
     NOSTATIC=''
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    sudo apt-get update -y
+    sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev
     ;;
   *)
     echo "Unsupported OS"
@@ -102,7 +111,7 @@ fi
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_XOPEN_SOURCE=700"
 INCLUDES="-I./src -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-Wall -Wextra -Werror -Wno-unused-command-line-argument"
+FLAGS="-Wall -Wextra -Werror"
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -137,10 +146,10 @@ ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
 if [ "${TEST}" -eq 1 ]
 then
   ./scripts/code-checker.sh
-  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS}
+  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -std=c++20 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linker okay
   if [ ${OS} != mac ]
   then
-    find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS}
+    find ./src -type f -name '*.c' | xargs -I{} clang -c -std=c17 -o ./tmp_compiled {} ${ALL_FLAGS} -Wno-unused-command-line-argument # Unused linkier okay
   fi
 	rm -f ./tmp_compiled
 fi
