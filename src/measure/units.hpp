@@ -7,8 +7,7 @@
 #include <math.h>
 #include <stdint.h>
 
-#include <alloca.h>   // For some reason Eigen needs this, but it's probably my fault -- check later
-#include <Eigen/Core> // Eigen::bfloat16
+#include <eigen.hpp>
 
 #include <util/specifiers.hpp>
 

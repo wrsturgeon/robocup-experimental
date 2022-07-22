@@ -7,8 +7,7 @@
 
 #include <stdint.h>
 
-#include <alloca.h> // For some reason Eigen needs this--again probably my fault, will look into it
-#include <unsupported/Eigen/CXX11/TensorSymmetry>
+#include <eigen.hpp>
 
 #include <util/specifiers.hpp>
 
