@@ -154,4 +154,4 @@ then
 	rm -f ./tmp_compiled
 fi
 
-# clang++ -std=c++20 -o run ./src/main.cpp ${ALL_FLAGS}
+clang++ -std=c++20 -o run ./src/main.cpp ${ALL_FLAGS}
