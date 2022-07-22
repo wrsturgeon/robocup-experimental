@@ -41,7 +41,7 @@ case "$(uname -s)" in
   Darwin)
     OS=mac
     NOSTATIC='YES'
-    xcode-select --install
+    set +e && xcode-select --install && set -e
     ;;
   Linux)
     OS=linux
