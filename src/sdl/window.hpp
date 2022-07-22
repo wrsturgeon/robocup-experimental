@@ -2,18 +2,32 @@
 #ifndef SDL_WINDOW_HPP_
 #define SDL_WINDOW_HPP_
 
-#include <SDL.h>
-
 #include <stdexcept>
 #include <string>
 
-#include <vision/image_api.hpp>
+#include <SDL.h>
+/**
+ *  Problem at SDL_stdinc.h:35:
+ *    #define _DARWIN_C_SOURCE 1 // for memset_pattern4()
+ *  memset_pattern4 defined at /Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/include/string.h:156
+ *    ...but only #if __DARWIN_C_LEVEL >= __DARWIN_C_FULL (which is 900000)
+ *    __DARWIN_C_LEVEL is defined 3 different ways, all in sys/cdefs.h lines 737-741:
+ *      Verbatim:
+ *        #if   defined(_ANSI_SOURCE)
+ *        #define __DARWIN_C_LEVEL        __DARWIN_C_ANSI
+ *        #elif defined(_POSIX_C_SOURCE) && !defined(_DARWIN_C_SOURCE) && !defined(_NONSTD_SOURCE)
+ *        #define __DARWIN_C_LEVEL        _POSIX_C_SOURCE
+ *        #else
+ *        #define __DARWIN_C_LEVEL        __DARWIN_C_FULL
+ *        #endif
+ *      In this project, we CAN'T define _ANSI_SOURCE or _POSIX_C_SOURCE if we want SDL2
+ *        Which means we can't define _XOPEN_SOURCE (as we were before), since that defines _POSIX_C_SOURCE
+ *        Well, shit--workaround in progress
+ */
 
 namespace sdl {
 
 
-
-class WindowClosedError : public std::runtime_error { using std::runtime_error::runtime_error; };
 
 struct BorderSizes {
   int left, right, top, bottom;
@@ -33,8 +47,8 @@ class Window {
 public:
   Window(Window const&) = delete;
   Window(int w, int h, char const *const title = "UPennalizers");
-  template <vision::pxidx_t w, vision::pxidx_t h> Window(vision::NaoImage<w, h> const& img, char const *const title = "UPennalizers");
   ~Window();
+  MEMBER_INLINE void display(SDL_Surface* surface, bool popup = false);
 protected:
 
   // Member variables
@@ -44,7 +58,7 @@ protected:
 
   // Custom member functions
   MEMBER_INLINE void handle_events();
-  template <vision::pxidx_t w, vision::pxidx_t h> MEMBER_INLINE void display(vision::NaoImage<w, h> const& img);
+  class Closed : public std::runtime_error { using std::runtime_error::runtime_error; };
 
   // Ported from C-style SDL
   MEMBER_INLINE BorderSizes border_sizes();
@@ -99,19 +113,6 @@ Window::Window(int w, int h, char const *const title)
 
 
 
-template <vision::pxidx_t w, vision::pxidx_t h>
-Window::Window(vision::NaoImage<w, h> const& surface, char const *const title)
-      : Window::Window::Window{w, h, title} {
-  display(surface);
-  try {
-    do {
-      handle_events();
-    } while (true);
-  } catch (WindowClosedError) {}
-}
-
-
-
 Window::~Window() {
   SDL_DestroyWindow(window);
   if (owns_sdl_init) {
@@ -126,7 +127,7 @@ MEMBER_INLINE void Window::handle_events() {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
-        throw WindowClosedError{"Window manually closed"};
+        throw Closed{"Window manually closed"};
       default:
         SDL_UpdateWindowSurface(window);
     }
@@ -135,9 +136,16 @@ MEMBER_INLINE void Window::handle_events() {
 
 
 
-template <vision::pxidx_t w, vision::pxidx_t h>
-MEMBER_INLINE void Window::display(vision::NaoImage<w, h> const& img) {
-  SDL_BlitSurface(img.surface(), nullptr, surface, nullptr);
+MEMBER_INLINE void Window::display(SDL_Surface* surface, bool popup) {
+  SDL_BlitSurface(surface, nullptr, surface, nullptr);
+
+  if (popup) {
+    try {
+      do {
+        handle_events();
+      } while (true);
+    } catch (Closed) {}
+  }
 }
 
 

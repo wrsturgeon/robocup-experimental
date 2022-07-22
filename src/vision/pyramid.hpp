@@ -2,8 +2,8 @@
 #ifndef VISION_PYRAMID_HPP_
 #define VISION_PYRAMID_HPP_
 
-#include <vision/image_api.hpp>
 #include <util/constexpr_math.hpp>
+#include <vision/image_api.hpp>
 
 namespace vision {
 
@@ -14,7 +14,7 @@ class Pyramid {
 // public:
 protected:
   static constexpr uint8_t n_layers = util::lgp1((h > w) ? h : w);
-  NaoImage<w, h> const img[n_layers];
+  NaoImage<w, h> const im[n_layers];
 };
 
 

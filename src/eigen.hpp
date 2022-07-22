@@ -2,7 +2,7 @@
 #define EIGEN_HPP_
 
 // For whatever reason, Eigen needs these headers (probably a mistake I made, but this works for now)
-#include <memory>
+// #include <memory>
 #include <alloca.h>
 #include <unsupported/Eigen/CXX11/TensorSymmetry>
 
