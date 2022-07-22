@@ -1,1 +1,3 @@
-Defines methods to interact with a NAO V5 robot.
+## Nao
+
+Protocols to interact with the NAO V5.
