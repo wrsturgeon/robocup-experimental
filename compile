@@ -108,7 +108,7 @@ then
     ../configure && \
     make -j${CORES} && \
     sudo make install && \
-    cd .. && sudo rm -rf ./SDL)
+    cd .. && sudo rm -r ./SDL)
 fi
 
 
