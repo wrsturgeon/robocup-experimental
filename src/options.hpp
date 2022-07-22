@@ -71,6 +71,12 @@
 
 
 
+#ifdef _DEMOS_ENABLED
+#define DEMOS_ENABLED _DEMOS_ENABLED
+#else
+#define DEMOS_ENABLED 0
+#endif // ifdef _DEMOS_ENABLED
+
 #ifdef _LEGACY_ENABLED
 #define LEGACY_ENABLED _LEGACY_ENABLED
 #else
