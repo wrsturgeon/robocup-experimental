@@ -25,42 +25,45 @@ class Pyramid;
 template <pxidx_t w, pxidx_t h>
 class Pyramid {
 public:
-  Pyramid() { for (uint8_t i = 0; i < n_levels; ++i) std::construct_at(level<i>()); }
-  ~Pyramid() { for (uint8_t i = 0; i < n_levels; ++i) std::destroy_at(level<i>()); }
-  void init(NaoImage<w, h> const& im);
+  Pyramid() { for (uint8_t i = 0; i < n_layers; ++i) std::construct_at(layer<i>()); }
+  ~Pyramid() { for (uint8_t i = 0; i < n_layers; ++i) std::destroy_at(layer<i>()); }
 protected:
-  template <uint8_t i> class Level;
-  template <uint8_t i> MEMBER_INLINE constexpr Level<i>* level() const;
-  static constexpr uint8_t n_levels = util::lgp1((h > w) ? h : w);
+  template <uint8_t i> class Layer;
+  template <uint8_t i> MEMBER_INLINE constexpr Layer<i>* layer() const;
+  template <uint8_t i> MEMBER_INLINE void set_layer(Layer<i> const& layer);
+  static constexpr uint8_t n_layers = util::lgp1((h > w) ? h : w);
 
   // Raw byte array--please never directly access
   // See https://en.cppreference.com/w/cpp/memory/construct_at
-  uint8_t _storage[Level<n_levels>::index()];
+  uint8_t _storage[Layer<n_layers>::index()];
 };
 
 
 
 /**
- * Level in an image-pyramid of height (w, h)
+ * Layer in an image-pyramid of height (w, h)
  * Subclasses Eigen::Matrix<uint8_t, w, h, RowMajor>
  * Only one channel (for our purposes, lumped difference)
  * Sole addition to the class is an `index` method
  *   that gives its index in bytes, assuming
- *   each non-base level is after the one immediately larger.
+ *   each non-base layer is after the one immediately larger.
  */
 template <pxidx_t w, pxidx_t h>
 template <uint8_t i>
-class Pyramid<w, h>::Level : public Eigen::Matrix<uint8_t, (w >> i), (h >> i), Eigen::StorageOptions::RowMajor> {
+class Pyramid<w, h>::Layer : public Eigen::Matrix<uint8_t, (w >> i), (h >> i), Eigen::StorageOptions::RowMajor> {
 public:
+  using Eigen::Matrix<uint8_t, (w >> i), (h >> i), Eigen::StorageOptions::RowMajor>::Matrix;
   INLINE constexpr size_t index() {
-    using last_t = Level<i - 1>; // recursively
+    using last_t = Layer<i - 1>; // recursively
     return i ? sizeof(last_t) + last_t::index() : 0;
   }
 };
 
+
+
 /**
  *  C++ arrays mandate that each element have the same type, even template arguments.
- *  But for this class we need a (variable, but compile-time)-sized array of levels,
+ *  But for this class we need a (variable, but compile-time)-sized array of layers,
  *    each of which has a different size (as a compile-time template argument).
  *  So we do what we would normally do in C:
  *    whip up an uninitialized byte array of known size,
@@ -72,9 +75,18 @@ public:
  */
 template <pxidx_t w, pxidx_t h>
 template <uint8_t i>
-MEMBER_INLINE constexpr typename Pyramid<w, h>::template Level<i>* Pyramid<w, h>::level() const {
-  static_assert(i < n_levels, "Pyramid::level(): i out of range");
-  return reinterpret_cast<Level<i>*>(_storage + Level<i>::index());
+MEMBER_INLINE constexpr typename Pyramid<w, h>::template Layer<i>* Pyramid<w, h>::layer() const {
+  static_assert(i < n_layers, "Pyramid::layer(): i out of range");
+  return reinterpret_cast<Layer<i>*>(_storage + Layer<i>::index());
+}
+
+
+
+template <pxidx_t w, pxidx_t h>
+template <uint8_t i>
+MEMBER_INLINE void Pyramid<w, h>::set_layer(Pyramid<w, h>::Layer<i> const& layer) {
+  static_assert(i < n_layers, "Pyramid::set_layer(): i out of range");
+  this->template layer<i>()->operator=(layer);
 }
 
 
