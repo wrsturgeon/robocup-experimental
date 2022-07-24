@@ -13,14 +13,6 @@ namespace measure {
 
 
 /**
- * Google Brain floating type:
- * only the first 16 bits of a 32-bit IEEE float.
- */
-using bf16_t = Eigen::bfloat16;
-
-
-
-/**
  * Half-millimeters from the center of the field.
  * Integral type, not float, so try not to add vanishingly small amounts.
  * 1 meter := 2000 pos_t
@@ -33,14 +25,17 @@ public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
   pos_t(pos_t const&) = delete;
   pos_t(int16_t mm) : internal(mm << lc) { assert((internal >> lc) == mm); }
-  bf16_t mm() const { return bf16_t(ldexpf(internal, -lc)); }
-  bf16_t meters() const { return mm() / bf16_t(1000.f); }
+  float mm() const { return ldexpf(internal, -lc); }
+  float meters() const { return mm() / 1000.f; }
   operator std::string() const { return std::to_string((internal >> lc) / 1000.f) + 'm'; }
   friend std::ostream& operator<<(std::ostream& os, pos_t const& p) { return os << static_cast<std::string>(p); }
 protected:
   int16_t internal;
   explicit operator int16_t() const { return internal; }
   static constexpr uint8_t lc = 1; // lg(conversion to mm)
+
+  // TODO: verify (and prefably autoenforce at compile time) that this fits within a SIGNED SIZE (int16_t) array
+
 };
 
 
