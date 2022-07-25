@@ -104,8 +104,8 @@ then
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
     cd ./SDL && \
-    ./autogen.sh && \
     mkdir build && cd build && \
+    ../autogen.sh && \
     ../configure && \
     make -j${CORES} && \
     sudo make install && \
