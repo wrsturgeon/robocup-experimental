@@ -128,7 +128,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O0 -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize-address-use-after-scope -fsanitize=address -fsanitize=undefined"
+  FLAGS="${FLAGS} -g -O0 -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize-address-use-after-scope -fsanitize=address -fsanitize=undefined -fsanitize=cfi"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_GLIBCXX_SANITIZE_VECTOR"
   for dir in ./src/*/
   do # Enable every module
