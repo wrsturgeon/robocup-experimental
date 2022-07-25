@@ -116,8 +116,8 @@ fi
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG}"
-INCLUDES="-I./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-std=c++20 -Wall -Wextra -Werror"
+INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
+FLAGS="-std=c++20 -Wall -Wextra -Werror -flto -fvisibility=hidden"
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -126,7 +126,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O0"
+  FLAGS="${FLAGS} -g -O0 -fprofile-instr-generate -fcoverage-mapping -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=cfi"
   INCLUDES="${INCLUDES}"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
