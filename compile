@@ -105,7 +105,7 @@ then
   then
     SDLCC=../build-scripts/clang-fat.sh
   else
-    SDLCC=clang
+    SDLCC=${CC}
   fi
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
@@ -133,7 +133,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O0 -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize-address-use-after-scope -fsanitize=address -fsanitize=undefined"
+  FLAGS="${FLAGS} -g -O0 -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize-address-use-after-scope -fsanitize=address -fsanitize=undefined -fsanitize=cfi"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_GLIBCXX_SANITIZE_VECTOR"
   for dir in ./src/*/
   do # Enable every module
@@ -146,7 +146,7 @@ fi
 
 if [ ${OS} = 'linux' ]
 then
-  FLAGS="${FLAGS} -fsanitize=cfi -fsanitize=dataflow"
+  FLAGS="${FLAGS} -fsanitize=dataflow"
 fi
 
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
@@ -160,4 +160,6 @@ fi
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
 export LSAN_OPTIONS='suppressions=lsan.supp' # Apparently Objective-C has internal memory leaks (lol)
-clang++ -o run ./src/main.cpp ${ALL_FLAGS} && ./run
+clang++ -o run ./src/main.cpp ${ALL_FLAGS}
+echo 'Running...'
+./run

@@ -16,13 +16,6 @@ then
   EXIT_CODE=1
 fi
 
-# Assert only '#include <...>' and not '#include "..."'
-if grep -Rn ./src -e '#include "\.\.'
-then
-  echo -e "Please always use #include starting from ./src (manually included) to preserve links if we move files\n"
-  EXIT_CODE=1
-fi
-
 # Assert <eigen.h> and not any of Eigen's headers
 if grep -Rn ./src -e '#include' --exclude=eigen.hpp | grep Eigen
 then
