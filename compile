@@ -98,14 +98,23 @@ then
   find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
 fi
 
+set -x
+
 if [ "${DEBUG}" -eq 1 ]
 then
   # Download SDL2 if not already present
+  if [ ${OS} = 'mac' ]
+  then
+    SDL_CONFIGURE="CC='../build-scripts/clang-fat.sh' ../configure"
+  else
+    SDL_CONFIGURE='../configure'
+  fi
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
     cd ./SDL && \
     mkdir build && cd build && \
-    ../configure && \
+    ../autogen.sh && \
+    ${SDL_CONFIGURE} && \
     make -j${CORES} && \
     sudo make install && \
     cd ../.. && sudo rm -r ./SDL)
