@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -eu
-shopt -s nullglob # Don't iterate if there are no elements to do so
+shopt -s nullglob # Don't iterate with zero elements
 echo -e 'Checking style & safety...\n'
 
 EXIT_CODE=0
@@ -13,13 +13,6 @@ if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
   echo ${INVALID_FILES} | grep -v legacy | tr ' ' '\n'
   echo -e 'Please only use .cpp, .hpp, & README.md in ./src/\n'
-  EXIT_CODE=1
-fi
-
-# Assert only '#include <...>' and not '#include "..."'
-if grep -Rn ./src -e '#include "'
-then
-  echo -e "Please always use #include <...> starting from ./src (manually included) to preserve links if we move files\n"
   EXIT_CODE=1
 fi
 

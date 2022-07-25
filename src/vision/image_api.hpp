@@ -4,11 +4,11 @@
 
 #include <stdint.h>
 
-#include <eigen.hpp>
+#include "eigen.hpp"
 
-#include <sdl/window.hpp>
-#include <vision/distortion.hpp>
-#include <vision/pxpos.hpp>
+#include "sdl/window.hpp"
+#include "vision/distortion.hpp"
+#include "vision/pxpos.hpp"
 
 namespace vision { // Reopen
 

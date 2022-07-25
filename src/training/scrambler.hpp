@@ -4,7 +4,7 @@
 
 #include <stddef.h> // size_t
 
-#include <rnd/xoshiro.hpp>
+#include "rnd/xoshiro.hpp"
 
 namespace training {
 

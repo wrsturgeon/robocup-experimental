@@ -2,8 +2,8 @@
 #ifndef MEASURE_FIELD_LINES_HPP_
 #define MEASURE_FIELD_LINES_HPP_
 
-#include <measure/units.hpp>
-#include <rnd/xoshiro.hpp>
+#include "measure/units.hpp"
+#include "rnd/xoshiro.hpp"
 
 namespace measure {
 
