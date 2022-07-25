@@ -2,9 +2,9 @@
 #ifndef VISION_WASSERSTEIN_HPP_
 #define VISION_WASSERSTEIN_HPP_
 
-#include <eigen.hpp>
+#include "eigen.hpp"
 
-#include <vision/image_api.hpp>
+#include "vision/image_api.hpp"
 
 namespace vision {
 

@@ -6,7 +6,7 @@
 #include <math.h>
 #include <stdint.h>
 
-#include <eigen.hpp>
+#include "eigen.hpp"
 
 namespace measure {
 
