@@ -103,9 +103,9 @@ then
   # Download SDL2 if not already present
   if [ ${OS} = mac ]
   then
-    SDLCC='CC=\'../build-scripts/clang-fat.sh\''
+    SDLCC="CC='../build-scripts/clang-fat.sh'"
   else
-    SDLCC='CC=clang'
+    SDLCC="CC='clang'"
   fi
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
