@@ -101,12 +101,16 @@ fi
 if [ "${DEBUG}" -eq 1 ]
 then
   # Download SDL2 if not already present
+  if [ ${OS} = mac ]
+  then
+    SDLCC='CC=../build-scripts/clang-fat.sh'
+  fi
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
     cd ./SDL && \
     ./autogen.sh && \
     mkdir build && cd build && \
-    CC='../build-scripts/clang-fat.sh' ../configure && \
+    ${SDLCC} ../configure && \
     make -j${CORES} && \
     sudo make install && \
     cd ../.. && sudo rm -r ./SDL)
