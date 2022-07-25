@@ -103,7 +103,7 @@ then
   # Download SDL2 if not already present
   if [ ${OS} = 'mac' ]
   then
-    SDL_CONFIGURE='CC=../build-scripts/clang-fat.sh ../configure'
+    SDL_CONFIGURE="CC='../build-scripts/clang-fat.sh' ../configure"
   else
     SDL_CONFIGURE='../configure'
   fi
