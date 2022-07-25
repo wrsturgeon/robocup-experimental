@@ -126,7 +126,7 @@ fi
 
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG}"
 INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-FLAGS="-std=c++20 -flto -fvisibility=hidden -Wall -Wextra -Werror -Wno-builtin-macro-redefined"
+FLAGS="-std=c++20 -flto -fvisibility=hidden -DLLVM_ENABLE_LLD=ON -Wall -Wextra -Werror -Wno-builtin-macro-redefined"
 
 # Enable selected modules
 for arg in "${@:2}"; do
