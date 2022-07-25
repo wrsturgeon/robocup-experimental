@@ -105,7 +105,7 @@ then
   then
     SDLCC=../build-scripts/clang-fat.sh
   else
-    SDLCC=${CC}
+    SDLCC=gcc
   fi
   sdl2-config --version 2>/dev/null > /dev/null || (\
     git clone https://github.com/libsdl-org/SDL && \
