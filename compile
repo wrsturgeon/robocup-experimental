@@ -98,8 +98,6 @@ then
   find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
 fi
 
-set -x
-
 if [ "${DEBUG}" -eq 1 ]
 then
   # Download SDL2 if not already present
