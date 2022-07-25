@@ -118,8 +118,8 @@ fi
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 FLAGS='-std=c++20 -march=native -mtune=native -funit-at-a-time -fmerge-all-constants -ffunction-sections -fdata-sections -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize'
 INCLUDES="-I./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
-MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG}"
-WARNINGS='-Wall -Wextra -Werror -Wstrict-aliasing -pedantic-errors -Wno-c++98-compat -Wno-c++-compat -Wno-keyword-macro -Wno-zero-length-array'
+MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
+WARNINGS='-Wall -Wextra -Werror -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-c++98-compat -Wno-c++-compat -Wno-keyword-macro -Wno-zero-length-array'
 
 # Enable selected modules
 for arg in "${@:2}"; do

@@ -60,7 +60,7 @@ Pyramid<w, h>::Pyramid(uint8_t const src[h][w]) {
 
 template <imsize_t w, imsize_t h>
 void Pyramid<w, h>::build() {
-  // Assumes we've already filled _array with valid image data
+  // Assumes we've already filled `_array` with valid image data
   
   // NOTE: AN INFINITE CONSTRUCTOR LOOP DOES *NOT* THROW A COMPILE-TIME ERROR
   // Need to verify that we have > 0 pixels to fill, else infinite loop of constructing nothing
