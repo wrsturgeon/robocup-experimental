@@ -47,8 +47,7 @@ case "$(uname -s)" in
     brew upgrade
     brew install llvm
     set +e
-    sudo xcode-select --install 2>/dev/null
-    sudo softwareupdate --all --install
+    xcode-select --install 2>/dev/null
     set -e
     ;;
   Linux)
@@ -129,7 +128,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O0 -fprofile-instr-generate -fcoverage-mapping -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=cfi"
+  FLAGS="${FLAGS} -g -O0 -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=cfi -fsanitize=safe-stack -fsanitize=dataflow"
   INCLUDES="${INCLUDES}"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
@@ -159,3 +158,4 @@ then
 fi
 
 clang++ -o run ./src/main.cpp ${ALL_FLAGS}
+ASAN_OPTIONS='detect_leaks=1' ./run
