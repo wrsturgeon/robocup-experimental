@@ -139,11 +139,6 @@ else
   FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer"
 fi
 
-if [ ${OS} = 'linux' ]
-then
-  FLAGS="${FLAGS} -fsanitize=dataflow"
-fi
-
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES}"
 
 if [ "${TEST}" -eq 1 ]
