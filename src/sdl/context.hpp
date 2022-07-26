@@ -3,6 +3,7 @@
 #define SDL_CONTEXT_HPP_
 
 #include <stdexcept>
+#include <string>
 
 #include "SDL.h"
 
