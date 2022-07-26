@@ -131,7 +131,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address"
+  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN -DG"
 else
   FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -flto -Ofast -fvisibility=hidden -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
