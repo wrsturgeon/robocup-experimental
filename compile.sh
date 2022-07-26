@@ -137,6 +137,10 @@ then
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
   for dir in ./src/*/
   do # Enable every module
+    if [ ${dir} = './src/sdl/' ]
+    then
+      continue
+    fi
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
     FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
   done
