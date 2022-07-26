@@ -6,11 +6,14 @@
 
 #include "eigen.hpp"
 
-#include "sdl/window.hpp"
 #include "vision/distortion.hpp"
 #include "vision/pxpos.hpp"
 
-namespace vision { // Reopen
+#if SDL_ENABLED
+#include "sdl/window.hpp"
+#endif // SDL_ENABLED
+
+namespace vision {
 
 
 
@@ -21,8 +24,10 @@ public:
   NaoImage() : internal{} {}
   INLINE constexpr pxidx_t width() { return w; }
   INLINE constexpr pxidx_t height() { return h; }
+#if SDL_ENABLED
   MEMBER_INLINE void popup() const { sdl::Window{w, h}.display(*this, true); }
   MEMBER_INLINE operator SDL_Surface*() const;
+#endif // SDL_ENABLED
 protected:
   static constexpr int format = Eigen::StorageOptions::RowMajor;
   using imsize_t = Eigen::Sizes<w, h, 3>;
@@ -30,12 +35,14 @@ protected:
   internal_t internal; // Underlying Eigen tensor holding pixel values
 };
 
+#if SDL_ENABLED
 template <pxidx_t w, pxidx_t h>
 MEMBER_INLINE NaoImage<w, h>::operator SDL_Surface*() const {
   return SDL_CreateRGBSurfaceWithFormatFrom(
         const_cast<typename internal_t::Scalar*>(internal.data()),
         w, h, 24, 3 * w, SDL_PIXELFORMAT_RGB24);
 }
+#endif // SDL_ENABLED
 
 
 

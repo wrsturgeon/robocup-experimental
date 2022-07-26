@@ -54,3 +54,6 @@
 .idea/
 
 naoqi-sdk/
+
+coverage/
+*.prof*
