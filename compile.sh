@@ -125,7 +125,7 @@ then
   FLAGS="${FLAGS} -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
   DEBUGFLAGS='-g -fno-omit-frame-pointer -fno-optimize-sibling-calls'
-  SANITIZE='-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor'
+  SANITIZE='-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument'
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
   for dir in ./src/*/
   do # Enable every module
