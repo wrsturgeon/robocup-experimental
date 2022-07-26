@@ -97,19 +97,7 @@ then
   find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
 fi
 
-if [ "${DEBUG}" -eq 1 ]
-then
-  # Download SDL2 if not already present
-  sdl2-config --version 2>/dev/null > /dev/null || (\
-    git clone https://github.com/libsdl-org/SDL && \
-    cd ./SDL && \
-    mkdir build && cd build && \
-    ../autogen.sh && \
-    ../configure && \
-    make -j${CORES} && \
-    sudo make install && \
-    cd ../.. && sudo rm -r ./SDL)
-fi
+# With immense fucking pleasure I banish the SDL2 install time from our CI builds 🙏
 
 
 
@@ -119,12 +107,13 @@ fi
 ./scripts/code-checker.sh
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
+SRC=${PWD}/src
 FLAGS='-std=c++20 -flto -fvisibility=hidden'
-INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -iquote ./eigen -iquote ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-iquote |g')"
+INCLUDES="-include ${PWD}/src/options.hpp -include ${PWD}/src/specifiers.hpp -iquote ${PWD}/src -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-iquote |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
-export LSAN_OPTIONS='suppressions=lsan.supp' # Apparently Objective-C has internal memory leaks (lol)
+export LSAN_OPTIONS="suppressions=${PWD}/lsan.supp" # Apparently Objective-C has internal memory leaks (lol)
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -133,8 +122,11 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi -fsanitize-coverage=trace-pc-guard -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor"
+  FLAGS="${FLAGS} -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
+  DEBUGFLAGS='-g -fno-omit-frame-pointer -fno-optimize-sibling-calls'
+  SANITIZE='-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor'
+  COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
   for dir in ./src/*/
   do # Enable every module
     if [ ${dir} = './src/sdl/' ]
@@ -157,7 +149,6 @@ then
   exit 0
 fi
 
-# https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 echo 'Compiling...'
 set -x
 clang++ -o ./run ./src/main.cpp ${ALL_FLAGS}

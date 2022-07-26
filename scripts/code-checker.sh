@@ -116,8 +116,14 @@ do
     if [ ${dirname} != 'sdl' ]
     then
       TEST_FILE="./test/src/${dirname}/${filename::${#filename}-3}cpp"
-      if [ ! -f ${TEST_FILE} ]
+      if [ -f ${TEST_FILE} ]
       then
+        if [ "$(head -n1 ${TEST_FILE})" != '#include "'${dirname}/${filename}'"' ]
+        then
+          echo -e "Please #include \"${dirname}/${filename}\" on the first line of ${TEST_FILE}"
+          EXIT_CODE=1
+        fi
+      else
         echo "Please add ${TEST_FILE} to test ./src/${dirname}/${filename}"
         EXIT_CODE=1
       fi
