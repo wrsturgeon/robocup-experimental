@@ -51,7 +51,7 @@ case "$(uname -s)" in
     OS=linux
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     sudo apt-get update -y
-    sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev clang
+    sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev
     sudo apt-get install -y lld
     ;;
   *)
@@ -133,7 +133,7 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi -fsanitize-coverage=trace-pc-guard -fsanitize-stats -fsanitize-address-use-after-return=always -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor"
+  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi -fsanitize-coverage=trace-pc-guard -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
   for dir in ./src/*/
   do # Enable every module
