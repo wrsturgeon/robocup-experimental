@@ -27,7 +27,6 @@ echo 'Checking compilation, coverage, and memory leaks...'
 # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
 for file in $(find ../test/src -type f)
 do
-  set -x
   echo "Running ${file}..."
   clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE}
   ./run_test

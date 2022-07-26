@@ -150,9 +150,7 @@ then
 fi
 
 echo 'Compiling...'
-set -x
 clang++ -o ./run ./src/main.cpp ${ALL_FLAGS}
-set +x
 echo 'Running...'
 ./run
 echo 'Done!'
