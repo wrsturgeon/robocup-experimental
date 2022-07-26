@@ -16,24 +16,31 @@ then
   EXIT_CODE=1
 fi
 
-# Assert <eigen.h> and not any of Eigen's headers
+# Assert "eigen.h" and not any of Eigen's headers
 if grep -Rn ./src -e '#include' --exclude=eigen.hpp | grep Eigen
 then
-  echo -e "Please #include <eigen.hpp> instead of Eigen's internal headers\n"
+  echo -e "Please #include "eigen.hpp" instead of Eigen's internal headers\n"
   EXIT_CODE=1
 fi
 
-# Assert no manual <options.hpp>
+# Assert no manual "options.hpp"
 if grep -Rn ./src -e 'options.hpp' --exclude=options.hpp
 then
-  echo -e "Please don't manually #include <options.hpp>; it's included automatically\n"
+  echo -e "Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
-# Assert no manual <specifiers.hpp>
+# Assert no manual "specifiers.hpp"
 if grep -Rn ./src -e 'specifiers.hpp' --exclude=specifiers.hpp
 then
-  echo -e "Please don't manually #include <specifiers.hpp>; it's included automatically\n"
+  echo -e "Please don't manually #include "specifiers.hpp"; it's included automatically\n"
+  EXIT_CODE=1
+fi
+
+# Assert no manual "eigen_matrix_plugins.hpp"
+if grep -Rn ./src -e 'eigen_matrix_plugins.hpp' --exclude=eigen.hpp
+then
+  echo -e "Please don't manually #include "eigen_matrix_plugins.hpp"; it's included in Eigen::Matrix\n"
   EXIT_CODE=1
 fi
 

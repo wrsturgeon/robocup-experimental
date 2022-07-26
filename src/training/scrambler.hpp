@@ -26,7 +26,7 @@ protected:
   static_assert(n, "Scrambler abits is too big for this OS");
   static constexpr uint8_t n_renew = BITS / abits; // Number of times we can use xoshiro result
   static constexpr rnd::t bitmask = n - 1;
-  rnd::t rnd_persistent;
+  rnd::t rnd_state;
   uint8_t rnd_uses_left;
   T const *const data[n];
 };
@@ -41,10 +41,10 @@ template <typename T, uint8_t abits>
 MEMBER_INLINE T const* Scrambler<T, abits>::store_and_recall(T const *const current) {
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
-    rnd_persistent = rnd::next();
+    rnd_state = rnd::next();
   } else { --rnd_uses_left; }
-  rnd::t rndidx = rnd_persistent & bitmask;
-  rnd_persistent >>= abits;
+  rnd::t rndidx = rnd_state & bitmask;
+  rnd_state >>= abits;
   T const *const tmp = data[rndidx];
   data[rndidx] = current;
   return tmp;
