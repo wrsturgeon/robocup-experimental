@@ -45,7 +45,7 @@ case "$(uname -s)" in
     OS=mac
     PATH=/usr/local/opt/llvm/bin:${PATH}
     brew upgrade
-    brew install llvm
+    brew install llvm 2>/dev/null
     set +e # Ignore error if command-line tools are already installed
     xcode-select --install 2>/dev/null
     set -e # Start caring about errors again
@@ -119,10 +119,10 @@ fi
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
-FLAGS='-std=c++20 -march=native -mtune=native -flto -fvisibility=hidden -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize' # -funit-at-a-time'
+FLAGS='-std=c++20 -ferror-limit=1'
 INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-isystem |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
-WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-c++98-compat -Wno-c++-compat -Wno-keyword-macro -Wno-zero-length-array'
+WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
 
 # Enable selected modules
 for arg in "${@:2}"; do
@@ -132,13 +132,9 @@ done
 if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address"
-  MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
+  MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN -DG"
 else
-  FLAGS="${FLAGS} -Ofast -fomit-frame-pointer"
-  if [ -z "${NOSTATIC}" ]
-  then
-    FLAGS="${FLAGS} -static"
-  fi
+  FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -flto -Ofast -fvisibility=hidden -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
 fi
 
 # Enable every module if we're testing
@@ -149,8 +145,6 @@ then
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
     FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
   done
-else
-  FLAGS="${FLAGS} -Ofast -march=native -funit-at-a-time -fomit-frame-pointer"
 fi
 
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"

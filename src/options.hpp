@@ -118,3 +118,11 @@
 #else
 #define WASSERSTEIN_ENABLED 0
 #endif // ifdef _WASSERSTEIN_ENABLED
+
+
+
+#ifdef _DEBUG
+#define DEBUG _DEBUG
+#else
+#define DEBUG 0
+#endif // ifdef _DEBUG
