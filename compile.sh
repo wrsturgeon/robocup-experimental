@@ -179,4 +179,4 @@ echo 'Running...'
 echo 'Done!'
 
 # Cleanup executables
-find . -maxdepth 1 -type f -perm +111 ! -iname '*.*' | xargs rm
+find . -maxdepth 1 -type f ! -name LICENSE ! -iname '*.*' | xargs rm
