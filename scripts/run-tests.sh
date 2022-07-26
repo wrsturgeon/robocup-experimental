@@ -37,7 +37,7 @@ do
   rm ./default.profraw
   HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
   (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
-  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}; exit 0) # 0 FOR NOW
+  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}; exit 1)
 done
 rm -f ./run_test
 echo 'All good!'
