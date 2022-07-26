@@ -177,3 +177,6 @@ clang++ -o run ./src/main.cpp ${ALL_FLAGS} $(sdl2-config --libs)
 echo 'Running...'
 ./run
 echo 'Done!'
+
+# Cleanup executables
+find . -maxdepth 1 -type f -perm +111 ! -iname '*.*' | xargs rm
