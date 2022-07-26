@@ -113,6 +113,16 @@ do
       fi
     fi
 
+    if [ ${dirname} != 'sdl' ]
+    then
+      TEST_FILE="./test/src/${dirname}/${filename::${#filename}-3}cpp"
+      if [ ! -f ${TEST_FILE} ]
+      then
+        echo "Please add ${TEST_FILE} to test ./src/${dirname}/${filename}"
+        EXIT_CODE=1
+      fi
+    fi
+
   done
 done
 
