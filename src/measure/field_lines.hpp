@@ -11,15 +11,15 @@ namespace measure {
 
 INLINE Position sample_field_lines() {
   static constexpr uint8_t rnd_uses = BITS >> 4; // 16b each time
-  static rnd::t rnd_persistent;
-  static uint8_t rnd_uses_left = 0;
+  static rnd::t rnd_state;
+  static uint8_t rnd_uses_left; // Not initializing: compiler doesn't need the extra first-time-calling-or-not flag
   do {
     if (!rnd_uses_left) {
       rnd_uses_left = rnd_uses - 1;
-      rnd_persistent = rnd::next();
+      rnd_state = rnd::next();
     } else { --rnd_uses_left; }
-    uint16_t x = rnd_persistent;
-    rnd_persistent >>= 16;
+    uint16_t x = rnd_state;
+    rnd_state >>= 16;
     /**
      * Table of values from the above lines as written
      * TODO: these could be reordered to be much more efficient

@@ -10,9 +10,6 @@ then
   syntaxerr
 fi
 
-# Run code checker
-./scripts/code-checker.sh
-
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Collecting data on OS & intended build
@@ -118,8 +115,11 @@ fi
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
+# Run code checker
+./scripts/code-checker.sh
+
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
-FLAGS='-std=c++20 -ferror-limit=1 -flto -fvisibility=hidden'
+FLAGS='-std=c++20 -flto -fvisibility=hidden'
 INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags | sed 's|-I|-isystem |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
@@ -137,6 +137,7 @@ then
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
 else
   FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
+  WARNINGS="${WARNINGS} -Wno-error=pass-failed"
 fi
 
 # Enable every module if we're testing
@@ -153,8 +154,7 @@ ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"
 
 if [ "${TEST}" -eq 1 ]
 then
-  echo 'Checking compilation...'
-
+  echo 'Checking leak detection...'
   # Make sure we detect a genuine (test) memory leak
   clang++ ./src/leak.cpp -o ./leak ${ALL_FLAGS}
   if ./leak >/dev/null 2>&1
@@ -165,15 +165,18 @@ then
     echo "Successfully detected test leak"
   fi
 
-  # Now make sure, knowing we can detect them, that there aren't any
-  find ./src -type f -name '*.*pp' | xargs -I{} clang++ -c -o ./tmp_compiled {} ${ALL_FLAGS}
+  echo 'Checking compilation...'
+  # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
+  find ./src -mindepth 2 -type f -name '*.*pp' | xargs -I{} clang++ -c -o ./tmp_compiled {} ${ALL_FLAGS}
 	rm -f ./tmp_compiled
   echo 'All good!'
 fi
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 echo 'Compiling...'
+set -x
 clang++ -o ./run ./src/main.cpp ${ALL_FLAGS} $(sdl2-config --libs)
+set +x
 echo 'Running...'
 ./run
 echo 'Done!'

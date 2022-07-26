@@ -88,6 +88,22 @@ INLINE rnd::t next() {
 
 #endif // 32b/64b
 
+
+
+uint8_t bit() {
+  static rnd::t state;
+  static uint8_t uses;
+  if (!uses) {
+    uses = BITS - 1;
+    state = rnd::next();
+  } else { --uses; }
+  uint8_t rtn = state & 1;
+  state >>= 1;
+  return rtn;
+}
+
+
+
 } // namespace rnd
 
 #endif // RND_XOSHIRO_HPP_
