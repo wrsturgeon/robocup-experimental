@@ -138,7 +138,7 @@ then
   for dir in ./src/*/
   do # Enable every module
     if [ ${dir} = './src/sdl/' ]
-    then
+    then # GitHub Actions has no video driver
       continue
     fi
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
