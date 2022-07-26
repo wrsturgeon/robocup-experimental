@@ -1,4 +1,4 @@
-#include <wasserstein/pyramid.hpp>
+#include "wasserstein/pyramid.hpp"
 
 int main() {
   static constexpr wasserstein::imsize_t w = 640, h = 480;

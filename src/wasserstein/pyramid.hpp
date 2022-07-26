@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string.h>
 
-#include <eigen.hpp>
+#include "eigen.hpp"
 
 namespace wasserstein {
 
