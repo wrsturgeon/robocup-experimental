@@ -173,7 +173,7 @@ fi
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 echo 'Compiling...'
-clang++ -o run ./src/main.cpp ${ALL_FLAGS} $(sdl2-config --libs)
+clang++ -o ./run ./src/main.cpp ${ALL_FLAGS} $(sdl2-config --libs)
 echo 'Running...'
 ./run
 echo 'Done!'
