@@ -51,7 +51,7 @@ case "$(uname -s)" in
     OS=linux
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     sudo apt-get update -y
-    sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev
+    sudo apt-get dist-upgrade -y gcc-10 g++-10 libstdc++-10-dev clang
     sudo apt-get install -y lld
     ;;
   *)
