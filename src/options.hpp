@@ -112,3 +112,17 @@
 #else
 #define TRAINING_ENABLED 0
 #endif // ifdef _TRAINING_ENABLED
+
+#ifdef _WASSERSTEIN_ENABLED
+#define WASSERSTEIN_ENABLED _WASSERSTEIN_ENABLED
+#else
+#define WASSERSTEIN_ENABLED 0
+#endif // ifdef _WASSERSTEIN_ENABLED
+
+
+
+#ifdef _DEBUG
+#define DEBUG _DEBUG
+#else
+#define DEBUG 0
+#endif // ifdef _DEBUG

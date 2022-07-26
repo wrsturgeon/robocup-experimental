@@ -16,8 +16,8 @@ jobs:
       - name: Successful compilation
         run: |
           sudo apt-get install -y libsdl2-dev
-          ./compile test
-          ./compile release
+          ./compile.sh test
+          ./compile.sh release
           ./run
 
   build-mac:
@@ -27,6 +27,6 @@ jobs:
       - name: Successful compilation
         run: |
           brew install sdl2
-          ./compile test
-          ./compile release
+          ./compile.sh test
+          ./compile.sh release
           ./run
