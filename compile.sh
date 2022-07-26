@@ -120,7 +120,7 @@ fi
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 FLAGS='-std=c++20 -flto -fvisibility=hidden'
-INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -isystem ./eigen -isystem ./naoqi_driver/include $(sdl2-config --cflags | sed 's|-I|-isystem |g')"
+INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -iquote ./eigen -iquote ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-iquote |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
@@ -133,49 +133,34 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi"
+  FLAGS="${FLAGS} -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fprofile-instr-generate -fcoverage-mapping -U_FORTIFY_SOURCE -fsanitize=address,undefined,cfi -fsanitize-coverage=trace-pc-guard -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
-else
-  FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
-  WARNINGS="${WARNINGS} -Wno-error=pass-failed"
-fi
-
-# Enable every module if we're testing
-if [ "${TEST}" -eq 1 ]
-then
   for dir in ./src/*/
   do # Enable every module
+    if [ ${dir} = './src/sdl/' ]
+    then
+      continue
+    fi
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
     FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
   done
+else
+  FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
+  WARNINGS="${WARNINGS} -Wno-error=pass-failed"
 fi
 
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"
 
 if [ "${TEST}" -eq 1 ]
 then
-  echo 'Checking leak detection...'
-  # Make sure we detect a genuine (test) memory leak
-  clang++ ./src/leak.cpp -o ./leak ${ALL_FLAGS}
-  if ./leak >/dev/null 2>&1
-  then
-    echo "Missed leak"
-    exit 1
-  else
-    echo "Successfully detected test leak"
-  fi
-
-  echo 'Checking compilation...'
-  # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
-  find ./src -mindepth 2 -type f -name '*.*pp' | xargs -I{} clang++ -c -o ./tmp_compiled {} ${ALL_FLAGS}
-	rm -f ./tmp_compiled
-  echo 'All good!'
+  source ./scripts/run-tests.sh
+  exit 0
 fi
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 echo 'Compiling...'
 set -x
-clang++ -o ./run ./src/main.cpp ${ALL_FLAGS} $(sdl2-config --libs)
+clang++ -o ./run ./src/main.cpp ${ALL_FLAGS}
 set +x
 echo 'Running...'
 ./run

@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <SDL.h>
+#include "SDL.h"
 /**
  *  Problem at SDL_stdinc.h:35:
  *    #define _DARWIN_C_SOURCE 1 // for memset_pattern4()
@@ -24,6 +24,8 @@
  *        Which means we can't define _XOPEN_SOURCE (as we were before), since that defines _POSIX_C_SOURCE
  *        Well, shit--workaround in progress
  */
+
+#include "sdl/context.hpp"
 
 namespace sdl {
 
@@ -47,12 +49,11 @@ class Window {
 public:
   Window(Window const&) = delete;
   Window(int w, int h, char const *const title = "UPennalizers");
-  ~Window();
+  ~Window() { SDL_DestroyWindow(window); }
   MEMBER_INLINE void display(SDL_Surface* surface, bool popup = false);
 protected:
 
   // Member variables
-  bool const owns_sdl_init;
   SDL_Window* window;
   SDL_Surface* surface;
 
@@ -83,14 +84,7 @@ protected:
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Custom member functions
 
-Window::Window(int w, int h, char const *const title)
-      : owns_sdl_init{!SDL_WasInit(SDL_INIT_VIDEO)} {
-  if (owns_sdl_init) {
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO)) throw std::runtime_error{
-          std::string{"Couldn't initialize SDL: "} +
-          SDL_GetError()};
-  }
-
+Window::Window(int w, int h, char const *const title) {
   window = SDL_CreateWindow(title,
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 #if __APPLE__
@@ -98,7 +92,7 @@ Window::Window(int w, int h, char const *const title)
 #else
         w, h,
 #endif
-        0);
+        SDL_WINDOW_ALLOW_HIGHDPI);
   if (!window) throw std::runtime_error{
         std::string{"Couldn't create SDL window: "} +
         SDL_GetError()};
@@ -109,15 +103,6 @@ Window::Window(int w, int h, char const *const title)
         SDL_GetError()};
   
   handle_events();
-}
-
-
-
-Window::~Window() {
-  SDL_DestroyWindow(window);
-  if (owns_sdl_init) {
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-  }
 }
 
 

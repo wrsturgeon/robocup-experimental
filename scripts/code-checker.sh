@@ -106,7 +106,9 @@ do
       LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
       if [ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ]
       then
-        echo -e "Please make sure all headers are #include'd before opening a namespace in ${file}\n"
+        echo "Please make sure all headers are #include'd before opening a namespace in ${file}"
+        echo "Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
+        echo
         EXIT_CODE=1
       fi
     fi
