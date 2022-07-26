@@ -4,3 +4,6 @@
 [submodule "naoqi_driver"]
 	path = naoqi_driver
 	url = https://github.com/ros-naoqi/naoqi_driver
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest.git
