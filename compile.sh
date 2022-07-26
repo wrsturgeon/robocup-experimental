@@ -119,7 +119,7 @@ fi
 ./scripts/code-checker.sh
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
-FLAGS='-std=c++20 -flto -fvisibility=hidden -Wl,-dead_strip'
+FLAGS='-std=c++20 -flto -fvisibility=hidden'
 INCLUDES="-iquote ./src -include ./src/options.hpp -include ./src/specifiers.hpp -iquote ./eigen -iquote ./naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-iquote |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
