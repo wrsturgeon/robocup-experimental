@@ -23,19 +23,27 @@ fi
 
 
 
+echo 'Compiling GoogleTest...'
+clang++ -c -o ./gtest.o ../googletest/googletest/src/gtest-all.cc -iquote ../googletest/googletest -iquote ../googletest/googletest/include
+
+
+
 echo 'Checking compilation, coverage, and memory leaks...'
 EXIT_CODE=0
 # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
 for file in $(find ../test/src -type f)
 do
-  echo "Running ${file}..."
+  echo "Analyzing ${file}..."
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
-  clang++ -o ./${FNAME} ${file} ../googletest/googletest/src/gtest-all.cc ../googletest/googletest/src/gtest_main.cc -iquote ../googletest/googletest ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
+  echo '  Compiling...'
+  clang++ -o ./${FNAME} ${file} ./gtest.o ../googletest/googletest/src/gtest_main.cc ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
+  echo '  Running...'
   if ! ./${FNAME} # Generate coverage at the same time
   then
     echo "./${FNAME} failed at runtime"
     EXIT_CODE=1
   fi
+  echo '  Fetching coverage data...'
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
   HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
