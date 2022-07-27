@@ -30,10 +30,17 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "specifiers.hpp"
-if grep -Rn ./src -e 'specifiers.hpp' --exclude=specifiers.hpp
+# Assert no manual "macros_*.hpp"
+if grep -Rn ./src -e '#include "macros_'
 then
-  echo -e "Please don't manually #include "specifiers.hpp"; it's included automatically\n"
+  echo -e "Please don't manually #include \"macros_*.hpp\"; it's included automatically\n"
+  EXIT_CODE=1
+fi
+
+# Assert no plain `inline`
+if grep -Rn ./src -e 'inline' --exclude=./src/macros_release.hpp
+then
+  echo -e "Please use `INLINE` instead of `inline` (or `MEMBER_INLINE` if it can't be `static`) so we can override for coverage\n"
   EXIT_CODE=1
 fi
 

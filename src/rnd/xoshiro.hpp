@@ -90,7 +90,7 @@ INLINE rnd::t next() {
 
 
 
-static inline uint8_t bit() {
+INLINE uint8_t bit() {
   static rnd::t state;
   static uint8_t uses;
   if (!uses) {
