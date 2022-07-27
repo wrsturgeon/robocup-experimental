@@ -138,7 +138,7 @@ then
   done
 else
   FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
-  WARNINGS="${WARNINGS} -Wno-error=pass-failed"
+  WARNINGS="${WARNINGS} -Wno-error=pass-failed -Wno-keyword-macro"
 fi
 
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"
