@@ -124,7 +124,7 @@ if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -O1 -fPIC -fno-omit-frame-pointer -fno-optimize-sibling-calls -ffunction-sections -fdata-sections"
   MACROS="${MACROS} -imacros ${SRC}/macros_debug.hpp -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
-  SANITIZE="-fsanitize-ignorelist=${PWD}/ignorelist.txt -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument"
+  SANITIZE="-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument"
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
   for dir in ./src/*/
   do # Enable every module
