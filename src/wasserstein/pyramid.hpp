@@ -87,7 +87,7 @@ void Pyramid<w, h>::build_manual() {
   uint8_t tmp[h][half_w];
   for (imsize_t y = 0; y < h; ++y) {
     for (imsize_t x = 0; x < half_w; ++x) {
-      twice = x << 1;
+      twice = static_cast<imsize_t>(x << 1); // TODO: verify no overflow
       a = _array[y][twice    ];
       b = _array[y][twice | 1];
       tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
@@ -98,7 +98,7 @@ void Pyramid<w, h>::build_manual() {
   Pyramid<half_w, half_h>& dst = up();
   for (imsize_t y = 0; y < half_h; ++y) {
     for (imsize_t x = 0; x < half_w; ++x) {
-      twice = y << 1;
+      twice = static_cast<imsize_t>(y << 1); // TODO: verify no overflow
       a = tmp[twice    ][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
