@@ -110,7 +110,7 @@ SRC=${PWD}/src
 FLAGS='-std=c++20 -flto -fvisibility=hidden'
 INCLUDES="-include ${PWD}/src/options.hpp -include ${PWD}/src/specifiers.hpp -iquote ${PWD}/src -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include $(sdl2-config --cflags --libs | sed 's|-I|-iquote |g')"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
-WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat'
+WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
 export LSAN_OPTIONS="suppressions=${PWD}/lsan.supp" # Apparently Objective-C has internal memory leaks (lol)
 
