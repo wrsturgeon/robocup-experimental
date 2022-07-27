@@ -21,8 +21,8 @@ namespace vision {
 class Lens {
 public:
   Lens(Lens const&) = delete;
-  Lens(int16_t radial = 0, int16_t tangential_x = 0, int16_t tangential_y = 0) :
-        radial{radial}, tangential_x{tangential_x}, tangential_y{tangential_y}, inv_lr{128} {}
+  Lens(int16_t radial_ = 0, int16_t tangential_x_ = 0, int16_t tangential_y_ = 0) :
+        radial{radial_}, tangential_x{tangential_x_}, tangential_y{tangential_y_}, inv_lr{128} {}
   template <uint32_t diag_sq> MEMBER_INLINE pxpos_t undistort(pxpos_t px);
   template <uint32_t diag_sq> MEMBER_INLINE pxpos_t redistort(pxpos_t px);
 protected:
