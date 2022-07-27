@@ -24,6 +24,7 @@ fi
 
 
 echo 'Checking compilation, coverage, and memory leaks...'
+EXIT_CODE=0
 # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
 for file in $(find ../test/src -type f)
 do
@@ -37,7 +38,11 @@ do
   rm ./default.profraw
   HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
   (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
-  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}; exit 1)
+  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} ; EXIT_CODE=1)
 done
 rm -f ./run_test
-echo 'All good!'
+if [ ${EXIT_CODE} -eq 0 ]
+then
+  echo 'All good!'
+fi
+exit ${EXIT_CODE}
