@@ -7,7 +7,7 @@
 // #include <memory>
 // #include <alloca.h>
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmisleading-indentation" // PlainObjectBase.h:325 (b/c EIGEN_INITIALIZE_MATRICES_BY_NAN)
+#pragma clang diagnostic ignored "-Weverything"
 #include "Eigen/Core"
 #include "unsupported/Eigen/CXX11/TensorSymmetry"
 #pragma clang diagnostic pop
