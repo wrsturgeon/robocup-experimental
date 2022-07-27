@@ -37,8 +37,11 @@ do
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
   HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
-  (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
-  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} ; EXIT_CODE=1)
+  if ! (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh)
+  then
+    llvm-cov show -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}
+    EXIT_CODE=1
+  fi
 done
 rm -f ./run_test
 if [ ${EXIT_CODE} -eq 0 ]
