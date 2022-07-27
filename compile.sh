@@ -107,7 +107,7 @@ fi
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 SRC=${PWD}/src
-FLAGS='-std=c++20 -flto -fvisibility=hidden' # -fuse-ld=lld'
+FLAGS='-std=c++20 -flto' # -fuse-ld=lld'
 INCLUDES="-include ${PWD}/src/options.hpp -include ${PWD}/src/specifiers.hpp -iquote ${PWD}/src -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include -iquote ${PWD}/googletest/googletest/include"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -D_GNU_SOURCE -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Wall -Wextra -Werror -Wno-builtin-macro-redefined -Wstrict-aliasing -Wthread-safety -Wself-assign -Wno-missing-field-initializers -pedantic-errors -Wno-keyword-macro -Wno-zero-length-array'
@@ -121,10 +121,9 @@ done
 
 if [ "${DEBUG}" -eq 1 ]
 then
-  FLAGS="${FLAGS} -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls"
+  FLAGS="${FLAGS} -O1 -fPIC -fno-omit-frame-pointer -fno-optimize-sibling-calls -ffunction-sections -fdata-sections"
   MACROS="${MACROS} -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
-  DEBUGFLAGS='-g -fno-omit-frame-pointer -fno-optimize-sibling-calls'
-  SANITIZE='-fsanitize=address,undefined -fsanitize-stats -fsanitize-address-use-after-scope -Wno-error=unused-command-line-argument'
+  SANITIZE="-fsanitize-ignorelist=${PWD}/ignorelist.txt -fsanitize=address,undefined -fsanitize-stats -fsanitize-address-use-after-scope -Wno-error=unused-command-line-argument"
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
   for dir in ./src/*/
   do # Enable every module
