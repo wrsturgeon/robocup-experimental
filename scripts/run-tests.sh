@@ -24,7 +24,8 @@ fi
 
 
 echo 'Compiling GoogleTest...'
-clang++ -c -o ./gtest.o ../googletest/googletest/src/gtest-all.cc -iquote ../googletest/googletest -iquote ../googletest/googletest/include
+clang++ -c -o ./gtest.o ../googletest/googletest/src/gtest-all.cc ${ALL_FLAGS} -iquote ../googletest/googletest -iquote ../googletest/googletest/include -w
+clang++ -c -o ./gtest_main.o ../googletest/googletest/src/gtest_main.cc ${ALL_FLAGS} -iquote ../googletest/googletest -iquote ../googletest/googletest/include -w
 
 
 
@@ -36,7 +37,7 @@ do
   echo "Analyzing ${file}..."
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
   echo '  Compiling...'
-  clang++ -o ./${FNAME} ${file} ./gtest.o ../googletest/googletest/src/gtest_main.cc ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
+  clang++ -o ./${FNAME} ${file} ./gtest.o ./gtest_main.o ${ALL_FLAGS} ${SANITIZE} ${COVERAGE} -Wno-global-constructors
   echo '  Running...'
   if ! ./${FNAME} # Generate coverage at the same time
   then

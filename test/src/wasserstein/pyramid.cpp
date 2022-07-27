@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include "gtest.hpp"
 #include "wasserstein/pyramid.hpp"
 
 TEST(pyramid, pyrsize_00) { ASSERT_EQ(static_cast<size_t>(0), wasserstein::pyrsize(0, 0)); }

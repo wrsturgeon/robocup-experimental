@@ -126,6 +126,7 @@ then
   MACROS="${MACROS} -imacros ${SRC}/macros_debug.hpp -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
   SANITIZE="-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument"
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
+  WARNINGS="${WARNINGS} -Wno-unneeded-internal-declaration"
   for dir in ./src/*/
   do # Enable every module
     if [ ${dir} = './src/sdl/' ]

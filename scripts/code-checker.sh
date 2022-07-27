@@ -30,6 +30,13 @@ then
   EXIT_CODE=1
 fi
 
+# Assert no manual "gtest/gtest.h"
+if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
+then
+  echo -e "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
+  EXIT_CODE=1
+fi
+
 # Assert no manual "macros_*.hpp"
 if grep -Rn ./src -e '#include "macros_'
 then
@@ -124,9 +131,9 @@ do
       TEST_FILE="./test/src/${dirname}/${filename::${#filename}-3}cpp"
       if [ -f ${TEST_FILE} ]
       then
-        if [ "$(head -n2 ${TEST_FILE} | tr -d '\n')" != '#include "gtest/gtest.h"#include "'${dirname}/${filename}'"' ]
+        if [ "$(head -n2 ${TEST_FILE} | tr -d '\n')" != '#include "gtest.hpp"#include "'${dirname}/${filename}'"' ]
         then
-          echo -e "Please #include \"gtest/gtest.h\" on the first line of ${TEST_FILE} and \"${dirname}/${filename}\" on the second\n"
+          echo -e "Please #include \"gtest.hpp\" on the first line of ${TEST_FILE} and \"${dirname}/${filename}\" on the second\n"
           EXIT_CODE=1
         fi
       else
