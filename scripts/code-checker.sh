@@ -40,7 +40,7 @@ fi
 # Assert no plain `inline`
 if grep -Rn ./src -e 'inline' --exclude=./src/macros_release.hpp
 then
-  echo -e "Please use `INLINE` instead of `inline` (or `MEMBER_INLINE` if it can't be `static`) so we can override for coverage\n"
+  echo -e "Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage\n"
   EXIT_CODE=1
 fi
 
