@@ -29,11 +29,13 @@ EXIT_CODE=0
 for file in $(find ../test/src -type f)
 do
   echo "Running ${file}..."
-  clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE}
-  ./run_test
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
-  clang++ -o ./${FNAME} ${file} ${ALL_FLAGS} ${COVERAGE}
-  ./${FNAME} # Generate coverage at the same time
+  clang++ -o ./${FNAME} ${file} ../googletest/googletest/src/gtest-all.cc -iquote ../googletest/googletest ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
+  if ! ./${FNAME} # Generate coverage at the same time
+  then
+    echo "./${FNAME} failed at runtime"
+    EXIT_CODE=1
+  fi
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
   HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
