@@ -144,8 +144,12 @@ ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"
 
 if [ "${TEST}" -eq 1 ]
 then
-  source ./scripts/run-tests.sh
-  exit 0
+  if source ./scripts/run-tests.sh
+  then
+    exit 0
+  else
+    exit 1
+  fi
 fi
 
 echo 'Compiling...'
