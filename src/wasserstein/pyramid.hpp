@@ -22,6 +22,8 @@ using Eigen::seqN;
 
 static constexpr size_t pyrsize(imsize_t w, imsize_t h) { return (w && h) ? (w * h) + pyrsize(w >> 1, h >> 1) : 0; }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wzero-length-array"
 template <imsize_t w, imsize_t h>
 class Pyramid {
 protected:
@@ -47,6 +49,7 @@ public:
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
 };
+#pragma clang diagnostic pop
 
 template <imsize_t w, imsize_t h>
 Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
