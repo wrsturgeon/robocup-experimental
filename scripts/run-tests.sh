@@ -30,7 +30,7 @@ for file in $(find ../test/src -type f)
 do
   echo "Running ${file}..."
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
-  clang++ -o ./${FNAME} ${file} ../googletest/googletest/src/gtest-all.cc -iquote ../googletest/googletest ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
+  clang++ -o ./${FNAME} ${file} ../googletest/googletest/src/gtest-all.cc ../googletest/googletest/src/gtest_main.cc -iquote ../googletest/googletest ${ALL_FLAGS} ${SANITIZE} ${COVERAGE}
   if ! ./${FNAME} # Generate coverage at the same time
   then
     echo "./${FNAME} failed at runtime"
