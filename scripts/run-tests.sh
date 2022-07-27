@@ -28,10 +28,10 @@ echo 'Checking compilation, coverage, and memory leaks...'
 for file in $(find ../test/src -type f)
 do
   echo "Running ${file}..."
-  clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE}
+  clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
   ./run_test
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
-  clang++ -o ./${FNAME} ${file} ${ALL_FLAGS} ${COVERAGE}
+  clang++ -o ./${FNAME} ${file} ${ALL_FLAGS} ${COVERAGE} -Wno-error=unused-function
   ./${FNAME} # Generate coverage at the same time
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
