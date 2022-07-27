@@ -24,7 +24,7 @@ class pos_t {
 public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
   pos_t(pos_t const&) = delete;
-  pos_t(int16_t mm) : internal{mm << lc} { assert((internal >> lc) == mm); }
+  pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} { assert((internal >> lc) == mm); }
   float mm() const { return ldexpf(internal, -lc); }
   float meters() const { return mm() / 1000.f; }
   operator std::string() const { return std::to_string((internal >> lc) / 1000.f) + 'm'; }
