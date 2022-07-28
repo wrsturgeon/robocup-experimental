@@ -51,10 +51,10 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "eigen_matrix_plugins.hpp"
-if grep -Rn ./src -e 'eigen_matrix_plugins.hpp' --exclude=eigen.hpp
+# Assert no manual "eigen_array_plugins.hpp"
+if grep -Rn ./src -e 'eigen_array_plugins.hpp' --exclude=eigen.hpp
 then
-  echo -e "Please don't manually #include "eigen_matrix_plugins.hpp"; it's included in Eigen::Matrix\n"
+  echo -e "Please don't manually #include "eigen_array_plugins.hpp"; it's included in Eigen::Array\n"
   EXIT_CODE=1
 fi
 

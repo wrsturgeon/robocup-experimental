@@ -1,6 +1,6 @@
 // No #include guards: we assert that it's never manually included in code-checker.sh
 
-// Included at Eigen/src/Core/MatrixBase.h:132 (WITHIN Eigen namespace)
+// Included at Eigen/src/Core/ArrayBase.h:132 (WITHIN Eigen namespace)
 
 
 

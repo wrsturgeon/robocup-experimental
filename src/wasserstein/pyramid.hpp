@@ -14,7 +14,7 @@ namespace wasserstein {
 
 using imsize_t = uint16_t;
 
-template <imsize_t w, imsize_t h> using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
+template <imsize_t w, imsize_t h> using EigenMap = Eigen::Map<Eigen::Array<uint8_t, h, w, Eigen::RowMajor>>;
 using Eigen::placeholders::all;
 using Eigen::seqN;
 
@@ -62,7 +62,7 @@ Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
   EigenMap<w, h> input_map{src};
   EigenMap<w, h> internal_map{&_array[0][0]};
   internal_map = ~input_map; // 255 -> 0, 254 -> 1, ..., 0 -> 255
-  build_eigen(internal_map);
+  build_eigen(internal_map); // static_assert in here fails? means it's your fault, so don't protect with an `if`
 }
 
 
@@ -112,14 +112,27 @@ void Pyramid<w, h>::build_manual() {
 
 template <imsize_t w, imsize_t h>
 void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
+  static_assert(half_w && half_h, "Pyramid level to be constructed must have at least one pixel");
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
-  if ((!half_w) || (!half_h)) { return; }
   uint8_t i0;
-  EigenMap<half_w, half_h> upper_map{&up()._array[0][0]};
-  if constexpr (w & 1) { i0 = rnd::bit(); } else { i0 = 0; }
-  auto tmp = (lower_map(all, seqN(i0, half_w, 2)) >> 1) + (lower_map(all, seqN(i0 + 1, half_w, 2)) >> 1);
-  if constexpr (h & 1) { i0 = rnd::bit(); } else { i0 = 0; }
-  upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
+  Pyramid<half_w, half_h>& next = up();
+
+  // Eigen has some obsessive beef with things that look like column vectors but aren't
+  if constexpr (half_w == 1) {
+    Eigen::Map<Eigen::Vector<uint8_t, half_h>> upper_map{&next._array[0][0]};
+    if constexpr (w & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    auto tmp = (lower_map(all, seqN(i0, half_w, 2)) >> 1) + (lower_map(all, seqN(i0 + 1, half_w, 2)) >> 1);
+    if constexpr (h & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
+    return;
+  } else { // Literally anything else
+    EigenMap<half_w, half_h> upper_map{&next._array[0][0]};
+    if constexpr (w & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    auto tmp = (lower_map(all, seqN(i0, half_w, 2)) >> 1) + (lower_map(all, seqN(i0 + 1, half_w, 2)) >> 1);
+    if constexpr (h & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
+    if constexpr (half_h != 1) { next.build_eigen(upper_map); }
+  }
 }
 
 
