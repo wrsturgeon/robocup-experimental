@@ -25,7 +25,7 @@ fi
 
 echo 'Checking compilation, coverage, and memory leaks...'
 # Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
-for file in $(find ../test/src -type f)
+for file in $(find ../test -type f ! -name README.md)
 do
   echo "Running ${file}..."
   clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
@@ -35,7 +35,7 @@ do
   ./${FNAME} # Generate coverage at the same time
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
-  HPP=${SRC}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
+  HPP=${INCLUDE}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
   (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
   (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}; exit 0) # 0 FOR NOW
 done

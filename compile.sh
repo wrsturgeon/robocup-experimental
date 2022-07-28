@@ -106,10 +106,10 @@ fi
 ./scripts/code-checker.sh
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
-SRC=${PWD}/src
+INCLUDE=${PWD}/include
 SDL="$(sdl2-config --cflags --libs | sed 's|-I|-iquote |g') -Wno-poison-system-directories" # -Wno b/c not a hard-coded path
 FLAGS='-std=gnu++20 -flto -fvisibility=hidden'
-INCLUDES="-include ${SRC}/options.hpp -iquote ${SRC} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include ${SDL}"
+INCLUDES="-include ${INCLUDE}/options.hpp -iquote ${INCLUDE} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include ${SDL}"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
@@ -123,13 +123,13 @@ done
 if [ "${DEBUG}" -eq 1 ]
 then
   FLAGS="${FLAGS} -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls"
-  MACROS="${MACROS} -imacros ${SRC}/macros_debug.hpp -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
+  MACROS="${MACROS} -imacros ${INCLUDE}/macros_debug.hpp -DEIGEN_INITIALIZE_MATRICES_BY_NAN"
   DEBUGFLAGS='-g -fno-omit-frame-pointer -fno-optimize-sibling-calls'
   SANITIZE='-fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument'
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
-  for dir in ./src/*/
+  for dir in ./include/*/
   do # Enable every module
-    if [ ${dir} = './src/sdl/' ]
+    if [ ${dir} = './include/sdl/' ]
     then # GitHub Actions has no video driver
       continue
     fi
@@ -139,7 +139,7 @@ then
 else
   FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
   WARNINGS="${WARNINGS} -Wno-error=pass-failed"
-  MACROS="${MACROS} -imacros ${SRC}/macros_release.hpp"
+  MACROS="${MACROS} -imacros ${INCLUDE}/macros_release.hpp"
 fi
 
 ALL_FLAGS="${FLAGS} ${MACROS} ${INCLUDES} ${WARNINGS}"
