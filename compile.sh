@@ -110,14 +110,14 @@ SRC=${PWD}/src
 SDL="$(sdl2-config --cflags --libs | sed 's|-I|-iquote |g') -Wno-poison-system-directories" # -Wno b/c not a hard-coded path
 FLAGS='-std=gnu++20 -flto -fvisibility=hidden' # -fuse-ld=lld'
 INCLUDES="-include ${SRC}/options.hpp -iquote ${SRC} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include -iquote ${PWD}/googletest/googletest/include"
-MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS=1"
+MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS"
 WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
 export LSAN_OPTIONS="suppressions=${PWD}/lsan.supp" # Apparently Objective-C has internal memory leaks (lol)
 
 # Enable selected modules
 for arg in "${@:2}"; do
-  MACROS="${MACROS} -D_$(echo ${arg} | tr '[:lower:]' '[:upper:]')_ENABLED=1"
+  MACROS="${MACROS} -D_$(echo ${arg} | tr '[:lower:]' '[:upper:]')_ENABLED"
 done
 
 if [ "${DEBUG}" -eq 1 ]
@@ -134,7 +134,7 @@ then
       continue
     fi
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
-    FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
+    FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED"
   done
 else
   FLAGS="${FLAGS} -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize"
