@@ -108,7 +108,7 @@ fi
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 SRC=${PWD}/src
 SDL="$(sdl2-config --cflags --libs | sed 's|-I|-iquote |g') -Wno-poison-system-directories" # -Wno b/c not a hard-coded path
-FLAGS='-std=gnu++20 -flto -fvisibility=hidden' # -fuse-ld=lld'
+FLAGS='-std=gnu++20 -flto -fvisibility=hidden -ftemplate-backtrace-limit=0'
 INCLUDES="-include ${SRC}/options.hpp -iquote ${SRC} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include -iquote ${PWD}/googletest/googletest/include"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS"
 WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro'
@@ -161,6 +161,13 @@ clang++ -o ./run ./src/main.cpp ${ALL_FLAGS}
 echo 'Running...'
 ./run
 echo 'Done!'
+
+# TODO: use PGO (profiling-guided optimization)
+
+# TODO: split .cpp/.hpp HARD (in code-checker.sh: exclude all {} except class, struct, etc.) and stop copying all the fucking source files please <3
+# TODO: #pragma once (and remove -Wno-unused-macros)
+
+# TODO: fully remove SDL and the stupid _ENABLED macros
 
 # Cleanup executables
 find . -maxdepth 1 -type f ! -name LICENSE ! -iname '*.*' | xargs rm
