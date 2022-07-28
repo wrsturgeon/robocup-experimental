@@ -47,9 +47,10 @@ done
 for file in $(find ./src -type f ! -name README.md)
 do
   HEADER=$(echo ${file:6} | rev | cut -d. -f2- | rev).hpp
-  if ([ -f "./include/${HEADER}" ] && [ $(head -n1 ${file}) != '#include "'${HEADER}'"' ])
+  DIRNAME=$(echo ${file:6} | rev | cut -d/ -f2 | rev)
+  if ([ -f ./include/${HEADER} ] && [ "$(head -n4 ${file} | tr -d '\n')" != '#include "'${HEADER}'"namespace '${DIRNAME}' {' ])
   then
-    echo -e "Please #include \"${HEADER}\" on the first line of ${file}\n"
+    echo -e "Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace\n"
     EXIT_CODE=1
   fi
 done
@@ -103,10 +104,10 @@ do
   fi
 
   # Make sure the folder has its own README
-  if [ ! -f "${dir}/README.md" ]
+  if [ ! -L "${dir}/README.md" ]
   then
-    echo -e "Please create a README.md in ${dir}\n"
-    EXIT_CODE=1
+    echo "Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
+    ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
   fi
 
   # Make sure this folder is known to include/options.hpp
@@ -156,6 +157,12 @@ do
         echo
         EXIT_CODE=1
       fi
+    fi
+
+    if grep -Rn ./include -e '{' | grep -v namespace | grep -v class | grep -v struct
+    then
+      echo "Please don't define anything in .hpp files (just declare)"
+      EXIT_CODE=1
     fi
 
   done

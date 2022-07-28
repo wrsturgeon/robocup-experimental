@@ -1,5 +1,1 @@
-## SDL
-
-C++ methods to create a popup window and display images, video, audio, etc.
-
-Uses SDL: https://www.libsdl.org/
+/Users/willsturgeon/Desktop/Code/robocup/src/sdl/README.md

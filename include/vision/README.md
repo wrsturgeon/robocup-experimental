@@ -1,3 +1,1 @@
-## Vision
-
-Methods for ~~perceiving~~ constructing the world around us.
+/Users/willsturgeon/Desktop/Code/robocup/src/vision/README.md

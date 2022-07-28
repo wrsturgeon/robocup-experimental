@@ -1,3 +1,1 @@
-## Random
-
-Pseudo-random number generation.
+/Users/willsturgeon/Desktop/Code/robocup/src/rnd/README.md

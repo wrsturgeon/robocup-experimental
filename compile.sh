@@ -102,6 +102,9 @@ fi
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
 
+# Remove Apple folder info
+find . -name .DS_Store | xargs -I{} rm {}
+
 # Run code checker
 ./scripts/code-checker.sh
 

@@ -1,3 +1,1 @@
-## Training
-
-Utilities for training machine learning models.
+/Users/willsturgeon/Desktop/Code/robocup/src/training/README.md
