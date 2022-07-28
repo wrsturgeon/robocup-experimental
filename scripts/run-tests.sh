@@ -37,7 +37,7 @@ do
   echo "Analyzing ${file}..."
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
   echo '  Compiling...'
-  clang++ -o ./${FNAME} ${file} ./gtest.o ./gtest_main.o ${ALL_FLAGS} ${SANITIZE} ${COVERAGE} -Wno-global-constructors
+  clang++ -o ./${FNAME} ${file} ./gtest.o ./gtest_main.o ${ALL_FLAGS} ${SANITIZE} ${COVERAGE} -Wno-global-constructors -Wno-unknown-warning-option
   echo '  Running...'
   if ! ./${FNAME} # Generate coverage at the same time
   then
