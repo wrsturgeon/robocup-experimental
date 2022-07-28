@@ -16,16 +16,12 @@ using pxidx_t = int16_t;
 class pxpos_t {
 public:
   pxpos_t(pxpos_t const&) = delete;
-  explicit pxpos_t(pxidx_t x_ = 0, pxidx_t y_ = 0) : x{x_}, y{y_} {}
-  MEMBER_INLINE operator std::string() const { return '(' +
-        std::to_string(x) + "x, " +
-        std::to_string(y) + "y)"; }
-  MEMBER_INLINE friend std::ostream& operator<<(std::ostream& os, pxpos_t const& p) { return os << static_cast<std::string>(p); }
+  explicit pxpos_t(pxidx_t x_ = 0, pxidx_t y_ = 0);
+  MEMBER_INLINE operator std::string() const;
+  MEMBER_INLINE friend std::ostream& operator<<(std::ostream& os, pxpos_t const& p);
   pxidx_t const x = 0;
   pxidx_t const y = 0;
-  MEMBER_INLINE uint32_t r2() const { return (
-        static_cast<uint32_t>(x * x) + // overflow-safe
-        static_cast<uint32_t>(y * y)); }
+  MEMBER_INLINE uint32_t r2() const;
 };
 
 
