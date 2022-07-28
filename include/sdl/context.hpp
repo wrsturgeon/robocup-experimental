@@ -13,20 +13,14 @@ namespace sdl {
 
 struct Context {
   Context();
-  ~Context() { SDL_Quit(); }
+  ~Context();
 };
-
-Context::Context() {
-  if (SDL_Init(SDL_INIT_VIDEO)) throw std::runtime_error{
-        std::string{"Couldn't initialize SDL: "} +
-        SDL_GetError()};
-}
 
 
 
 // Global class--I know, but that's how SDL works and has to work
 // Can only be instantiated once, thanks to include guards
-static Context _GLOBAL_CONTEXT{};
+static Context _GLOBAL_CONTEXT;
 
 
 
