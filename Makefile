@@ -21,3 +21,9 @@ build/Makefile: build
 build:
 	echo 'Clearing ./build...'
 	rm -rf ./build && mkdir ./build
+
+release: build/Makefile
+	cd ./build && make release
+
+test-all: build/Makefile
+	cd ./build && make test-all
