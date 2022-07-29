@@ -53,7 +53,7 @@
 .vscode/
 .idea/
 
-naoqi-sdk/
+third-party/
 
 coverage/
 *.prof*
