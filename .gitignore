@@ -53,6 +53,7 @@
 .vscode/
 .idea/
 
+build/
 third-party/
 
 coverage/
