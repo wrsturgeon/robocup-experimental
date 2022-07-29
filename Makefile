@@ -2,10 +2,14 @@
 
 .PHONY: run
 
-run: build
+run: build/Makefile
 	@cd ./build && make
 
-build: ./build.mk
-	rm -rf ./build
-	mkdir ./build
-	ln ./build.mk ./build/Makefile
+build/Makefile: build
+	@echo 'Syncing ./build/Makefile with ./build.mk...'
+	@rm -f ./build/Makefile
+	@ln ./build.mk ./build/Makefile
+
+build:
+	@echo 'Clearing ./build...'
+	@rm -rf ./build && mkdir ./build
