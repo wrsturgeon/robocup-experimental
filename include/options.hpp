@@ -1,7 +1,7 @@
 // No include guards; taken care of in code_checker.sh
 
 // Detects system architecture (32b/64b) and inform various algorithms accordingly.
-// Compile with the compiler argument -D_BITS={32,64} (whichever it is)
+// Compile with the compiler argument -D_BITS=<32|64> (whichever it is)
 #ifdef _BITS
 
 #if _BITS == 32 || _BITS == 64

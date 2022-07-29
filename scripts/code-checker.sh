@@ -6,53 +6,92 @@ echo -e 'Checking style & safety...\n'
 
 EXIT_CODE=0
 
-# Assert only .cpp & .hpp in ./src/
-INVALID_FILES=$(find ./src -type f -not -iname '*.hpp' -not -iname '*.cpp' -not -name README.md)
+# Assert only .cpp in ./src/
+INVALID_FILES=$(find ./src -type f ! -iname '*.cpp' ! -name README.md)
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
   echo ${INVALID_FILES} | grep -v legacy | tr ' ' '\n'
-  echo -e 'Please only use .cpp, .hpp, & README.md in ./src/\n'
+  echo -e 'Please only use .cpp & README.md in ./src/\n'
   EXIT_CODE=1
 fi
 
+# Assert only .hpp in ./include/
+INVALID_FILES=$(find ./include -type f ! -iname '*.hpp' ! -name README.md)
+if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
+then
+  echo ${INVALID_FILES} | grep -v legacy | tr ' ' '\n'
+  echo -e 'Please use only .hpp & README.md in ./include/\n'
+  EXIT_CODE=1
+fi
+
+# Assert all folders in ./src/ and ./include/ are mutual
+for dir in $(find ./src -type d -mindepth 1)
+do
+  if [ ! -d "./include/${dir:6}" ]
+  then
+    echo "Missing ./include/${dir:6}"
+    EXIT_CODE=1
+  fi
+done
+for dir in $(find ./include -type d -mindepth 1)
+do
+  if [ ! -d "./src/${dir:10}" ]
+  then
+    echo "Missing ./src/${dir:10}"
+    EXIT_CODE=1
+  fi
+done
+
+# Assert all existing cpp-hpp pairs are properly fused
+for file in $(find ./src -type f ! -name README.md)
+do
+  HEADER=$(echo ${file:6} | rev | cut -d. -f2- | rev).hpp
+  DIRNAME=$(echo ${file:6} | rev | cut -d/ -f2 | rev)
+  if ([ -f ./include/${HEADER} ] && [ "$(head -n4 ${file} | tr -d '\n')" != '#include "'${HEADER}'"namespace '${DIRNAME}' {' ])
+  then
+    echo -e "Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace\n"
+    EXIT_CODE=1
+  fi
+done
+
 # Assert "eigen.h" and not any of Eigen's headers
-if grep -Rn ./src -e '#include' --exclude=eigen.hpp | grep Eigen
+if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp | grep Eigen
 then
   echo -e "Please #include "eigen.hpp" instead of Eigen's internal headers\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
-if grep -Rn ./src -e 'options.hpp' --exclude=options.hpp
+if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp
 then
   echo -e "Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "macros_*.hpp"
-if grep -Rn ./src -e '#include "macros_'
+if grep -Rn ./src ./include -e '#include "macros_'
 then
   echo -e "Please don't manually #include \"macros_*.hpp\"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no plain `inline`
-if grep -Rn ./src -e 'inline' --exclude=macros_release.hpp
+if grep -Rn ./src ./include -e 'inline' --exclude=macros_release.hpp
 then
   echo -e "Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage\n"
   EXIT_CODE=1
 fi
 
-# Assert no manual "eigen_matrix_plugins.hpp"
-if grep -Rn ./src -e 'eigen_matrix_plugins.hpp' --exclude=eigen.hpp
+# Assert no manual "eigen_matrix_plugin.hpp"
+if grep -Rn ./src ./include -e 'eigen_matrix_plugin.hpp' --exclude=eigen.hpp
 then
-  echo -e "Please don't manually #include "eigen_matrix_plugins.hpp"; it's included in Eigen::Matrix\n"
+  echo -e "Please don't manually #include "eigen_matrix_plugin.hpp"; it's included in Eigen::Matrix\n"
   EXIT_CODE=1
 fi
 
 # Assert #include guards & namespaces
-for dir in ./src/*/
+for dir in ./include/*/
 do
   dirname=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev)
   DIRUPPER=$(echo ${dirname} | tr '[:lower:]' '[:upper:]')
@@ -65,16 +104,16 @@ do
   fi
 
   # Make sure the folder has its own README
-  if [ ! -f "${dir}/README.md" ]
+  if [ ! -L "${dir}/README.md" ]
   then
-    echo -e "Please create a README.md in ${dir}\n"
-    EXIT_CODE=1
+    echo "Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
+    ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
   fi
 
-  # Make sure this folder is known to src/options.hpp
-  if ! grep -qw "_${DIRUPPER}_ENABLED" ./src/options.hpp
+  # Make sure this folder is known to include/options.hpp
+  if ! grep -qw "_${DIRUPPER}_ENABLED" ./include/options.hpp
   then
-    echo -e "Please add _${DIRUPPER}_ENABLED support to ./src/options.hpp\n"
+    echo -e "Please add _${DIRUPPER}_ENABLED support to ./include/options.hpp\n"
     EXIT_CODE=1
   fi
 
@@ -111,7 +150,7 @@ do
       echo -e "Please use \`namespace ${dirname}\` in ${file}\n"
     else
       LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
-      if [ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ]
+      if ([ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ])
       then
         echo "Please make sure all headers are #include'd before opening a namespace in ${file}"
         echo "Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
@@ -120,23 +159,24 @@ do
       fi
     fi
 
-    if [ ${dirname} != 'sdl' ]
+    if grep -Rn ./include -e '{' --exclude=eigen_matrix_plugin.hpp | grep -v namespace | grep -v class | grep -v struct
     then
-      TEST_FILE="./test/src/${dirname}/${filename::${#filename}-3}cpp"
-      if [ -f ${TEST_FILE} ]
-      then
-        if [ "$(head -n1 ${TEST_FILE})" != '#include "'${dirname}/${filename}'"' ]
-        then
-          echo -e "Please #include \"${dirname}/${filename}\" on the first line of ${TEST_FILE}"
-          EXIT_CODE=1
-        fi
-      else
-        echo "Please add ${TEST_FILE} to test ./src/${dirname}/${filename}"
-        EXIT_CODE=1
-      fi
+      echo "Please don't define anything in .hpp files (just declare)"
+      EXIT_CODE=1
     fi
 
   done
+done
+
+for file in $(find ./src -type f ! -name README.md ! -path '*/legacy/*' | grep -v sdl)
+do
+  FNAME=$(echo ${file} | rev | cut -d/ -f1 | rev)
+  TEST_FILE="./test/${FNAME}"
+  if [ ! -f ${TEST_FILE} ]
+  then
+    echo "Please write ${TEST_FILE} to test ${file}"
+    EXIT_CODE=1
+  fi
 done
 
 if [ ${EXIT_CODE} -eq 0 ]

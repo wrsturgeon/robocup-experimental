@@ -21,11 +21,11 @@ template <pxidx_t w = IMAGE_W, pxidx_t h = IMAGE_H>
 class NaoImage {
 public:
   NaoImage(NaoImage const&) = delete;
-  NaoImage() : internal{} {}
-  INLINE constexpr pxidx_t width() { return w; }
-  INLINE constexpr pxidx_t height() { return h; }
+  NaoImage();
+  INLINE constexpr pxidx_t width();
+  INLINE constexpr pxidx_t height();
 #if SDL_ENABLED
-  MEMBER_INLINE void popup() const { sdl::Window{w, h}.display(*this, true); }
+  MEMBER_INLINE void popup() const;
   MEMBER_INLINE operator SDL_Surface*() const;
 #endif // SDL_ENABLED
 protected:
@@ -34,15 +34,6 @@ protected:
   using internal_t = Eigen::TensorFixedSize<uint8_t, imsize_t, format, pxidx_t>;
   internal_t internal; // Underlying Eigen tensor holding pixel values
 };
-
-#if SDL_ENABLED
-template <pxidx_t w, pxidx_t h>
-MEMBER_INLINE NaoImage<w, h>::operator SDL_Surface*() const {
-  return SDL_CreateRGBSurfaceWithFormatFrom(
-        const_cast<typename internal_t::Scalar*>(internal.data()),
-        w, h, 24, 3 * w, SDL_PIXELFORMAT_RGB24);
-}
-#endif // SDL_ENABLED
 
 
 
