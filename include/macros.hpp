@@ -5,8 +5,11 @@
 
 // Let Clang aggressively optimize `for` loops
 // https://clang.llvm.org/docs/LanguageExtensions.html#extensions-for-loop-hint-optimizations
-#define CLANG_OPTIMIZE_LOOP _Pragma("clang loop vectorize(enable) interleave(enable) unroll(enable) distribute(enable)")
-#define for CLANG_OPTIMIZE_LOOP for
-#define do CLANG_OPTIMIZE_LOOP do
+// #pragma clang diagnostic push
+// #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+// #define CLANG_OPTIMIZE_LOOP _Pragma("clang loop vectorize(enable) interleave(enable) unroll(enable) distribute(enable)")
+// #define for CLANG_OPTIMIZE_LOOP for
+// #define do CLANG_OPTIMIZE_LOOP do
 // #define while CLANG_OPTIMIZE_LOOP while
 // #define during while
+// #pragma clang diagnostic pop
