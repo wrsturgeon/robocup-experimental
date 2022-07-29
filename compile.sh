@@ -104,7 +104,7 @@ fi
 find . -name .DS_Store | xargs -I{} rm {}
 
 # Run code checker
-./scripts/code-checker.sh
+./scripts/check.sh
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 INCLUDE=${PWD}/include

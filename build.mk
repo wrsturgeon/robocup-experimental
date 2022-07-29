@@ -2,10 +2,6 @@
 # Calling `make` will remake the hard link whenever this file changes;
 # otherwise, it's unsafe to call this directly if build.mk changed
 
-ifndef VERBOSE
-.SILENT:
-endif
-
 .PHONY: eigen naoqi_driver
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟

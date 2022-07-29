@@ -1,7 +1,7 @@
 # Simply clears & recreates ./build/, then copies ./build.mk there and calls it.
 
 ifndef VERBOSE
-.SILENT:
+.SILENT: # This silences *every* Makefile here on down
 endif
 
 .PHONY: run check
@@ -11,7 +11,7 @@ run: check build/Makefile
 	cd ./build && make
 
 check:
-	scripts/code-checker.sh
+	scripts/check.sh
 
 build/Makefile: build
 	echo 'Syncing ./build/Makefile with ./build.mk...'
