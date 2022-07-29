@@ -101,12 +101,6 @@
 #define RND_ENABLED 0
 #endif // ifdef _RND_ENABLED
 
-#ifdef _SDL_ENABLED
-#define SDL_ENABLED _SDL_ENABLED
-#else
-#define SDL_ENABLED 0
-#endif // ifdef _SDL_ENABLED
-
 #ifdef _TRAINING_ENABLED
 #define TRAINING_ENABLED _TRAINING_ENABLED
 #else

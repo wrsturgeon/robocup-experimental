@@ -9,10 +9,6 @@
 #include "vision/distortion.hpp"
 #include "vision/pxpos.hpp"
 
-#if SDL_ENABLED
-#include "sdl/window.hpp"
-#endif // SDL_ENABLED
-
 namespace vision {
 
 
@@ -24,10 +20,6 @@ public:
   NaoImage();
   INLINE constexpr pxidx_t width();
   INLINE constexpr pxidx_t height();
-#if SDL_ENABLED
-  MEMBER_INLINE void popup() const;
-  MEMBER_INLINE operator SDL_Surface*() const;
-#endif // SDL_ENABLED
 protected:
   static constexpr int format = Eigen::StorageOptions::RowMajor;
   using imsize_t = Eigen::Sizes<w, h, 3>;
