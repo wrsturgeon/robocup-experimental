@@ -11,7 +11,7 @@ run: check build/Makefile
 	cd ./build && make
 
 release test: check build/Makefile
-	cd ./build && make $@
+	cd ./build && make $(@)
 
 check:
 	scripts/check.sh
