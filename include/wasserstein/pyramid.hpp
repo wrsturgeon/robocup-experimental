@@ -16,6 +16,8 @@ template <vision::pxidx_t w, vision::pxidx_t h> using EigenMap = Eigen::Map<Eige
 
 
 
+static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h);
+
 template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {
 protected:
