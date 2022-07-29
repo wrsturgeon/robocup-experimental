@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: make test-all
-        run: make test-all
+      - name: make test
+        run: make test
   build-mac:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Successful compilation
-        run: make test-all
+        run: make test

@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen naoqi_driver naoqi-sdk wasserstein_pyramid.so
+.PHONY: eigen naoqi-driver naoqi-sdk wasserstein_pyramid.so
 
 CXX := clang++
 
@@ -22,12 +22,12 @@ COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WA
 # TODO: remove stupid enable/disable macros
 
 DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS :=    -Ofast -fomit-frame-pointer
+RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
-INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi_driver
+INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
 INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
 
 ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1
@@ -36,19 +36,22 @@ LSAN_OPTIONS=suppressions=$(DIR)/lsan.supp # Apparently Objective-C has internal
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
-release: wasserstein_pyramid.so
+release: release-flags
+	echo "$(foreach dir,$(shell find $(SRC) -type d -mindepth 1 -maxdepth 1 | rev | cut -d'/' -f1 | rev),test-$(dir))"
+
+
 
 # Dependencies
 define pull
 echo "Pulling $(@)..."
 cd $(<); \
-cd $(@) 2>/dev/null && git pull -q || git clone -q $(1)
+cd $(@) 2>/dev/null && git pull -q || git clone -q $(1) $(@)
 endef
 $(TPY):
 	mkdir -p $(TPY)
 eigen: $(TPY)
 	$(call pull,https://gitlab.com/libeigen/eigen.git)
-naoqi_driver: $(TPY)
+naoqi-driver: $(TPY)
 	$(call pull,https://github.com/ros-naoqi/naoqi_driver)
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
@@ -59,17 +62,40 @@ naoqi-sdk: $(TPY)
 		find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} $(<)/naoqi-sdk; \
 	fi
 
-test-all:
-	echo $(INCLUDE)
 
-soname = $(shell echo $(subst /,_,$(1)) | rev | cut -d. -f2- | rev).so
-nopath = $(subst $(SRC)/,,$(<))
-makelib = $(call _makelib,$(call nopath,$(<)))
-_makelib = echo "Compiling $(1)..."; $(call _compilelib,$(call soname,$(1)))
-define _compilelib
+
+# Flags
+release-flags:
+	$(eval COMMON+=$(strip $(RELEASE_FLAGS)))
+debug-flags:
+	$(eval COMMON+=$(strip $(DEBUG_FLAGS)))
+sanitize-flags:
+	$(eval COMMON+=$(strip $(SANITIZE)))
+coverage-flags:
+	$(eval COMMON+=$(strip $(COVERAGE)))
+test-flags: debug-flags sanitize-flags coverage-flags
+	echo "poop shit"
+
+
+
+# Testing
+all-src = $(wilcard $(SRC)/$(1)/*.cpp)
+test: test-flags wasserstein_pyramid.so #$(foreach dir,$(shell find $(SRC) -type d -mindepth 1 -maxdepth 1 | rev | cut -d'/' -f1 | rev),test-$(dir))
+	echo "$(subst $(SRC)/,,$(shell find $(SRC) -type f -iname '*.cpp'))"
+	echo $(INCLUDE)
+test-wasserstein: test-flags $(call all-src,wasserstein)
+
+
+
+so-name = $(shell echo $(subst /,_,$(1)) | rev | cut -d. -f2- | rev).so
+no-path = $(subst $(SRC)/,,$(<))
+make-so = $(call pre-so,$(call no-path,$(<)))
+pre-so = echo "Compiling $(1)..."; $(call compile-so,$(call so-name,$(1)))
+define compile-so
 echo "$(CXX) -c -o ./$(1) $(<) $(COMMON)$()"
 $(CXX) -c -o ./$(1) $(<) $(COMMON)$()
 endef
 
-wasserstein_pyramid.so: $(SRC)/wasserstein/pyramid.cpp eigen #rnd_xoshiro.so vision_image-api.so
-	$(makelib) $(INCLUDE_EIGEN)
+wasserstein_pyramid.so: $(SRC)/$@ eigen #rnd_xoshiro.so vision_image-api.so
+	echo shit
+	$(make-so) $(INCLUDE_EIGEN)

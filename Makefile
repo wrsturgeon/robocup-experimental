@@ -10,6 +10,9 @@ ALL_SRC_INCLUDE := $(shell find ./src ./include)
 run: check build/Makefile
 	cd ./build && make
 
+release test: check build/Makefile
+	cd ./build && make $@
+
 check:
 	scripts/check.sh
 
@@ -21,9 +24,3 @@ build/Makefile: build
 build:
 	echo 'Clearing ./build...'
 	rm -rf ./build && mkdir ./build
-
-release: build/Makefile
-	cd ./build && make release
-
-test-all: build/Makefile
-	cd ./build && make test-all

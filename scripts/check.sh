@@ -27,6 +27,7 @@ fi
 
 # Assert no _, only - in filenames
 find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
+find . -name '*.icloud' | xargs -I{} rm {} # More dumb Mac shit
 INVALID_FILES=$(find ./src ./include -name '*_*')
 if [ ! -z "${INVALID_FILES}" ]
 then
@@ -82,7 +83,7 @@ fi
 # Assert no manual "macros.hpp"
 if grep -Rn ./src ./include -e '#include "macros.hpp"'
 then
-  echo -e "  Please don't manually #include \"macros_*.hpp\"; it's included automatically"
+  echo -e "  Please don't manually #include \"macros.hpp\"; it's included automatically"
   EXIT_CODE=1
 fi
 
@@ -93,10 +94,10 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "eigen_matrix_plugin.hpp"
-if grep -Rn ./src ./include -e 'eigen_matrix_plugin.hpp' --exclude=eigen.hpp
+# Assert no manual "eigen-matrix-plugin.hpp"
+if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp
 then
-  echo -e "  Please don't manually #include \"eigen_matrix_plugin.hpp\"; it's included in Eigen::Matrix"
+  echo -e "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
 fi
 
@@ -123,7 +124,7 @@ do
   for file in ${dir}*.hpp
   do
     filename=$(echo ${file} | rev | cut -d/ -f1 | rev)
-    FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr '.' '_')
+    FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr './-' '_')
 
     # Include guards at the top
     if [ "$(head -n3 ${file} | tr -d '\n')" != "#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
@@ -162,7 +163,7 @@ do
       fi
     fi
 
-    for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen_matrix_plugin.hpp)
+    for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen-matrix-plugin.hpp)
     do
       if grep -n ${hpp} -e '{' | grep -v namespace | grep -v class | grep -v struct
       then
@@ -174,10 +175,10 @@ do
   done
 done
 
-for file in $(find ./src -type f ! -name README.md ! -path '*/legacy/*')
+for file in $(find ./include -type f ! -name README.md ! -path '*/legacy/*')
 do
-  FNAME=$(echo ${file} | rev | cut -d/ -f1 | rev)
-  TEST_FILE="./test/${FNAME}"
+  FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
+  TEST_FILE="./test/${FNAME}.cpp"
   if [ ! -f ${TEST_FILE} ]
   then
     echo "  Please write ${TEST_FILE} to test ${file}"
