@@ -1,4 +1,4 @@
-// No include guards; taken care of in code_checker.sh
+// No include guards; taken care of in check.sh
 
 // Detects system architecture (32b/64b) and inform various algorithms accordingly.
 // Compile with the compiler argument -D_BITS=<32|64> (whichever it is)

@@ -1,4 +1,4 @@
-// No include guards; taken care of in code_checker.sh
+// No include guards; taken care of in check.sh
 
 #define MEMBER_INLINE inline __attribute__((always_inline))
 #define INLINE static MEMBER_INLINE

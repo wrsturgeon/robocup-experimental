@@ -1,4 +1,4 @@
-#include "measure/field_lines.hpp"
+#include "measure/field-lines.hpp"
 
 namespace measure {
 

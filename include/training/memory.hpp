@@ -5,7 +5,7 @@
 
 #include "measure/units.hpp"
 #include "rnd/xoshiro.hpp"
-#include "vision/image_api.hpp"
+#include "vision/image-api.hpp"
 
 namespace training {
 

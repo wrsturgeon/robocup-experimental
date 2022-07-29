@@ -12,7 +12,7 @@ INVALID_FILES=$(find ./src -type f ! -iname '*.cpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
   echo '  Please only use .cpp & README.md in ./src/'
-  echo "    $(${INVALID_FILES} | grep -v legacy | tr ' ' '\n    ')"
+  echo "    $(${INVALID_FILES} | grep -v legacy)"
   EXIT_CODE=1
 fi
 
@@ -21,7 +21,17 @@ INVALID_FILES=$(find ./include -type f ! -iname '*.hpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
   echo '  Please use only .hpp & README.md in ./include/'
-  echo "    (${INVALID_FILES} | grep -v legacy | tr ' ' '\n    ')"
+  echo "    "$(echo ${INVALID_FILES} | grep -v legacy)
+  EXIT_CODE=1
+fi
+
+# Assert no _, only - in filenames
+find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
+INVALID_FILES=$(find ./src ./include -name '*_*')
+if [ ! -z "${INVALID_FILES}" ]
+then
+  echo '  Please use hyphens instead of underscores in filenames'
+  echo "    "${INVALID_FILES}
   EXIT_CODE=1
 fi
 

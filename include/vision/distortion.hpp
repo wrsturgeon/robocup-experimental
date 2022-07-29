@@ -4,9 +4,9 @@
 #include <math.h>
 
 #include "measure/units.hpp"
-#include "util/constexpr_math.hpp"
+#include "util/constexpr-math.hpp"
 #include "vision/pxpos.hpp"
-#include "vision/image_api.hpp"
+#include "vision/image-api.hpp"
 
 namespace vision {
 

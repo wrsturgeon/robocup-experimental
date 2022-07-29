@@ -1,0 +1,2 @@
+#include "util/constexpr-math.hpp"
+int main() { return 0; }
