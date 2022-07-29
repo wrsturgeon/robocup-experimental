@@ -14,13 +14,13 @@ namespace wasserstein {
 
 
 
-template <imsize_t w, imsize_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {
 protected:
-  template <imsize_t w_, imsize_t h_> friend class Pyramid;
+  template <vision::pxidx_t w_, vision::pxidx_t h_> friend class Pyramid;
   static constexpr uint32_t n_px = w * h;
-  static constexpr imsize_t half_w = w >> 1;
-  static constexpr imsize_t half_h = h >> 1;
+  static constexpr vision::pxidx_t half_w = w >> 1;
+  static constexpr vision::pxidx_t half_h = h >> 1;
   using up_t = Pyramid<half_w, half_h>;
   MEMBER_INLINE void build_manual(); // Max-pooling (directional flags)
   MEMBER_INLINE void build_eigen(EigenMap<w, h> const& lower_map); // Mean-pooling (automatic)
@@ -33,7 +33,7 @@ public:
   Pyramid(Pyramid const&) = delete;
   Pyramid(uint8_t src[h][w]);
   Pyramid(vision::NaoImage<w, h> const& src);
-  MEMBER_INLINE uint8_t& operator()(imsize_t x, imsize_t y);
+  MEMBER_INLINE uint8_t& operator()(vision::pxidx_t x, vision::pxidx_t y);
   MEMBER_INLINE up_t& up();
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!

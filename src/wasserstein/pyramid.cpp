@@ -2,9 +2,9 @@
 
 namespace wasserstein {
 
-using imsize_t = uint16_t;
 
-template <imsize_t w, imsize_t h> using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
+
+template <vision::pxidx_t w, vision::pxidx_t h> using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 using Eigen::placeholders::all;
 using Eigen::seqN;
 
@@ -13,20 +13,20 @@ using Eigen::seqN;
 
 
 
-static constexpr size_t pyrsize(imsize_t w, imsize_t h) { return (w && h) ? (w * h) + pyrsize(w >> 1, h >> 1) : 0; }
+static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) { return (w && h) ? (w * h) + pyrsize(w >> 1, h >> 1) : 0; }
 
 Pyramid(uint8_t src[h][w]) : Pyramid{&src[0][0]} {}
 
 Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
-MEMBER_INLINE uint8_t& operator()(imsize_t x, imsize_t y) { return _array[y][x]; }
+MEMBER_INLINE uint8_t& operator()(vision::pxidx_t x, vision::pxidx_t y) { return _array[y][x]; }
 
 MEMBER_INLINE up_t& up() { return *reinterpret_cast<up_t*>(_up_raw); }
 // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
 // it'll still return the same 0-element Pyramid!
 // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
 
-template <imsize_t w, imsize_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
   // Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
   #define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"
@@ -42,7 +42,7 @@ Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
 
 
 
-template <imsize_t w, imsize_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>
 void Pyramid<w, h>::build_manual() {
   // Assumes we've already filled `_array` with valid image data
 
@@ -53,16 +53,16 @@ void Pyramid<w, h>::build_manual() {
   if ((!half_w) || (!half_h)) { return; }
 
   // Allocating for use in loops
-  imsize_t twice;
+  vision::pxidx_t twice;
   uint8_t a, b;
 
   // TODO: randomize shift when odd size
 
   // One dimension at a time: first half the width
   uint8_t tmp[h][half_w];
-  for (imsize_t y = 0; y < h; ++y) {
-    for (imsize_t x = 0; x < half_w; ++x) {
-      twice = static_cast<imsize_t>(x << 1); // TODO: verify no overflow
+  for (vision::pxidx_t y = 0; y < h; ++y) {
+    for (vision::pxidx_t x = 0; x < half_w; ++x) {
+      twice = static_cast<vision::pxidx_t>(x << 1); // TODO: verify no overflow
       a = _array[y][twice    ];
       b = _array[y][twice | 1];
       tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
@@ -71,9 +71,9 @@ void Pyramid<w, h>::build_manual() {
 
   // And half that, directly into the next layer
   Pyramid<half_w, half_h>& dst = up();
-  for (imsize_t y = 0; y < half_h; ++y) {
-    for (imsize_t x = 0; x < half_w; ++x) {
-      twice = static_cast<imsize_t>(y << 1); // TODO: verify no overflow
+  for (vision::pxidx_t y = 0; y < half_h; ++y) {
+    for (vision::pxidx_t x = 0; x < half_w; ++x) {
+      twice = static_cast<vision::pxidx_t>(y << 1); // TODO: verify no overflow
       a = tmp[twice    ][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
@@ -85,7 +85,7 @@ void Pyramid<w, h>::build_manual() {
 
 
 
-template <imsize_t w, imsize_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>
 void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
   if ((!half_w) || (!half_h)) { return; }

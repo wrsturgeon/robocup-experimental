@@ -28,6 +28,7 @@ echo 'Checking compilation, coverage, and memory leaks...'
 for file in $(find ../test -type f ! -name README.md)
 do
   echo "Running ${file}..."
+  # TODO: link everything except this file WITHOUT testing, then only this one with testing (remove -Wno flags)
   clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
   ./run_test
   FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
