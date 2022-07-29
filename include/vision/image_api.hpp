@@ -1,4 +1,3 @@
-#if VISION_ENABLED
 #ifndef VISION_IMAGE_API_HPP_
 #define VISION_IMAGE_API_HPP_
 
@@ -32,7 +31,3 @@ protected:
 } // namespace vision
 
 #endif // VISION_IMAGE_API_HPP_
-
-#else // VISION_ENABLED
-#pragma message("Skipping image_api.hpp; vision module disabled")
-#endif // VISION_ENABLED

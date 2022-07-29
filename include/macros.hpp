@@ -8,5 +8,5 @@
 #define CLANG_OPTIMIZE_LOOP _Pragma("clang loop vectorize(enable) interleave(enable) unroll(enable) distribute(enable)")
 #define for CLANG_OPTIMIZE_LOOP for
 #define do CLANG_OPTIMIZE_LOOP do
-#define while CLANG_OPTIMIZE_LOOP while
-#define during while
+// #define while CLANG_OPTIMIZE_LOOP while
+// #define during while

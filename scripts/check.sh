@@ -69,8 +69,8 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "macros_*.hpp"
-if grep -Rn ./src ./include -e '#include "macros_'
+# Assert no manual "macros.hpp"
+if grep -Rn ./src ./include -e '#include "macros.hpp"'
 then
   echo -e "  Please don't manually #include \"macros_*.hpp\"; it's included automatically"
   EXIT_CODE=1
@@ -110,29 +110,22 @@ do
     ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
   fi
 
-  # Make sure this folder is known to include/options.hpp
-  if ! grep -qw "_${DIRUPPER}_ENABLED" ./include/options.hpp
-  then
-    echo -e "  Please add _${DIRUPPER}_ENABLED support to ./include/options.hpp"
-    EXIT_CODE=1
-  fi
-
   for file in ${dir}*.hpp
   do
     filename=$(echo ${file} | rev | cut -d/ -f1 | rev)
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr '.' '_')
 
     # Include guards at the top
-    if [ "$(head -n4 ${file} | tr -d '\n')" != "#if ${DIRUPPER}_ENABLED#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
+    if [ "$(head -n3 ${file} | tr -d '\n')" != "#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
     then
-      echo -e "Missing or unsafe #include guards at the top of ${file}; please use the following:\n\n#if ${DIRUPPER}_ENABLED\n#ifndef ${DIRUPPER}_${FILEUPPER}_\n#define ${DIRUPPER}_${FILEUPPER}_\n\n[your #includes]\n\nnamespace ${dirname} {\n"
+      echo -e "  Missing or unsafe #include guards at the top of ${file}; please use the following:\n    #ifndef ${DIRUPPER}_${FILEUPPER}_\n    #define ${DIRUPPER}_${FILEUPPER}_"
       EXIT_CODE=1
     fi
 
     # Ending those guards & namespace
-    if [ "$(tail -n8 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_#else // ${DIRUPPER}_ENABLED#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")#endif // ${DIRUPPER}_ENABLED" ]
+    if [ "$(tail -n5 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_" ]
     then
-      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n\n} // namespace ${dirname}\n\n#endif // ${DIRUPPER}_${FILEUPPER}_\n\n#else // ${DIRUPPER}_ENABLED\n#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")\n#endif // ${DIRUPPER}_ENABLED\n"
+      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n    #endif // ${DIRUPPER}_${FILEUPPER}_"
       EXIT_CODE=1
     fi
 

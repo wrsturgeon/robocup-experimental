@@ -1,4 +1,3 @@
-#if VISION_ENABLED
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
@@ -37,7 +36,3 @@ protected:
 } // namespace vision
 
 #endif // VISION_DISTORTION_HPP_
-
-#else // VISION_ENABLED
-#pragma message("Skipping distortion.hpp; vision module disabled")
-#endif // VISION_ENABLED

@@ -1,4 +1,3 @@
-#if TRAINING_ENABLED
 #ifndef TRAINING_MEMORY_HPP_
 #define TRAINING_MEMORY_HPP_
 
@@ -23,7 +22,3 @@ struct Memory {
 } // namespace training
 
 #endif // TRAINING_MEMORY_HPP_
-
-#else // TRAINING_ENABLED
-#pragma message("Skipping memory.hpp; training module disabled")
-#endif // TRAINING_ENABLED

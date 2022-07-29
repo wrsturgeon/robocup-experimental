@@ -1,4 +1,3 @@
-#if UTIL_ENABLED
 #ifndef UTIL_CONSTEXPR_MATH_HPP_
 #define UTIL_CONSTEXPR_MATH_HPP_
 
@@ -35,7 +34,3 @@ INLINE constexpr uint8_t lgp1(T x) {
 } // namespace util
 
 #endif // UTIL_CONSTEXPR_MATH_HPP_
-
-#else // UTIL_ENABLED
-#pragma message("Skipping constexpr_math.hpp; util module disabled")
-#endif // UTIL_ENABLED

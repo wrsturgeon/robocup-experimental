@@ -86,9 +86,3 @@ INLINE Position sample_field_lines() {
 
 
 } // namespace measure
-
-#endif // MEASURE_FIELD_LINES_HPP_
-
-#else // MEASURE_ENABLED
-#pragma message("Skipping field_lines.hpp; measure module disabled")
-#endif // MEASURE_ENABLED

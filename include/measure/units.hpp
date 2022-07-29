@@ -1,4 +1,3 @@
-#if MEASURE_ENABLED
 #ifndef MEASURE_UNITS_HPP_
 #define MEASURE_UNITS_HPP_
 
@@ -55,7 +54,3 @@ protected:
 } // namespace measure
 
 #endif // MEASURE_UNITS_HPP_
-
-#else // MEASURE_ENABLED
-#pragma message("Skipping units.hpp; measure module disabled")
-#endif // MEASURE_ENABLED

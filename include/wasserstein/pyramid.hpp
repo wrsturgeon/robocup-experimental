@@ -1,4 +1,3 @@
-#if WASSERSTEIN_ENABLED
 #ifndef WASSERSTEIN_PYRAMID_HPP_
 #define WASSERSTEIN_PYRAMID_HPP_
 
@@ -50,7 +49,3 @@ public:
 } // namespace wasserstein
 
 #endif // WASSERSTEIN_PYRAMID_HPP_
-
-#else // WASSERSTEIN_ENABLED
-#pragma message("Skipping pyramid.hpp; wasserstein module disabled")
-#endif // WASSERSTEIN_ENABLED
