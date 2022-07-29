@@ -83,10 +83,10 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "eigen_matrix_plugins.hpp"
-if grep -Rn ./src ./include -e 'eigen_matrix_plugins.hpp' --exclude=eigen.hpp
+# Assert no manual "eigen_matrix_plugin.hpp"
+if grep -Rn ./src ./include -e 'eigen_matrix_plugin.hpp' --exclude=eigen.hpp
 then
-  echo -e "Please don't manually #include "eigen_matrix_plugins.hpp"; it's included in Eigen::Matrix\n"
+  echo -e "Please don't manually #include "eigen_matrix_plugin.hpp"; it's included in Eigen::Matrix\n"
   EXIT_CODE=1
 fi
 
@@ -159,7 +159,7 @@ do
       fi
     fi
 
-    if grep -Rn ./include -e '{' | grep -v namespace | grep -v class | grep -v struct
+    if grep -Rn ./include -e '{' --exclude=eigen_matrix_plugin.hpp | grep -v namespace | grep -v class | grep -v struct
     then
       echo "Please don't define anything in .hpp files (just declare)"
       EXIT_CODE=1
