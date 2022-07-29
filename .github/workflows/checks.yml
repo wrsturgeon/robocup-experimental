@@ -8,13 +8,31 @@ on:
 
 
 jobs:
-  mac-release:
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Successful compilation
+        run: |
+          ./compile.sh test
+          ./compile.sh release
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Successful compilation
+        run: |
+          ./compile.sh test
+          ./compile.sh release
+
+  -mac-release:
     runs-on: macos-latest
     steps:
       uses: actions/checkout
       name: Release (Mac)
       run: make release
-  test-all-mac:
+  -mac-test-all:
     runs-on: macos-latest
     steps:
       uses: actions/checkout
