@@ -24,21 +24,22 @@ fi
 
 
 echo 'Checking compilation, coverage, and memory leaks...'
-# Now make sure, knowing we can detect them, that there aren't any (TODO: we don't actually run these yet--implement unit testing)
-for file in $(find ../test -type f ! -name README.md)
+# Now make sure, knowing we can detect them, that there aren't any
+# TODO: convert V4L2 to C++ and remove */legacy/* exemptions
+for file in $(find ../src -type f ! -name README.md ! -path '*/legacy/*')
 do
-  echo "Running ${file}..."
-  # TODO: link everything except this file WITHOUT testing, then only this one with testing (remove -Wno flags)
-  clang++ -o ./run_test ${file} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
+  FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
+  TEST=../test/${FNAME}.cpp
+  echo "Running ${TEST}..."
+  # TODO: link everything except this file WITHOUT testing, then only this one with testing (remove -Wno-error=unused-function)
+  clang++ -o ./run_test ${TEST} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
   ./run_test
-  FNAME=$(echo ${file::${#file}-4} | rev | cut -d/ -f1 | rev)
-  clang++ -o ./${FNAME} ${file} ${ALL_FLAGS} ${COVERAGE} -Wno-error=unused-function
+  clang++ -o ./${FNAME} ${TEST} ${ALL_FLAGS} ${COVERAGE} -Wno-error=unused-function
   ./${FNAME} # Generate coverage at the same time
   llvm-profdata merge ./default.profraw -o ./${FNAME}.profdata
   rm ./default.profraw
-  HPP=${INCLUDE}/$(echo ${file} | rev | cut -d/ -f2 | rev)/${FNAME}.hpp
-  (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
-  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${HPP}; exit 0) # 0 FOR NOW
+  (llvm-cov report -instr-profile=./${FNAME}.profdata ${FNAME} ${file} | sed '3q;d' | xargs ../scripts/parse-coverage.sh) || \
+  (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${file}; exit 0) # 0 FOR NOW
 done
 rm -f ./run_test
 echo 'All good!'

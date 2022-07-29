@@ -168,7 +168,7 @@ do
   done
 done
 
-for file in $(find ./src -type f ! -name README.md | grep -v sdl)
+for file in $(find ./src -type f ! -name README.md ! -path '*/legacy/*' | grep -v sdl)
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | rev)
   TEST_FILE="./test/${FNAME}"
