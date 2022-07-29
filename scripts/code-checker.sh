@@ -2,7 +2,7 @@
 
 set -eu
 shopt -s nullglob # Don't iterate with zero elements
-echo -e 'Checking style & safety...\n'
+echo 'Checking code style and safety...'
 
 EXIT_CODE=0
 
@@ -11,8 +11,8 @@ INVALID_FILES=$(find ./src -type f ! -iname '*.cpp' ! -name README.md)
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo ${INVALID_FILES} | grep -v legacy | tr ' ' '\n'
-  echo -e 'Please only use .cpp & README.md in ./src/\n'
+  echo '  Please only use .cpp & README.md in ./src/'
+  echo "    $(${INVALID_FILES} | grep -v legacy | tr ' ' '\n    ')"
   EXIT_CODE=1
 fi
 
@@ -20,8 +20,8 @@ fi
 INVALID_FILES=$(find ./include -type f ! -iname '*.hpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo ${INVALID_FILES} | grep -v legacy | tr ' ' '\n'
-  echo -e 'Please use only .hpp & README.md in ./include/\n'
+  echo '  Please use only .hpp & README.md in ./include/'
+  echo "    (${INVALID_FILES} | grep -v legacy | tr ' ' '\n    ')"
   EXIT_CODE=1
 fi
 
@@ -30,7 +30,7 @@ for dir in $(find ./src -type d -mindepth 1)
 do
   if [ ! -d "./include/${dir:6}" ]
   then
-    echo "Missing ./include/${dir:6}"
+    echo "  Missing ./include/${dir:6}"
     EXIT_CODE=1
   fi
 done
@@ -38,7 +38,7 @@ for dir in $(find ./include -type d -mindepth 1)
 do
   if [ ! -d "./src/${dir:10}" ]
   then
-    echo "Missing ./src/${dir:10}"
+    echo "  Missing ./src/${dir:10}"
     EXIT_CODE=1
   fi
 done
@@ -50,7 +50,7 @@ do
   DIRNAME=$(echo ${file:6} | rev | cut -d/ -f2 | rev)
   if ([ -f ./include/${HEADER} ] && [ "$(head -n4 ${file} | tr -d '\n')" != '#include "'${HEADER}'"namespace '${DIRNAME}' {' ])
   then
-    echo -e "Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace\n"
+    echo "  Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace"
     EXIT_CODE=1
   fi
 done
@@ -58,35 +58,35 @@ done
 # Assert "eigen.h" and not any of Eigen's headers
 if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp | grep Eigen
 then
-  echo -e "Please #include "eigen.hpp" instead of Eigen's internal headers\n"
+  echo -e "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
 if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp
 then
-  echo -e "Please don't manually #include "options.hpp"; it's included automatically\n"
+  echo -e "  Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "macros_*.hpp"
 if grep -Rn ./src ./include -e '#include "macros_'
 then
-  echo -e "Please don't manually #include \"macros_*.hpp\"; it's included automatically\n"
+  echo -e "  Please don't manually #include \"macros_*.hpp\"; it's included automatically"
   EXIT_CODE=1
 fi
 
 # Assert no plain `inline`
 if grep -Rn ./src ./include -e 'inline' --exclude=macros_release.hpp
 then
-  echo -e "Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage\n"
+  echo -e "  Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage"
   EXIT_CODE=1
 fi
 
 # Assert no manual "eigen_matrix_plugin.hpp"
 if grep -Rn ./src ./include -e 'eigen_matrix_plugin.hpp' --exclude=eigen.hpp
 then
-  echo -e "Please don't manually #include "eigen_matrix_plugin.hpp"; it's included in Eigen::Matrix\n"
+  echo -e "  Please don't manually #include \"eigen_matrix_plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
 fi
 
@@ -99,21 +99,21 @@ do
   # Make sure folder name is lowercase
   if [ "${dirname}" != "$(echo ${dirname} | tr '[:upper:]' '[:lower:]')" ]
   then
-    echo -e "Please lowercase folder ${dir}\n"
+    echo -e "  Please lowercase folder ${dir}"
     EXIT_CODE=1
   fi
 
   # Make sure the folder has its own README
   if [ ! -L "${dir}/README.md" ]
   then
-    echo "Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
+    echo "  Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
     ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
   fi
 
   # Make sure this folder is known to include/options.hpp
   if ! grep -qw "_${DIRUPPER}_ENABLED" ./include/options.hpp
   then
-    echo -e "Please add _${DIRUPPER}_ENABLED support to ./include/options.hpp\n"
+    echo -e "  Please add _${DIRUPPER}_ENABLED support to ./include/options.hpp"
     EXIT_CODE=1
   fi
 
@@ -132,14 +132,14 @@ do
     # Ending those guards & namespace
     if [ "$(tail -n8 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_#else // ${DIRUPPER}_ENABLED#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")#endif // ${DIRUPPER}_ENABLED" ]
     then
-      echo -e "Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n\n} // namespace ${dirname}\n\n#endif // ${DIRUPPER}_${FILEUPPER}_\n\n#else // ${DIRUPPER}_ENABLED\n#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")\n#endif // ${DIRUPPER}_ENABLED\n"
+      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n\n} // namespace ${dirname}\n\n#endif // ${DIRUPPER}_${FILEUPPER}_\n\n#else // ${DIRUPPER}_ENABLED\n#pragma message(\"Skipping ${filename}; ${dirname} module disabled\")\n#endif // ${DIRUPPER}_ENABLED\n"
       EXIT_CODE=1
     fi
 
     # Ending newline
     if [ ! -z "$(tail -c1 ${file})" ]
     then
-      echo -e "Missing newline at the end of ${file}\n"
+      echo -e "  Missing newline at the end of ${file}"
       EXIT_CODE=1
     fi
 
@@ -147,13 +147,13 @@ do
     LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
     if [ -z "${LAST_NAMESPACE}" ]
     then
-      echo -e "Please use \`namespace ${dirname}\` in ${file}\n"
+      echo -e "  Please use \`namespace ${dirname}\` in ${file}"
     else
       LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
       if ([ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ])
       then
-        echo "Please make sure all headers are #include'd before opening a namespace in ${file}"
-        echo "Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
+        echo "  Please make sure all headers are #include'd before opening a namespace in ${file}"
+        echo "    Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
         echo
         EXIT_CODE=1
       fi
@@ -161,7 +161,7 @@ do
 
     if grep -Rn ./include -e '{' --exclude=eigen_matrix_plugin.hpp | grep -v namespace | grep -v class | grep -v struct
     then
-      echo "Please don't define anything in .hpp files (just declare)"
+      echo "  Please don't define anything in .hpp files (just declare)"
       EXIT_CODE=1
     fi
 
@@ -174,14 +174,14 @@ do
   TEST_FILE="./test/${FNAME}"
   if [ ! -f ${TEST_FILE} ]
   then
-    echo "Please write ${TEST_FILE} to test ${file}"
+    echo "  Please write ${TEST_FILE} to test ${file}"
     EXIT_CODE=1
   fi
 done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo -e "All good!\n"
+  echo -e "  All good!"
 fi
 
 exit ${EXIT_CODE}
