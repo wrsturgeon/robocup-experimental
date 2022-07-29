@@ -3,7 +3,7 @@
 .PHONY: run
 
 run: build
-	cd ./build && make
+	@cd ./build && make
 
 build: ./build.mk
 	rm -rf ./build
