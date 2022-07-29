@@ -96,8 +96,6 @@ then
   find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
 fi
 
-# With immense fucking pleasure I banish the SDL2 install time from our CI builds 🙏
-
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Now begin the compilation process
@@ -110,9 +108,8 @@ find . -name .DS_Store | xargs -I{} rm {}
 
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 INCLUDE=${PWD}/include
-SDL="$(sdl2-config --cflags --libs | sed 's|-I|-iquote |g') -Wno-poison-system-directories" # -Wno b/c not a hard-coded path
 FLAGS='-std=gnu++20 -flto -fvisibility=hidden'
-INCLUDES="-include ${INCLUDE}/options.hpp -iquote ${INCLUDE} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include ${SDL}"
+INCLUDES="-include ${INCLUDE}/options.hpp -iquote ${INCLUDE} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
@@ -132,10 +129,6 @@ then
   COVERAGE='-fprofile-instr-generate -fcoverage-mapping'
   for dir in ./include/*/
   do # Enable every module
-    if [ ${dir} = './include/sdl/' ]
-    then # GitHub Actions has no video driver
-      continue
-    fi
     DIRNAME=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev | tr '[:lower:]' '[:upper:]')
     FLAGS="${FLAGS} -D_${DIRNAME}_ENABLED=1"
   done
