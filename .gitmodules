@@ -1,6 +1,6 @@
-[submodule "eigen"]
-	path = eigen
+[submodule "third-party/eigen"]
+	path = third-party/eigen
 	url = https://gitlab.com/libeigen/eigen.git
-[submodule "naoqi_driver"]
-	path = naoqi_driver
+[submodule "third-party/naoqi_driver"]
+	path = third-party/naoqi_driver
 	url = https://github.com/ros-naoqi/naoqi_driver

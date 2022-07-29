@@ -76,7 +76,7 @@ fi
 git submodule update --init --recursive
 
 # Download NaoQI SDK if not already present
-if [ ! -d ./naoqi-sdk ]
+if [ ! -d ./third-party/naoqi-sdk ]
 then
   # V5 SDKS ARE ALL HERE, THEY'RE JUST SO OLD THERE ARE NO LINKS TO THIS PAGE ANYWHERE <3
   # https://www.softbankrobotics.com/emea/en/support/nao-6/downloads-softwares/former-versions
@@ -93,7 +93,7 @@ then
   
   # Remove the horrific filename extension
   # The resulting folder (naoqi-sdk) is .gitignore'd
-  find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./naoqi-sdk
+  find . -type d -maxdepth 1 -iname 'naoqi-sdk*' -print -quit | xargs -I{} mv {} ./third-party/naoqi-sdk
 fi
 
 
@@ -109,7 +109,7 @@ find . -name .DS_Store | xargs -I{} rm {}
 # http://events17.linuxfoundation.org/sites/events/files/slides/GCC%252FClang%20Optimizations%20for%20Embedded%20Linux.pdf
 INCLUDE=${PWD}/include
 FLAGS='-std=gnu++20 -flto -fvisibility=hidden'
-INCLUDES="-include ${INCLUDE}/options.hpp -iquote ${INCLUDE} -iquote ${PWD}/eigen -iquote ${PWD}/naoqi_driver/include"
+INCLUDES="-include ${INCLUDE}/options.hpp -iquote ${INCLUDE} -iquote ${PWD}/third-party/eigen -iquote ${PWD}/third-party/naoqi_driver/include -iquote ${PWD}/third-party/naoqi-sdk/include"
 MACROS="-D_BITS=${BITS} -D_DEBUG=${DEBUG} -DLLVM_ENABLE_THREADS=1"
 WARNINGS='-Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro'
 export ASAN_OPTIONS='detect_leaks=1:detect_stack_use_after_return=1:detect_invalid_pointer_pairs=1:strict_string_checks=1:check_initialization_order=1:strict_init_order=1:replace_str=1:replace_intrin=1:alloc_dealloc_mismatch=1:debug=1'
