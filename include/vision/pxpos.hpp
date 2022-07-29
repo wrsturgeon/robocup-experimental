@@ -12,7 +12,7 @@ namespace vision {
 
 using pxidx_t = int16_t;
 
-// {0, 0} is the center of the image; expand outward from there
+// (0, 0) is the center of the image; expand outward from there
 class pxpos_t {
 public:
   pxpos_t(pxpos_t const&) = delete;
