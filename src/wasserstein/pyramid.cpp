@@ -4,7 +4,6 @@ namespace wasserstein {
 
 
 
-template <vision::pxidx_t w, vision::pxidx_t h> using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 using Eigen::placeholders::all;
 using Eigen::seqN;
 
