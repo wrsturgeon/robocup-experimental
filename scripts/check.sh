@@ -33,14 +33,8 @@ do
     echo "  Missing ./include/${dir:6}"
     EXIT_CODE=1
   fi
-  TEST_NAME=test-${dir:6}
-  if ! grep -q ./.github/workflows/checks.yml -e "make ${TEST_NAME}"
-  then
-    echo -e "  Please add a task for \`make ${TEST_NAME}\` to ./.github/workflows/checks.yml"
-    EXIT_CODE=1
-  fi
 done
-for dir in $(find ./include -type d -mindepth 1)
+for dir in $(find ./include -type d -mindepth 1 ! -name util)
 do
   if [ ! -d "./src/${dir:10}" ]
   then
@@ -110,7 +104,7 @@ do
   fi
 
   # Make sure the folder has its own README
-  if [ ! -L "${dir}/README.md" ]
+  if [ ! -f ${dir}/README.md ] && [ ! -L ${dir}/README.md ]
   then
     echo "  Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
     ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
@@ -165,11 +159,14 @@ do
       fi
     fi
 
-    if grep -Rn ./include -e '{' --exclude=eigen_matrix_plugin.hpp | grep -v namespace | grep -v class | grep -v struct
-    then
-      echo "  Please don't define anything in .hpp files (just declare)"
-      EXIT_CODE=1
-    fi
+    for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen_matrix_plugin.hpp)
+    do
+      if grep -n ${hpp} -e '{' | grep -v namespace | grep -v class | grep -v struct
+      then
+        echo "  Please don't define anything in .hpp files (just declare)"
+        EXIT_CODE=1
+      fi
+    done
 
   done
 done
