@@ -2,29 +2,87 @@ name: CI
 
 on:
   push:
-    branches: [ '*' ]
+    branches: [ '*', '!main' ]
   workflow_dispatch:
 
 
 
 jobs:
-
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Successful compilation
-        run: |
-          make
-          ./compile.sh test
-          ./compile.sh release
-
-  build-mac:
+  mac-release:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Successful compilation
-        run: |
-          make
-          ./compile.sh test
-          ./compile.sh release
+      uses: actions/checkout
+      name: Release (Mac)
+      run: make release
+  test-all-mac:
+    runs-on: macos-latest
+    steps:
+      uses: actions/checkout
+      name: src/ (Mac)
+      run: make test-all
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: Release
+        run: make release
+  test-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/
+        run: make test-all
+  test-legacy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/legacy/
+        run: make test-legacy
+  test-measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/measure/
+        run: make test-measure
+  test-measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/measure/
+        run: make test-measure
+  test-nao:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/nao/
+        run: make test-nao
+  test-rnd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/rnd/
+        run: make test-rnd
+  test-training:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/training/
+        run: make test-training
+  test-util:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/util/
+        run: make test-util
+  test-vision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/vision/
+        run: make test-vision
+  test-wasserstein:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout
+      - name: src/vision/
+        run: make test-wasserstein

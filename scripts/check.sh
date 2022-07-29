@@ -33,6 +33,12 @@ do
     echo "  Missing ./include/${dir:6}"
     EXIT_CODE=1
   fi
+  TEST_NAME=test-${dir:6}
+  if ! grep -q ./.github/workflows/checks.yml -e "make ${TEST_NAME}"
+  then
+    echo -e "  Please add a task for \`make ${TEST_NAME}\` to ./.github/workflows/checks.yml"
+    EXIT_CODE=1
+  fi
 done
 for dir in $(find ./include -type d -mindepth 1)
 do
