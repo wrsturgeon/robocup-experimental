@@ -80,6 +80,13 @@ then
   EXIT_CODE=1
 fi
 
+# Assert no manual "gtest/gtest.h"
+if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
+then
+  echo -e "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
+  EXIT_CODE=1
+fi
+
 # Assert no manual "macros.hpp"
 if grep -Rn ./src ./include -e '#include "macros.hpp"' 2>/dev/null
 then
