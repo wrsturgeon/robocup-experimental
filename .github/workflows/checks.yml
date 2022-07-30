@@ -24,6 +24,4 @@ jobs:
       - name: Successful compilation
         run: |
           PATH=/usr/local/opt/llvm/bin:$PATH
-          brew update
-          brew install llvm
           make test
