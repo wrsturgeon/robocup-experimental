@@ -17,7 +17,6 @@ INLINE Position sample_field_lines() {
     rnd_state >>= 16;
     /**
      * Table of values from the above lines as written
-     * TODO: these could be reordered to be much more efficient
      * 
      *  indx        x             y         +=     cum
      * 

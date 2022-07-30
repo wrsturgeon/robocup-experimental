@@ -22,8 +22,6 @@ MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
-# TODO: remove stupid enable/disable macros
-
 DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
@@ -41,7 +39,7 @@ LSAN_OPTIONS=suppressions=$(DIR)/lsan.supp # Apparently Objective-C has internal
 
 # Release: no debug symbols, no bullshit, just as fast as possible
 release: release-flags
-	echo TODO
+	echo 'TODO'
 
 
 
@@ -119,4 +117,4 @@ test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
 test: $(ALL_TESTS)
-	echo 'TODO: run all tests'
+	echo 'TODO: run all tests (rewrite scripts/run-tests.sh as a Make routine)'

@@ -31,7 +31,6 @@ do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
   TEST=../test/${FNAME}.cpp
   echo "Running ${TEST}..."
-  # TODO: link everything except this file WITHOUT testing, then only this one with testing (remove -Wno-error=unused-function)
   clang++ -o ./run-test ${TEST} ${ALL_FLAGS} ${SANITIZE} -Wno-error=unused-function
   ./run-test
   clang++ -o ./${FNAME} ${TEST} ${ALL_FLAGS} ${COVERAGE} -Wno-error=unused-function
