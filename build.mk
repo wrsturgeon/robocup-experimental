@@ -49,7 +49,7 @@ release: release-flags
 pull = \
 echo "Pulling $(@)..."; \
 cd $(<); \
-(cd $(@) 2>/dev/null && git pull -q) || \
+(cd $(@) && git pull -q) || \
 (echo "  Downloading into $(TPY)/$(@)..." && git clone -q $(1) $(@) && echo '  Done!')
 
 $(TPY):
