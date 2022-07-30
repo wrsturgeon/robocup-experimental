@@ -90,6 +90,7 @@ xoshiro: $(call deps,rnd/xoshiro)
 
 # Only Eigen
 units: $(call deps,measure/units) eigen
+	which clang
 	$(compile-lib)
 
 # Dependencies, in some dependency-based order
