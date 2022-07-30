@@ -4,7 +4,7 @@ namespace measure {
 
 
 
-static inline Position sample_field_lines() {
+Position sample_field_lines() {
   static constexpr uint8_t rnd_uses = BITS >> 4; // 16b each time
   static rnd::t rnd_state;
   static uint8_t rnd_uses_left; // Not initializing: compiler doesn't need the extra first-time-calling-or-not flag
