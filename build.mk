@@ -2,7 +2,7 @@
 
 .PHONY: eigen naoqi-driver naoqi-sdk test
 
-CXX := clang++
+CXX := /usr/local/opt/llvm/bin/clang++
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -90,7 +90,6 @@ xoshiro: $(call deps,rnd/xoshiro)
 
 # Only Eigen
 units: $(call deps,measure/units) eigen
-	which clang
 	$(compile-lib)
 
 # Dependencies, in some dependency-based order
