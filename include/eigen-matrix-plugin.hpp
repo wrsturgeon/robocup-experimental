@@ -4,7 +4,7 @@
 
 
 
-template <typename Packet> EIGEN_DEVICE_FUNC static inline Packet
+template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet
 static prshift(Packet const& a, Packet const& b) { return a >> b; }
 
 template <typename lhs_t>
@@ -20,7 +20,7 @@ struct scalar_rshift_op : internal::binary_op_base<lhs_t, uint8_t> {
 
 
 
-template <typename Packet> EIGEN_DEVICE_FUNC static inline Packet
+template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet
 static pbitinv(Packet const& a) { return ~a; }
 
 template <typename rhs_t>
@@ -33,13 +33,13 @@ struct scalar_bitinv_op {
 
 
 using RShiftReturnType = CwiseBinaryOp<scalar_rshift_op<Scalar>, Derived const, ConstantReturnType const>;
-EIGEN_DEVICE_FUNC inline RShiftReturnType const operator>>(Scalar const& scalar) const {
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE RShiftReturnType const operator>>(Scalar const& scalar) const {
   return RShiftReturnType(derived(), Derived::Constant(rows(), cols(), scalar));
 }
 
 
 
 using BitInvReturnType = CwiseUnaryOp<scalar_bitinv_op<Scalar>, Derived const>;
-EIGEN_DEVICE_FUNC inline BitInvReturnType const operator~() const {
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE BitInvReturnType const operator~() const {
   return BitInvReturnType(derived());
 }

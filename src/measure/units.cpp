@@ -8,23 +8,23 @@ pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
   assert((internal >> lc) == mm);
 }
 
-inline float pos_t::mm() const {
+float pos_t::mm() const {
   return ldexpf(internal, -lc);
 }
 
-inline float pos_t::meters() const {
+float pos_t::meters() const {
   return mm() / 1000.f;
 }
 
-inline pos_t::operator std::string() const {
+pos_t::operator std::string() const {
   return std::to_string((internal >> lc) / 1000.f) + 'm';
 }
 
-inline std::ostream& operator<<(std::ostream& os, pos_t const& p) {
+std::ostream& operator<<(std::ostream& os, pos_t const& p) {
   return os << static_cast<std::string>(p);
 }
 
-inline pos_t::operator int16_t() const {
+pos_t::operator int16_t() const {
   return internal;
 }
 
@@ -32,13 +32,13 @@ inline pos_t::operator int16_t() const {
 
 Position::Position(int16_t x_mm, int16_t y_mm) : x{x_mm}, y{y_mm} {}
 
-inline Position::operator std::string() const {
+Position::operator std::string() const {
   return '(' +
         static_cast<std::string>(x) + " x, " +
         static_cast<std::string>(y) + " y)";
 }
 
-inline std::ostream& operator<<(std::ostream& os, Position const& p) { return os << static_cast<std::string>(p); }
+std::ostream& operator<<(std::ostream& os, Position const& p) { return os << static_cast<std::string>(p); }
 
 
 

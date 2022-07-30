@@ -141,9 +141,9 @@ endif
 define verify
 echo "Testing $(1)..."
 rm -f ./default.profraw
-./test_$(1) || \
-llvm-profdata merge -sparse default.profraw -o $(1).profdata && \
-llvm-cov report ./test_$(1) -instr-profile=$(1).profdata $(subst #include ,,$(head -n1 $(TST)/$(1).cpp | tr -d '"'))
+./test_$(1)
+llvm-profdata merge -sparse default.profraw -o $(1).profdata
+llvm-cov report ./test_$(1) -instr-profile=$(1).profdata
 endef
 
 test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
