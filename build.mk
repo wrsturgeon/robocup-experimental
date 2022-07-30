@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen naoqi-driver naoqi-sdk wasserstein_pyramid.so
+.PHONY: eigen naoqi-driver naoqi-sdk test
 
 CXX := clang++
 
@@ -12,6 +12,9 @@ DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
 INC := $(DIR)/include
 TPY := $(DIR)/third-party
+TST := $(DIR)/test
+
+ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
 FLAGS := -std=gnu++20 -flto
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
@@ -23,6 +26,7 @@ COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WA
 
 DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 
@@ -37,16 +41,17 @@ LSAN_OPTIONS=suppressions=$(DIR)/lsan.supp # Apparently Objective-C has internal
 
 # Release: no debug symbols, no bullshit, just as fast as possible
 release: release-flags
-	echo "$(foreach dir,$(shell find $(SRC) -type d -mindepth 1 -maxdepth 1 | rev | cut -d'/' -f1 | rev),test-$(dir))"
+	echo TODO
 
 
 
 # Dependencies
-define pull
-echo "Pulling $(@)..."
+pull = \
+echo "Pulling $(@)..."; \
 cd $(<); \
-cd $(@) 2>/dev/null && git pull -q || git clone -q $(1) $(@)
-endef
+(cd $(@) 2>/dev/null && git pull -q) || \
+(echo "  Downloading into $(TPY)/$(@)..." && git clone -q $(1) $(@) && echo '  Done!')
+
 $(TPY):
 	mkdir -p $(TPY)
 eigen: $(TPY)
@@ -64,38 +69,54 @@ naoqi-sdk: $(TPY)
 
 
 
-# Flags
-release-flags:
-	$(eval COMMON+=$(strip $(RELEASE_FLAGS)))
-debug-flags:
-	$(eval COMMON+=$(strip $(DEBUG_FLAGS)))
-sanitize-flags:
-	$(eval COMMON+=$(strip $(SANITIZE)))
-coverage-flags:
-	$(eval COMMON+=$(strip $(COVERAGE)))
-test-flags: debug-flags sanitize-flags coverage-flags
-	echo "poop shit"
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Compilation
+
+compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(COMMON)
+compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
+compile-tst = $(compile) $(call nth_prereqs,4) $(strip $(TEST_FLAGS))
+compile-lib = $(compile-bin) -c $(call nth_prereqs,3)
+
+nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell cut -d' ' -f$(1)- <<< "$(^)"))
+
+deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
+
+
+
+# No dependencies
+distortion: $(call deps,vision/distortion)
+	$(compile-lib)
+pxpos: $(call deps,vision/pxpos)
+	$(compile-lib)
+xoshiro: $(call deps,rnd/xoshiro)
+	$(compile-lib)
+
+# Only Eigen
+units: $(call deps,measure/units) eigen
+	$(compile-lib)
+
+# Dependencies, in some dependency-based order
+image-api: $(call deps,vision/image-api) eigen distortion pxpos
+	$(compile-lib)
 
 
 
 # Testing
-all-src = $(wilcard $(SRC)/$(1)/*.cpp)
-test: test-flags wasserstein_pyramid.so #$(foreach dir,$(shell find $(SRC) -type d -mindepth 1 -maxdepth 1 | rev | cut -d'/' -f1 | rev),test-$(dir))
-	echo "$(subst $(SRC)/,,$(shell find $(SRC) -type f -iname '*.cpp'))"
-	echo $(INCLUDE)
-test-wasserstein: test-flags $(call all-src,wasserstein)
+test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) eigen
+	$(compile-tst)
+test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) eigen units
+	$(compile-tst)
+test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) eigen
+	$(compile-tst)
+test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
+	$(compile-tst)
+test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) eigen
+	$(compile-tst)
+test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
+	$(compile-tst)
+test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
+	$(compile-tst)
+test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
+	$(compile-tst)
 
-
-
-so-name = $(shell echo $(subst /,_,$(1)) | rev | cut -d. -f2- | rev).so
-no-path = $(subst $(SRC)/,,$(<))
-make-so = $(call pre-so,$(call no-path,$(<)))
-pre-so = echo "Compiling $(1)..."; $(call compile-so,$(call so-name,$(1)))
-define compile-so
-echo "$(CXX) -c -o ./$(1) $(<) $(COMMON)$()"
-$(CXX) -c -o ./$(1) $(<) $(COMMON)$()
-endef
-
-wasserstein_pyramid.so: $(SRC)/$@ eigen #rnd_xoshiro.so vision_image-api.so
-	echo shit
-	$(make-so) $(INCLUDE_EIGEN)
+test: $(ALL_TESTS)
+	echo 'TODO: run all tests'
