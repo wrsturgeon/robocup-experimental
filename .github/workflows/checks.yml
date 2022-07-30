@@ -19,4 +19,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Successful compilation
-        run: make test
+        run: brew install llvm && make test
