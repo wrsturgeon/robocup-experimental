@@ -19,7 +19,7 @@ ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp
 FLAGS := -std=gnu++20 -flto
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)/macros.hpp
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro
+WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-error=poison-system-directories
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
@@ -28,7 +28,7 @@ TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 
-INCLUDE_EIGEN=-Wno-poison-system-directories -iquote $(TPY)/eigen
+INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
 INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
 
