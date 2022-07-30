@@ -67,35 +67,35 @@ do
 done
 
 # Assert "eigen.h" and not any of Eigen's headers
-if grep -rn ./src ./include -e '#include' --exclude=eigen.hpp | grep Eigen
+if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
 then
   echo -e "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
-if grep -rn ./src ./include -e 'options.hpp' --exclude=options.hpp
+if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp 2>/dev/null
 then
   echo -e "  Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "macros.hpp"
-if grep -rn ./src ./include -e '#include "macros.hpp"'
+if grep -Rn ./src ./include -e '#include "macros.hpp"' 2>/dev/null
 then
   echo -e "  Please don't manually #include \"macros.hpp\"; it's included automatically"
   EXIT_CODE=1
 fi
 
 # Assert no plain `inline`
-if grep -rn ./src ./include -e 'inline' --exclude=macros.hpp
+if grep -Rn ./src ./include -e 'inline' --exclude=macros.hpp 2>/dev/null
 then
   echo -e "  Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage"
   EXIT_CODE=1
 fi
 
 # Assert no manual "eigen-matrix-plugin.hpp"
-if grep -rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp
+if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
 then
   echo -e "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
