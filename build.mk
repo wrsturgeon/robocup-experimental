@@ -126,7 +126,6 @@ test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	mkdir -p ../coverage && cd ../coverage && rm -rf *
 
 check-leak-detection: ../test/leak.cpp ../coverage
-	echo "$(compile) $(strip $(TEST_FLAGS))"
 	$(compile) $(strip $(TEST_FLAGS))
 ifndef VERBOSE
 	! ./check-leak-detection >/dev/null 2>&1
@@ -136,8 +135,13 @@ endif
 	rm ./check-leak-detection
 	echo '  Detected intentional leak'
 
+define verify
+echo "Testing $(subst test_,,$(1))..."
+./$(1)
+endef
+
 test: check-leak-detection gtest.o $(ALL_TESTS)
-	$(foreach test,$(ALL_TESTS),./$(test))
+	$(foreach test,$(ALL_TESTS),$(call verify,$(test)))
 
 
 
