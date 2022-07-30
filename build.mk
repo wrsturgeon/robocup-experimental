@@ -16,7 +16,7 @@ TST := $(DIR)/test
 
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
-FLAGS := -std=gnu++20 -flto
+FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)/macros.hpp
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
@@ -73,7 +73,7 @@ naoqi-sdk: $(TPY)
 
 compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(COMMON)
 compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
-compile-tst = $(compile) $(call nth_prereqs,4) $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
+compile-tst = $(compile) gtest.o $(call nth_prereqs,4) $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
 compile-lib = $(compile-bin) -c $(call nth_prereqs,3)
 
 nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) | cut -d' ' -f$(1)-))
@@ -101,6 +101,10 @@ image-api: $(call deps,vision/image-api) eigen distortion pxpos
 
 
 # Testing
+gtest.o: gtest
+	echo 'Compiling GoogleTest...'
+	$(CXX) -o ./gtest.o -c $(TPY)/gtest/googletest/src/gtest-all.cc $(COMMON) $(INCLUDE_GTEST) -w -iquote $(TPY)/gtest/googletest
+
 test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) eigen
 	$(compile-tst)
 test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) eigen units
@@ -118,5 +122,9 @@ test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
 test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
-test: gtest $(ALL_TESTS)
+test: gtest.o $(ALL_TESTS)
 	echo 'TODO: run all tests (rewrite scripts/run-tests.sh as a Make routine)'
+
+
+
+# TODO: use PGO (profiling-guided optimization)
