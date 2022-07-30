@@ -23,7 +23,7 @@ WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-c
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm='-polly -polly-vectorizer=stripmine' -Rpass-analysis=loop-vectorize
+RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm'-polly -polly-vectorizer=stripmine' -Rpass-analysis=loop-vectorize
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
