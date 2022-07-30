@@ -138,13 +138,12 @@ endif
 	rm ./check-leak-detection
 	echo '  Detected intentional leak'
 
-define verify
-echo "Testing $(1)..."
-rm -f ./default.profraw
-./test_$(1)
-llvm-profdata merge -sparse default.profraw -o $(1).profdata
-llvm-cov report ./test_$(1) -instr-profile=$(1).profdata
-endef
+verify = \
+echo "Testing $(1)..."; \
+rm -f ./default.profraw; \
+LSAN_OPTIONS=$(strip $(LSAN_OPTIONS)) ./test_$(1); \
+llvm-profdata merge ./default.profraw -o ./$(1).profdata; \
+llvm-cov report ./test_$(1) --instr-profile=./$(1).profdata | grep -w "src/.*$(1).cpp";
 
 test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 	$(foreach test,$(ALL_TESTS),$(call verify,$(subst test_,,$(test))))
