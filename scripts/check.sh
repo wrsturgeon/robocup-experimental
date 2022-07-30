@@ -188,7 +188,7 @@ done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo -e "  All good!"
+  echo -e "  All clear!"
 fi
 
 exit ${EXIT_CODE}

@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen naoqi-driver naoqi-sdk test
+.PHONY: eigen naoqi-driver naoqi-sdk test check-leak-detection
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -22,11 +22,11 @@ MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
-SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
+DEBUG_FLAGS   := -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -funit-at-a-time -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
+SANITIZE := -fsanitize=leak,undefined -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
@@ -116,5 +116,19 @@ test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
 test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
-test: $(ALL_TESTS)
-	echo 'TODO: run all tests (rewrite scripts/run-tests.sh as a Make routine)'
+../coverage:
+	mkdir -p ../coverage && cd ../coverage && rm -rf *
+
+check-leak-detection: ../test/leak.cpp ../coverage
+	echo "$(compile) $(strip $(TEST_FLAGS))"
+	$(compile) $(strip $(TEST_FLAGS))
+ifndef VERBOSE
+	! ./check-leak-detection >/dev/null 2>&1
+else
+	! ./check-leak-detection 2>/dev/null
+endif
+	rm ./check-leak-detection
+	echo '  Detected intentional leak'
+
+test: check-leak-detection $(ALL_TESTS)
+	asdf
