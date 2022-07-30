@@ -24,7 +24,7 @@ COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WA
 
 DEBUG_FLAGS   := -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -funit-at-a-time -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
-SANITIZE := -fsanitize=leak,undefined -Wno-error=unused-command-line-argument
+SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 
