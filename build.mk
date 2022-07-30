@@ -18,7 +18,7 @@ ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp
 
 FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
-MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)/macros.hpp
+MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
@@ -73,7 +73,7 @@ naoqi-sdk: $(TPY)
 
 compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(COMMON)
 compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
-compile-tst = $(compile) gtest.o $(call nth_prereqs,4) $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
+compile-tst = $(compile) $(call nth_prereqs,3) gmain.o gtest.o $(TST)/$(subst test_,,$(@)).cpp $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
 compile-lib = $(compile-bin) -c $(call nth_prereqs,3)
 
 nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) | cut -d' ' -f$(1)-))
@@ -83,43 +83,46 @@ deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
 
 # No dependencies
-distortion: $(call deps,vision/distortion)
+distortion.o: $(call deps,vision/distortion)
 	$(compile-lib)
-pxpos: $(call deps,vision/pxpos)
+pxpos.o: $(call deps,vision/pxpos)
 	$(compile-lib)
-xoshiro: $(call deps,rnd/xoshiro)
+xoshiro.o: $(call deps,rnd/xoshiro)
 	$(compile-lib)
 
-# Only Eigen
-units: $(call deps,measure/units) eigen
+# Only third-party libraries
+units.o: $(call deps,measure/units) eigen
 	$(compile-lib)
 
 # Dependencies, in some dependency-based order
-image-api: $(call deps,vision/image-api) eigen distortion pxpos
+image-api.o: $(call deps,vision/image-api) eigen distortion pxpos
 	$(compile-lib)
 
 
 
 # Testing
 gtest.o: gtest
-	echo 'Compiling GoogleTest...'
-	$(CXX) -o ./gtest.o -c $(TPY)/gtest/googletest/src/gtest-all.cc $(COMMON) $(INCLUDE_GTEST) -w -iquote $(TPY)/gtest/googletest
+	echo 'Compiling GoogleTest libraries...'
+	$(CXX) -o ./gtest.o -c -w -O1 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
+gmain.o: gtest
+	echo 'Compiling GoogleTest main function...'
+	$(CXX) -o ./gmain.o -c -w -O1 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
-test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) eigen
+test_distortion: $(call deps,vision/distortion) eigen
 	$(compile-tst)
-test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) eigen units
+test_field-lines: $(call deps,measure/field-lines) eigen units.o xoshiro.o
 	$(compile-tst)
-test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) eigen
+test_image-api: $(call deps,vision/image-api) eigen
 	$(compile-tst)
-test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
+test_pxpos: $(call deps,vision/pxpos)
 	$(compile-tst)
-test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) eigen
+test_pyramid: $(call deps,wasserstein/pyramid) eigen
 	$(compile-tst)
-test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
+test_scrambler: $(call deps,training/scrambler)
 	$(compile-tst)
-test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
+test_units: $(call deps,measure/units) eigen
 	$(compile-tst)
-test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
+test_xoshiro: $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
 ../coverage:
@@ -136,12 +139,15 @@ endif
 	echo '  Detected intentional leak'
 
 define verify
-echo "Testing $(subst test_,,$(1))..."
-./$(1)
+echo "Testing $(1)..."
+rm -f ./default.profraw
+./test_$(1) || \
+llvm-profdata merge -sparse default.profraw -o $(1).profdata && \
+llvm-cov report ./test_$(1) -instr-profile=$(1).profdata $(subst #include ,,$(head -n1 $(TST)/$(1).cpp | tr -d '"'))
 endef
 
-test: check-leak-detection gtest.o $(ALL_TESTS)
-	$(foreach test,$(ALL_TESTS),$(call verify,$(test)))
+test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
+	$(foreach test,$(ALL_TESTS),$(call verify,$(subst test_,,$(test))))
 
 
 

@@ -21,8 +21,8 @@ class Lens {
 public:
   Lens(Lens const&) = delete;
   Lens(int16_t radial_ = 0, int16_t tangential_x_ = 0, int16_t tangential_y_ = 0);
-  template <uint32_t diag_sq> MEMBER_INLINE pxpos_t undistort(pxpos_t px);
-  template <uint32_t diag_sq> MEMBER_INLINE pxpos_t redistort(pxpos_t px);
+  template <uint32_t diag_sq> inline pxpos_t undistort(pxpos_t px);
+  template <uint32_t diag_sq> inline pxpos_t redistort(pxpos_t px);
 protected:
   int16_t radial; // 8 bits used; extra for smooth gradient descent
   int16_t tangential_x;

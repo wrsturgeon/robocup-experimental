@@ -10,7 +10,7 @@ namespace measure {
 
 
 
-INLINE Position sample_field_lines();
+static inline Position sample_field_lines();
 
 
 

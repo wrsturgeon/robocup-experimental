@@ -18,7 +18,7 @@ class Scrambler {
 public:
   Scrambler(Scrambler const&) = delete;
   Scrambler();
-  MEMBER_INLINE T const* store_and_recall(T const *const current); // THIS CAN AND WILL BE NULL
+  inline T const* store_and_recall(T const *const current); // THIS CAN AND WILL BE NULL
 protected:
   static_assert(abits, "Scrambler abits can't be 0");
   static constexpr size_t n = static_cast<size_t>(1) << abits;

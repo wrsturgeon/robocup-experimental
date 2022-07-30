@@ -28,8 +28,8 @@ protected:
   static constexpr vision::pxidx_t half_h = h >> 1;
   static constexpr size_t bytes_above = pyrsize(half_w, half_h); // C++ doesn't like substituting this directly
   using up_t = Pyramid<half_w, half_h>;
-  MEMBER_INLINE void build_manual(); // Max-pooling (directional flags)
-  MEMBER_INLINE void build_eigen(EigenMap<w, h> const& lower_map); // Mean-pooling (automatic)
+  inline void build_manual(); // Max-pooling (directional flags)
+  inline void build_eigen(EigenMap<w, h> const& lower_map); // Mean-pooling (automatic)
 private:
   uint8_t _array[h][w]; // NOT uint8_t**, thankfully--contiguous row-major format
   uint8_t _up_raw[bytes_above]; // Please never access directly: use up()
@@ -39,8 +39,8 @@ public:
   Pyramid(Pyramid const&) = delete;
   Pyramid(uint8_t src[h][w]);
   Pyramid(vision::NaoImage<w, h> const& src);
-  MEMBER_INLINE uint8_t& operator()(vision::pxidx_t x, vision::pxidx_t y);
-  MEMBER_INLINE up_t& up();
+  inline uint8_t& operator()(vision::pxidx_t x, vision::pxidx_t y);
+  inline up_t& up();
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
