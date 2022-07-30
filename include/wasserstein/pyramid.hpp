@@ -1,4 +1,3 @@
-#if WASSERSTEIN_ENABLED
 #ifndef WASSERSTEIN_PYRAMID_HPP_
 #define WASSERSTEIN_PYRAMID_HPP_
 
@@ -8,7 +7,7 @@
 #include "eigen.hpp"
 
 #include "rnd/xoshiro.hpp"
-#include "vision/image_api.hpp"
+#include "vision/image-api.hpp"
 
 namespace wasserstein {
 
@@ -18,6 +17,8 @@ template <vision::pxidx_t w, vision::pxidx_t h> using EigenMap = Eigen::Map<Eige
 
 static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wzero-length-array"
 template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {
 protected:
@@ -44,13 +45,10 @@ public:
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
 };
+#pragma clang diagnostic pop
 
 
 
 } // namespace wasserstein
 
 #endif // WASSERSTEIN_PYRAMID_HPP_
-
-#else // WASSERSTEIN_ENABLED
-#pragma message("Skipping pyramid.hpp; wasserstein module disabled")
-#endif // WASSERSTEIN_ENABLED

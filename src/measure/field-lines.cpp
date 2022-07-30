@@ -1,4 +1,4 @@
-#include "measure/field_lines.hpp"
+#include "measure/field-lines.hpp"
 
 namespace measure {
 
@@ -17,7 +17,6 @@ INLINE Position sample_field_lines() {
     rnd_state >>= 16;
     /**
      * Table of values from the above lines as written
-     * TODO: these could be reordered to be much more efficient
      * 
      *  indx        x             y         +=     cum
      * 
@@ -86,9 +85,3 @@ INLINE Position sample_field_lines() {
 
 
 } // namespace measure
-
-#endif // MEASURE_FIELD_LINES_HPP_
-
-#else // MEASURE_ENABLED
-#pragma message("Skipping field_lines.hpp; measure module disabled")
-#endif // MEASURE_ENABLED

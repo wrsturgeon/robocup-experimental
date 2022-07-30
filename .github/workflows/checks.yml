@@ -2,27 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [ '*' ]
+    branches: [ '*', '!main' ]
   workflow_dispatch:
 
 
 
 jobs:
-
   build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Successful compilation
-        run: |
-          ./compile.sh test
-          ./compile.sh release
-
+      - name: make test
+        run: make test
   build-mac:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Successful compilation
-        run: |
-          ./compile.sh test
-          ./compile.sh release
+        run: make test

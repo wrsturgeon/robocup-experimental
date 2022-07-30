@@ -1,4 +1,3 @@
-#if TRAINING_ENABLED
 #ifndef TRAINING_MEMORY_HPP_
 #define TRAINING_MEMORY_HPP_
 
@@ -6,7 +5,7 @@
 
 #include "measure/units.hpp"
 #include "rnd/xoshiro.hpp"
-#include "vision/image_api.hpp"
+#include "vision/image-api.hpp"
 
 namespace training {
 
@@ -23,7 +22,3 @@ struct Memory {
 } // namespace training
 
 #endif // TRAINING_MEMORY_HPP_
-
-#else // TRAINING_ENABLED
-#pragma message("Skipping memory.hpp; training module disabled")
-#endif // TRAINING_ENABLED

@@ -1,13 +1,12 @@
-#if VISION_ENABLED
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
 #include <math.h>
 
 #include "measure/units.hpp"
-#include "util/constexpr_math.hpp"
+#include "util/constexpr-math.hpp"
 #include "vision/pxpos.hpp"
-#include "vision/image_api.hpp"
+#include "vision/image-api.hpp"
 
 namespace vision {
 
@@ -37,7 +36,3 @@ protected:
 } // namespace vision
 
 #endif // VISION_DISTORTION_HPP_
-
-#else // VISION_ENABLED
-#pragma message("Skipping distortion.hpp; vision module disabled")
-#endif // VISION_ENABLED

@@ -1,4 +1,3 @@
-#if VISION_ENABLED
 #ifndef VISION_PXPOS_HPP_
 #define VISION_PXPOS_HPP_
 
@@ -29,7 +28,3 @@ public:
 } // namespace vision
 
 #endif // VISION_PXPOS_HPP_
-
-#else // VISION_ENABLED
-#pragma message("Skipping pxpos.hpp; vision module disabled")
-#endif // VISION_ENABLED

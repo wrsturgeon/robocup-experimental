@@ -1,4 +1,3 @@
-#if RND_ENABLED
 #ifndef RND_XOSHIRO_HPP_
 #define RND_XOSHIRO_HPP_
 
@@ -29,7 +28,3 @@ INLINE bool bit();
 } // namespace rnd
 
 #endif // RND_XOSHIRO_HPP_
-
-#else // RND_ENABLED
-#pragma message("Skipping xoshiro.hpp; rnd module disabled")
-#endif // RND_ENABLED

@@ -1,4 +1,3 @@
-#if TRAINING_ENABLED
 #ifndef TRAINING_SCRAMBLER_HPP_
 #define TRAINING_SCRAMBLER_HPP_
 
@@ -36,7 +35,3 @@ protected:
 } // namespace training
 
 #endif // TRAINING_SCRAMBLER_HPP_
-
-#else // TRAINING_ENABLED
-#pragma message("Skipping scrambler.hpp; training module disabled")
-#endif // TRAINING_ENABLED

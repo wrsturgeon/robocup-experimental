@@ -189,7 +189,7 @@ int v4l2_close_query(v4l2_device *vdev) {
 
 int v4l2_close(v4l2_device *vdev) {
   v4l2_uninit_mmap(vdev);
-  // TODO: free control (this is from the original legacy C file--still relevant??)
+  // TODO: free control (this comment is from the original legacy C file--still relevant??)
   v4l2_close_query(vdev);
   if (close(vdev->fd) == -1) {
     return v4l2_error("Closing video device");
