@@ -6,7 +6,7 @@ OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux;
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
 BITS := $(shell getconf LONG_BIT)
 
-CXX := $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
+CXX := clang++ # $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
 
 DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
