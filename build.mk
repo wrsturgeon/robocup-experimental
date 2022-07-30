@@ -28,7 +28,7 @@ TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 
-INCLUDE_EIGEN=-iquote $(TPY)/eigen
+INCLUDE_EIGEN=-Wno-poison-system-directories -iquote $(TPY)/eigen
 INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
 INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
 
