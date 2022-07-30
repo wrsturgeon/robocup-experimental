@@ -131,4 +131,4 @@ endif
 	echo '  Detected intentional leak'
 
 test: check-leak-detection $(ALL_TESTS)
-	asdf
+	$(foreach test,$(ALL_TESTS),./$(test))
