@@ -49,7 +49,7 @@ release: release-flags
 pull = \
 echo "Pulling $(@)..."; \
 cd $(<); \
-(cd $(@) && git pull -q) || \
+(cd $(@) 2>/dev/null && git pull -q) || \
 (echo "  Downloading into $(TPY)/$(@)..." && git clone -q $(1) $(@) && echo '  Done!')
 
 $(TPY):
@@ -76,7 +76,7 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-tst = $(compile) $(call nth_prereqs,4) $(strip $(TEST_FLAGS))
 compile-lib = $(compile-bin) -c $(call nth_prereqs,3)
 
-nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell cut -d' ' -f$(1)- <<< "$(^)"))
+nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell cat $(^) | cut -d' ' -f$(1)-"))
 
 deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
