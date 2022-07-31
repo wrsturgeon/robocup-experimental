@@ -7,11 +7,15 @@ endif
 .PHONY: run check
 ALL_SRC_INCLUDE := $(shell find ./src ./include)
 
+OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
+CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
+MAKE := make OS=$(OS) CORES=$(CORES) #-j$(CORES)
+
 run: check build/Makefile
-	cd ./build && make
+	cd ./build && $(MAKE)
 
 release test: check build/Makefile
-	cd ./build && make $(@)
+	cd ./build && $(MAKE) $(@)
 
 check:
 	scripts/check.sh

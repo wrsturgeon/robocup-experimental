@@ -2,8 +2,6 @@
 
 .PHONY: eigen naoqi-driver naoqi-sdk test check-leak-detection
 
-OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
-CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
 BITS := $(shell getconf LONG_BIT)
 
 CXX := clang++ # $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
@@ -14,6 +12,8 @@ INC := $(DIR)/include
 TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCR := $(DIR)/scripts
+
+SED := $(shell if [ $(OS) = linux ]; then echo 'sed -i'; else echo "sed -i ''"; fi)
 
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
@@ -57,6 +57,11 @@ eigen: $(TPY)
 	$(call pull,https://gitlab.com/libeigen/eigen.git)
 gtest: $(TPY)
 	$(call pull,https://github.com/google/googletest.git)
+force-cover: $(TPY)
+	$(call pull,https://github.com/emilydolson/force-cover.git)
+	$(SED) 's|-Wl,--.*-group||g' $(TPY)/force-cover/Makefile
+	cd $(TPY)/force-cover && make
+	ln -s $(TPY)/force-cover/force-cover ./force-cover
 naoqi-driver: $(TPY)
 	$(call pull,https://github.com/ros-naoqi/naoqi_driver)
 naoqi-sdk: $(TPY)
@@ -146,7 +151,7 @@ LSAN_OPTIONS=$(strip $(LSAN_OPTIONS)) ./test_$(1) && \
 llvm-profdata merge ./default.profraw -o ./$(1).profdata && \
 llvm-cov report ./test_$(1) --instr-profile=./$(1).profdata | grep -w "src/.*$(1).cpp" | xargs $(SCR)/parse-coverage.sh;
 
-test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
+test: check-leak-detection gmain.o gtest.o force-cover $(ALL_TESTS)
 	$(foreach test,$(ALL_TESTS),$(call verify,$(subst test_,,$(test))))
 
 
