@@ -10,7 +10,7 @@ Scrambler<T, abits>::Scrambler() : rnd_uses_left{0} {}
 
 
 template <typename T, uint8_t abits>
-MEMBER_INLINE T const* Scrambler<T, abits>::store_and_recall(T const *const current) {
+T const* Scrambler<T, abits>::store_and_recall(T const *const current) {
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();

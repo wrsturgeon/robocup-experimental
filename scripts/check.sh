@@ -87,20 +87,6 @@ then
   EXIT_CODE=1
 fi
 
-# Assert no manual "macros.hpp"
-if grep -Rn ./src ./include -e '#include "macros.hpp"' 2>/dev/null
-then
-  echo -e "  Please don't manually #include \"macros.hpp\"; it's included automatically"
-  EXIT_CODE=1
-fi
-
-# Assert no plain `inline`
-if grep -Rn ./src ./include -e 'inline' --exclude=macros.hpp 2>/dev/null
-then
-  echo -e "  Please use \`INLINE\` instead of \`inline\` (or \`MEMBER_INLINE\` if it can't be \`static\`) so we can override for coverage"
-  EXIT_CODE=1
-fi
-
 # Assert no manual "eigen-matrix-plugin.hpp"
 if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
 then
@@ -172,7 +158,7 @@ do
 
     for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen-matrix-plugin.hpp)
     do
-      if grep -n ${hpp} -e '{' | grep -v namespace | grep -v class | grep -v struct
+      if grep -n ${hpp} -e '{' | grep -v namespace | grep -v class | grep -v struct | grep -v global
       then
         echo "  Please don't define anything in .hpp files (just declare)"
         EXIT_CODE=1
@@ -195,7 +181,7 @@ done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo -e "  All good!"
+  echo -e "  All clear!"
 fi
 
 exit ${EXIT_CODE}

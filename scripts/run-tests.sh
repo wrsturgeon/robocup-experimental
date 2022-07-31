@@ -41,4 +41,4 @@ do
   (llvm-cov show   -instr-profile=./${FNAME}.profdata ${FNAME} ${file}; exit 0) # 0 FOR NOW
 done
 rm -f ./run-test
-echo 'All good!'
+echo 'All clear!'

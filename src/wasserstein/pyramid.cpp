@@ -21,10 +21,10 @@ template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-MEMBER_INLINE uint8_t& Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) { return _array[y][x]; }
+uint8_t& Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) { return _array[y][x]; }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-MEMBER_INLINE typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() { return *reinterpret_cast<up_t*>(_up_raw); }
+typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() { return *reinterpret_cast<up_t*>(_up_raw); }
 // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
 // it'll still return the same 0-element Pyramid!
 // We just need some kind of minimal (preferably compile-time) bounds checking in public methods

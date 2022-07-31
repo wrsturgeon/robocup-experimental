@@ -1,32 +1,33 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen naoqi-driver naoqi-sdk test
+.PHONY: eigen naoqi-driver naoqi-sdk test check-leak-detection
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
 BITS := $(shell getconf LONG_BIT)
 
-CXX := $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
+CXX := clang++ # $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
 
 DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
 INC := $(DIR)/include
 TPY := $(DIR)/third-party
 TST := $(DIR)/test
+SCR := $(DIR)/scripts
 
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
 FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
-MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES) -imacros $(INC)/macros.hpp
+MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
 COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -g -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS :=    -Ofast -march=native -mtune=native -funit-at-a-time -fno-common -fomit-frame-pointer -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
-SANITIZE := -fsanitize=address,undefined,cfi -fsanitize-stats -fsanitize-address-use-after-scope -fsanitize-memory-track-origins -fsanitize-memory-use-after-dtor -Wno-error=unused-command-line-argument
+DEBUG_FLAGS   := -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -funit-at-a-time -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
+SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
@@ -73,7 +74,7 @@ naoqi-sdk: $(TPY)
 
 compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(COMMON)
 compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
-compile-tst = $(compile) gtest.o $(call nth_prereqs,4) $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
+compile-tst = $(compile) $(call nth_prereqs,3) gmain.o gtest.o $(TST)/$(subst test_,,$(@)).cpp $(strip $(TEST_FLAGS)) $(INCLUDE_GTEST)
 compile-lib = $(compile-bin) -c $(call nth_prereqs,3)
 
 nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) | cut -d' ' -f$(1)-))
@@ -83,47 +84,70 @@ deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
 
 # No dependencies
-distortion: $(call deps,vision/distortion)
+distortion.o: $(call deps,vision/distortion)
 	$(compile-lib)
-pxpos: $(call deps,vision/pxpos)
+pxpos.o: $(call deps,vision/pxpos)
 	$(compile-lib)
-xoshiro: $(call deps,rnd/xoshiro)
+xoshiro.o: $(call deps,rnd/xoshiro)
 	$(compile-lib)
 
-# Only Eigen
-units: $(call deps,measure/units) eigen
+# Only third-party libraries
+units.o: $(call deps,measure/units) eigen
 	$(compile-lib)
 
 # Dependencies, in some dependency-based order
-image-api: $(call deps,vision/image-api) eigen distortion pxpos
+image-api.o: $(call deps,vision/image-api) eigen distortion pxpos
 	$(compile-lib)
 
 
 
 # Testing
 gtest.o: gtest
-	echo 'Compiling GoogleTest...'
-	$(CXX) -o ./gtest.o -c $(TPY)/gtest/googletest/src/gtest-all.cc $(COMMON) $(INCLUDE_GTEST) -w -iquote $(TPY)/gtest/googletest
+	echo 'Compiling GoogleTest libraries...'
+	$(CXX) -o ./gtest.o -c -w -O1 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
+gmain.o: gtest
+	echo 'Compiling GoogleTest main function...'
+	$(CXX) -o ./gmain.o -c -w -O1 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
-test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) eigen
+test_distortion: $(call deps,vision/distortion) eigen
 	$(compile-tst)
-test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) eigen units
+test_field-lines: $(call deps,measure/field-lines) eigen units.o xoshiro.o
 	$(compile-tst)
-test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) eigen
+test_image-api: $(call deps,vision/image-api) eigen
 	$(compile-tst)
-test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
+test_pxpos: $(call deps,vision/pxpos)
 	$(compile-tst)
-test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) eigen
+test_pyramid: $(call deps,wasserstein/pyramid) eigen
 	$(compile-tst)
-test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
+test_scrambler: $(call deps,training/scrambler)
 	$(compile-tst)
-test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
+test_units: $(call deps,measure/units) eigen
 	$(compile-tst)
-test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
+test_xoshiro: $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
-test: gtest.o $(ALL_TESTS)
-	echo 'TODO: run all tests (rewrite scripts/run-tests.sh as a Make routine)'
+../coverage:
+	mkdir -p ../coverage && cd ../coverage && rm -rf *
+
+check-leak-detection: ../test/leak.cpp ../coverage
+	$(compile) $(strip $(TEST_FLAGS))
+ifndef VERBOSE
+	! ./check-leak-detection >/dev/null 2>&1
+else
+	! ./check-leak-detection 2>/dev/null
+endif
+	rm ./check-leak-detection
+	echo '  Detected intentional leak'
+
+verify = \
+echo "Testing $(1)..."; \
+rm -f ./default.profraw; \
+LSAN_OPTIONS=$(strip $(LSAN_OPTIONS)) ./test_$(1) && \
+llvm-profdata merge ./default.profraw -o ./$(1).profdata && \
+llvm-cov report ./test_$(1) --instr-profile=./$(1).profdata | grep -w "src/.*$(1).cpp" | xargs $(SCR)/parse-coverage.sh;
+
+test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
+	$(foreach test,$(ALL_TESTS),$(call verify,$(subst test_,,$(test))))
 
 
 
