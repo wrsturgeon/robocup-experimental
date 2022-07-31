@@ -6,12 +6,12 @@ echo 'Checking code style and safety...'
 
 EXIT_CODE=0
 
-# Assert only .cpp in ./src/
-INVALID_FILES=$(find ./src -type f ! -iname '*.cpp' ! -name README.md)
+# Assert only .cpp in ./src/ & ./test/
+INVALID_FILES=$(find ./src ./test -type f ! -iname '*.cpp' ! -name README.md)
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo '  Please only use .cpp & README.md in ./src/'
+  echo '  Please only use .cpp & README.md in ./src/ & ./test/'
   echo "    $(${INVALID_FILES} | grep -v legacy)"
   EXIT_CODE=1
 fi
@@ -28,7 +28,7 @@ fi
 # Assert no _, only - in filenames
 find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
 find . -name '*.icloud' | xargs -I{} rm {} # More dumb Mac shit
-INVALID_FILES=$(find ./src ./include -name '*_*')
+INVALID_FILES=$(find ./src ./test ./include -name '*_*')
 if [ ! -z "${INVALID_FILES}" ]
 then
   echo '  Please use hyphens instead of underscores in filenames'
@@ -175,6 +175,11 @@ do
   if [ ! -f ${TEST_FILE} ]
   then
     echo "  Please write ${TEST_FILE} to test ${file}"
+    EXIT_CODE=1
+  fi
+  if ! grep -q ${TEST_FILE} -e '#include ".*'${FNAME}'.hpp"'
+  then
+    echo "  Please #include the original .hpp in ${TEST_FILE}"
     EXIT_CODE=1
   fi
 done
