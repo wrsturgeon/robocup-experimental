@@ -8,3 +8,8 @@
 #pragma clang diagnostic ignored "-Wweak-vtables"
 #include "gtest/gtest.h"
 #pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+// and let this run into the main file
+// TODO: is there a safer way to do this?

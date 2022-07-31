@@ -12,7 +12,7 @@ using Eigen::seqN;
 
 
 
-static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) { return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0; }
+inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) { return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0; }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{&src[0][0]} {}
