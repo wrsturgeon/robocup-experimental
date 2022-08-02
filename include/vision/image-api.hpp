@@ -5,7 +5,6 @@
 
 #include "eigen.hpp"
 
-#include "vision/distortion.hpp"
 #include "vision/pxpos.hpp"
 
 namespace vision {

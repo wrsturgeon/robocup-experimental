@@ -55,6 +55,3 @@
 
 build/
 third-party/
-
-coverage/
-*.prof*
