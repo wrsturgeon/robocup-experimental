@@ -17,5 +17,5 @@ TEST(Units, PosTString) { EXPECT_EQ(static_cast<std::string>(measure::pos_t{1000
 TEST(Units, PosTStream) { std::ostream os{nullptr}; EXPECT_NO_THROW(os << measure::pos_t{42}); }
 TEST_F(UnitsPosTTest, Int16) { EXPECT_EQ(operator int16_t(), 42); }
 
-TEST(Units, PositionString) { EXPECT_EQ(static_cast<std::string>(measure::Position{1000, 1000}), "(1.000000m, 1.000000m)"); }
+TEST(Units, PositionString) { EXPECT_EQ(static_cast<std::string>(measure::Position{1000, 1000}), "(1.000000m x, 1.000000m y)"); }
 TEST(Units, PositionStream) { std::ostream os{nullptr}; EXPECT_NO_THROW(os << (measure::Position{42, 42})); }
