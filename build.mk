@@ -27,7 +27,7 @@ DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Dprotected=public -Dprivate=public
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
