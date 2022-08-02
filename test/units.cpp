@@ -13,5 +13,5 @@ TEST(Units, PosTOverflow) { EXPECT_THROW(measure::pos_t{static_cast<int16_t>(0x7
 TEST(Units, PosTOverflowNegative) { EXPECT_THROW(measure::pos_t{static_cast<int16_t>(0x8000)}, std::overflow_error); }
 TEST(Units, PosTMeters) { EXPECT_FLOAT_EQ(measure::pos_t{1000}.meters(), 1.f); }
 TEST(Units, PosTMetersImprecise) { EXPECT_FLOAT_EQ(measure::pos_t{1}.meters(), 0.001f); }
-TEST(Units, PosTString) { EXPECT_EQ(measure::pos_t{1000}.operator std::string(), "1.000m"); }
+TEST(Units, PosTString) { EXPECT_EQ(measure::pos_t{1000}.operator std::string(), "1.000000m"); }
 TEST_F(UnitsPosTTest, Int16) { EXPECT_EQ(operator int16_t(), 42); }
