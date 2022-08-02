@@ -15,6 +15,7 @@ jobs:
       - name: make test
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          sudo apt-get install -y llvm
           make test
   build-mac:
     runs-on: macos-latest
