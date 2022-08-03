@@ -1,2 +1,6 @@
 #include "rnd/xoshiro.hpp"
 #include "gtest.hpp"
+
+TEST(Xoshiro, Rotl1) { ASSERT_EQ(rnd::rotl<1>(42), static_cast<rnd::t>(84)); }
+TEST(Xoshiro, StartSameEveryTimeNext) { ASSERT_EQ(rnd::next(), static_cast<rnd::t>(42)); }
+TEST(Xoshiro, StartSameEveryTimeBit) { ASSERT_EQ(rnd::bit(), static_cast<rnd::t>(42)); }
