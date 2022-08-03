@@ -143,3 +143,5 @@ test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 
 
 # TODO: use PGO (profiling-guided optimization)
+
+# TODO: undo src/include split
