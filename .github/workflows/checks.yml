@@ -16,8 +16,6 @@ jobs:
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           PATH=$(find -L /usr/lib -maxdepth 1 -type d -iname 'llvm*' | sort -r | head -n1)/bin:$PATH
-          echo $PATH | tr ':' '\n'
-          ls $(cut -d: -f1 <<< $PATH)
           make test
   build-mac:
     runs-on: macos-latest

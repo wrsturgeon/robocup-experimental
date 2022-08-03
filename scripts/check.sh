@@ -168,7 +168,7 @@ do
   done
 done
 
-for file in $(find ./include -type f ! -name README.md ! -path '*/legacy/*')
+for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
   TEST_FILE="./test/${FNAME}.cpp"
@@ -177,9 +177,14 @@ do
     echo "  Please write ${TEST_FILE} to test ${file}"
     EXIT_CODE=1
   fi
-  if ! grep -q ${TEST_FILE} -e '#include ".*'${FNAME}'.hpp"'
+  if ! (head -n1 ${TEST_FILE} | grep -q '#include ".*'${FNAME}'.hpp"')
   then
-    echo "  Please #include the original .hpp in ${TEST_FILE}"
+    echo "  Please #include the original .hpp on the first line of ${TEST_FILE}"
+    EXIT_CODE=1
+  fi
+  if ! (sed '2q;d' ${TEST_FILE} | grep -q '#include "gtest.hpp"')
+  then
+    echo '  Please #include "gtest.hpp" on the second line of '${TEST_FILE}
     EXIT_CODE=1
   fi
 done

@@ -27,7 +27,7 @@ DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -fno-optimize-sibling-calls -DEIGEN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE))
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
@@ -75,7 +75,7 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 compile-tst = clang++ -o ./$(@) $(<) $(strip $(COMMON)) -include $(word 2,$(^)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 
-nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) | cut -d' ' -f$(1)-))
+nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) $(|) | cut -d' ' -f$(1)-))
 
 deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
@@ -88,13 +88,13 @@ xoshiro.o: $(call deps,rnd/xoshiro)
 	$(compile-lib)
 
 # Only third-party libraries
-units.o: $(call deps,measure/units) eigen
+units.o: $(call deps,measure/units) | eigen
 	$(compile-lib)
-image-api.o: $(call deps,vision/image-api) eigen
+image-api.o: $(call deps,vision/image-api) | eigen
 	$(compile-lib)
 
 # All others, in some dependency-based order
-distortion.o: $(call deps,vision/distortion) eigen
+distortion.o: $(call deps,vision/distortion) | eigen
 	$(compile-lib)
 
 
@@ -107,19 +107,19 @@ gmain.o: | gtest
 	echo 'Compiling GoogleTest main function...'
 	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
-test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) eigen
+test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) | eigen
 	$(compile-tst)
-test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) eigen units.o xoshiro.o
+test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) units.o xoshiro.o | eigen
 	$(compile-tst)
-test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) eigen distortion.o pxpos.o
+test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) distortion.o pxpos.o | eigen
 	$(compile-tst)
 test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 	$(compile-tst)
-test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) eigen xoshiro.o image-api.o
+test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) xoshiro.o image-api.o | eigen
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
 	$(compile-tst)
-test_units: $(TST)/units.cpp $(call deps,measure/units) eigen
+test_units: $(TST)/units.cpp $(call deps,measure/units) | eigen
 	$(compile-tst)
 test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	$(compile-tst)
@@ -143,3 +143,5 @@ test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 
 
 # TODO: use PGO (profiling-guided optimization)
+
+# TODO: undo src/include split

@@ -5,7 +5,7 @@ namespace measure {
 
 
 pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
-  assert((internal >> lc) == mm);
+  if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
 }
 
 float pos_t::mm() const {
