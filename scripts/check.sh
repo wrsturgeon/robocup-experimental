@@ -168,7 +168,7 @@ do
   done
 done
 
-for file in $(find ./include -type f ! -name README.md ! -path '*/legacy/*')
+for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
   TEST_FILE="./test/${FNAME}.cpp"
