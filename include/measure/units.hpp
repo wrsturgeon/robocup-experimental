@@ -5,8 +5,6 @@
 #include <math.h>
 #include <stdint.h>
 
-#include "eigen.hpp"
-
 namespace measure {
 
 
@@ -27,15 +25,16 @@ public:
   inline float mm() const;
   inline float meters() const;
   inline operator std::string() const;
-  inline friend std::ostream& operator<<(std::ostream& os, pos_t const& p);
+  friend std::ostream& operator<<(std::ostream& os, pos_t const& p);
 protected:
   int16_t internal;
   static constexpr uint8_t lc = 1; // lg(conversion to mm)
   inline explicit operator int16_t() const;
-
   // TODO: verify (and prefably autoenforce at compile time) that this fits within a SIGNED SIZE (int16_t) array
-
 };
+
+// Declaration for cppclean
+std::ostream& operator<<(std::ostream& os, pos_t const& p);
 
 
 
@@ -48,6 +47,9 @@ public:
 protected:
   pos_t x, y;
 };
+
+// Declaration for cppclean
+std::ostream& operator<<(std::ostream& os, Position const& p);
 
 
 

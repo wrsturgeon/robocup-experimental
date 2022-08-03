@@ -14,7 +14,7 @@ release test: check build/Makefile
 	cd ./build && make $(@)
 
 check:
-	scripts/check.sh
+	./scripts/check.sh
 
 build/Makefile: build
 	echo 'Syncing ./build/Makefile with ./build.mk...'

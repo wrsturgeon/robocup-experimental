@@ -1,6 +1,8 @@
 #ifndef VISION_PXPOS_HPP_
 #define VISION_PXPOS_HPP_
 
+#include "measure/units.hpp"
+
 #include <iostream>
 #include <stdint.h>
 #include <string>
@@ -22,6 +24,9 @@ public:
   pxidx_t const y = 0;
   uint32_t r2() const;
 };
+
+// Declaration for cppclean
+std::ostream& operator<<(std::ostream& os, measure::Position const& p);
 
 
 

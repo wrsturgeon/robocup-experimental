@@ -1,10 +1,10 @@
 #ifndef TRAINING_SCRAMBLER_HPP_
 #define TRAINING_SCRAMBLER_HPP_
 
+#include "rnd/xoshiro.hpp"
+
 #include <memory>   // std::unique_ptr
 #include <stddef.h> // size_t
-
-#include "rnd/xoshiro.hpp"
 
 namespace training {
 

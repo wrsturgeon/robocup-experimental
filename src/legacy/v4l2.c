@@ -38,7 +38,9 @@ static void release_node(query_node *query) {
 static void *get_query_node(query_node *query, char const *key) {
   query_node *qptr = query;
   while (qptr) {
-    if (!strcmp(qptr->key, key)) { return qptr->value; }
+    if (!strcmp(qptr->key, key)) {
+      return qptr->value;
+    }
     qptr = qptr->next;
   }
   return 0;
@@ -66,7 +68,9 @@ int v4l2_query_menu(v4l2_device *vdev, struct v4l2_queryctrl *queryctrl) {
     if (!ioctl(vdev->fd, VIDIOC_QUERYMENU, &querymenu)) {
       vdev->menu_map = add_query_node(vdev->menu_map,
             (char *) querymenu.name, &querymenu, sizeof querymenu);
-    } else { fprintf(stderr, "Could not query menu %d\n", querymenu.index); }
+    } else {
+      fprintf(stderr, "Could not query menu %d\n", querymenu.index);
+    }
   }
   return 0;
 }
@@ -80,7 +84,9 @@ int v4l2_query_ctrl(v4l2_device *vdev, unsigned int addr_begin, unsigned int add
     if (ioctl(vdev->fd, VIDIOC_QUERYCTRL, &queryctrl) == -1) {
       if (errno == EINVAL) {
         continue;
-      } else { fprintf(stderr, "Could not query control %d\n", queryctrl.id); }
+      } else {
+        fprintf(stderr, "Could not query control %d\n", queryctrl.id);
+      }
     }
     printf("queryctrl: \"%s\" 0x%x %d %d %d\n", 
           queryctrl.name, queryctrl.id, queryctrl.minimum,
@@ -174,7 +180,9 @@ int v4l2_open(char const *device) {
   int video_fd = open(device, O_RDWR); // open video device with system call
   if (video_fd == -1) {
     return v4l2_error("Could not open video device");
-  } else { return video_fd; }
+  } else {
+    return video_fd;
+  }
 }
 
 

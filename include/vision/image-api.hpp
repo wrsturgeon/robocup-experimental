@@ -1,11 +1,11 @@
 #ifndef VISION_IMAGE_API_HPP_
 #define VISION_IMAGE_API_HPP_
 
-#include <stdint.h>
+#include "pxpos.hpp"
 
 #include "eigen.hpp"
 
-#include "vision/pxpos.hpp"
+#include <stdint.h>
 
 namespace vision {
 

@@ -1,13 +1,14 @@
 #ifndef WASSERSTEIN_PYRAMID_HPP_
 #define WASSERSTEIN_PYRAMID_HPP_
 
-#include <iostream>
-#include <string.h>
+#include "vision/image-api.hpp"
+#include "vision/pxpos.hpp"
+#include "rnd/xoshiro.hpp"
 
 #include "eigen.hpp"
 
-#include "rnd/xoshiro.hpp"
-#include "vision/image-api.hpp"
+#include <iostream>
+#include <string.h>
 
 namespace wasserstein {
 

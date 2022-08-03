@@ -1,12 +1,10 @@
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
-#include <math.h>
-
-#include "measure/units.hpp"
-#include "util/constexpr-math.hpp"
 #include "vision/pxpos.hpp"
-#include "vision/image-api.hpp"
+#include "util/constexpr-math.hpp"
+
+#include <math.h>
 
 namespace vision {
 
