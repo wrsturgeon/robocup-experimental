@@ -12,7 +12,9 @@ using Eigen::seqN;
 
 
 
-inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) { return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0; }
+inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) {
+  return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0;
+}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{&src[0][0]} {}
@@ -21,13 +23,18 @@ template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-uint8_t& Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) { return _array[y][x]; }
+uint8_t& Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) {
+  return _array[y][x];
+}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() { return *reinterpret_cast<up_t*>(_up_raw); }
-// The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
-// it'll still return the same 0-element Pyramid!
-// We just need some kind of minimal (preferably compile-time) bounds checking in public methods
+typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() {
+  return *reinterpret_cast<up_t*>(_up_raw);
+  // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
+  // it'll still return the same 0-element Pyramid!
+  // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
+  // And keep in mind that 0-element arrays are a compiler extension
+}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
@@ -53,7 +60,9 @@ void Pyramid<w, h>::build_manual() {
   
   // NOTE: AN INFINITE CONSTRUCTOR LOOP DOES *NOT* THROW A COMPILE-TIME ERROR
   // Need to verify that we have > 0 pixels to fill, else infinite loop of constructing nothing
-  if ((!half_w) || (!half_h)) { return; }
+  if ((!half_w) || (!half_h)) {
+    return;
+  }
 
   // Allocating for use in loops
   vision::pxidx_t twice;
@@ -98,17 +107,35 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
   // Eigen has some obsessive beef with things that look like column vectors but aren't
   if constexpr (half_w == 1) {
     Eigen::Map<Eigen::Vector<uint8_t, half_h>> upper_map{&next._array[0][0]};
-    if constexpr (w & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    if constexpr (w & 1) {
+      i0 = rnd::bit();
+    } else {
+      i0 = 0;
+    }
     auto tmp = (lower_map(all, seqN(i0, half_w, 2)) >> 1) + (lower_map(all, seqN(i0 + 1, half_w, 2)) >> 1);
-    if constexpr (h & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    if constexpr (h & 1) {
+      i0 = rnd::bit();
+    } else {
+      i0 = 0;
+    }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
   } else { // Literally anything else
     EigenMap<half_w, half_h> upper_map{&next._array[0][0]};
-    if constexpr (w & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    if constexpr (w & 1) {
+      i0 = rnd::bit();
+    } else {
+      i0 = 0;
+    }
     auto tmp = (lower_map(all, seqN(i0, half_w, 2)) >> 1) + (lower_map(all, seqN(i0 + 1, half_w, 2)) >> 1);
-    if constexpr (h & 1) { i0 = rnd::bit(); } else { i0 = 0; }
+    if constexpr (h & 1) {
+      i0 = rnd::bit();
+    } else {
+      i0 = 0;
+    }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
-    if constexpr (half_h != 1) { next.build_eigen(upper_map); }
+    if constexpr (half_h != 1) {
+      next.build_eigen(upper_map);
+    }
   }
 }
 

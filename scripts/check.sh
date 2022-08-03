@@ -55,6 +55,7 @@ do
 done
 
 # Assert all existing cpp-hpp pairs are properly fused
+# Assert no one-liners in cpp files (with great sorrow, but for coverage <3)
 for file in $(find ./src -type f ! -name README.md)
 do
   HEADER=$(echo ${file:6} | rev | cut -d. -f2- | rev).hpp
@@ -62,6 +63,12 @@ do
   if ([ -f ./include/${HEADER} ] && [ "$(head -n4 ${file} | tr -d '\n')" != '#include "'${HEADER}'"namespace '${DIRNAME}' {' ])
   then
     echo "  Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace"
+    EXIT_CODE=1
+  fi
+  if grep -nq '{.*;.*}' ${file}
+  then
+    echo '  Please define braced blocks on a separate line for coverage'
+    grep -n '{.*;.*}' ${file} | cut -d: -f1 | xargs -I{} echo '    '${file}:{}
     EXIT_CODE=1
   fi
 done
@@ -154,6 +161,17 @@ do
         echo
         EXIT_CODE=1
       fi
+    fi
+
+    # Specific-to-general #includes
+    LAST_LOCAL=$(grep -n '#include "' ${file} | tail -n1 | cut -d: -f1)
+    FIRST_SYSTEM=$(grep -n '#include <' ${file} | head -n1 | cut -d: -f1)
+    if [ ! -z "${LAST_LOCAL}" ] && [ ! -z "${FIRST_SYSTEM}" ] && [ "${LAST_LOCAL}" -gt "${FIRST_SYSTEM}" ]
+    then
+      echo "  Please #include in reverse-dependency order (specific to general) so we don't omit necessary #includes in other files"
+      echo -e "    In ${file}: last local include (\"...\") on line ${LAST_LOCAL}; first system include (<...>) on line ${FIRST_SYSTEM}"
+      echo
+      EXIT_CODE=1
     fi
 
     for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen-matrix-plugin.hpp)

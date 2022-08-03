@@ -14,7 +14,9 @@ std::unique_ptr<T const> Scrambler<T, abits>::store_and_recall(std::unique_ptr<T
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();
-  } else { --rnd_uses_left; }
+  } else {
+    --rnd_uses_left;
+  }
   rnd::t rndidx = rnd_state & bitmask;
   rnd_state >>= abits;
   std::unique_ptr<T const> tmp = std::move(data[rndidx]); // Get the data that's currently at the 

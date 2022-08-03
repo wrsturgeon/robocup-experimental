@@ -5,7 +5,9 @@ namespace rnd {
 
 
 template <uint8_t k>
-static inline constexpr t rotl(const t x) { return (x << k) | (x >> (BITS - k)); }
+static inline constexpr t rotl(const t x) {
+  return (x << k) | (x >> (BITS - k));
+}
 
 
 
@@ -61,7 +63,9 @@ bool bit() {
   if (!uses) {
     uses = BITS - 1;
     state = next();
-  } else { --uses; }
+  } else {
+    --uses;
+  }
   bool rtn = state & 1;
   state >>= 1;
   return rtn;

@@ -12,7 +12,9 @@ Position sample_field_lines() {
     if (!rnd_uses_left) {
       rnd_uses_left = rnd_uses - 1;
       rnd_state = rnd::next();
-    } else { --rnd_uses_left; }
+    } else {
+      --rnd_uses_left;
+    }
     uint16_t x = static_cast<uint16_t>(rnd_state);
     rnd_state >>= 16;
     /**

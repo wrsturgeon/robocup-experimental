@@ -1,11 +1,10 @@
 #ifndef TRAINING_MEMORY_HPP_
 #define TRAINING_MEMORY_HPP_
 
-#include <stdint.h>
-
 #include "measure/units.hpp"
-#include "rnd/xoshiro.hpp"
 #include "vision/image-api.hpp"
+
+#include <stdint.h>
 
 namespace training {
 

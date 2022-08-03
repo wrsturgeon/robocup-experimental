@@ -5,7 +5,9 @@ namespace measure {
 
 
 pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
-  if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
+  if ((internal >> lc) != mm) {
+    throw std::overflow_error("pos_t overflow");
+  }
 }
 
 float pos_t::mm() const {
@@ -38,7 +40,9 @@ Position::operator std::string() const {
         static_cast<std::string>(y) + " y)";
 }
 
-std::ostream& operator<<(std::ostream& os, Position const& p) { return os << static_cast<std::string>(p); }
+std::ostream& operator<<(std::ostream& os, Position const& p) {
+  return os << static_cast<std::string>(p);
+}
 
 
 
