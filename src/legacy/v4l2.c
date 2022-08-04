@@ -1,10 +1,10 @@
 #include "legacy/v4l2.h"
 
 static query_node* add_query_node(
-    query_node* query,
-    char* key,
-    void* query_value,
-    long unsigned int query_value_len) {
+      query_node* query,
+      char* key,
+      void* query_value,
+      long unsigned int query_value_len) {
   size_t len = strlen(key);
   query_node* new_node = malloc(sizeof(query_node));
   new_node->key = malloc(len + 1);
@@ -141,12 +141,12 @@ int v4l2_init_mmap(v4l2_device* vdev) {
     }
     vdev->buf_len[i] = buf.length;
     vdev->buffer[i] = mmap(
-        NULL, // start anywhere
-        buf.length,
-        PROT_READ | PROT_WRITE, // required
-        MAP_SHARED,             // recommended
-        vdev->fd,
-        buf.m.offset);
+          NULL, // start anywhere
+          buf.length,
+          PROT_READ | PROT_WRITE, // required
+          MAP_SHARED,             // recommended
+          vdev->fd,
+          buf.m.offset);
     if (vdev->buffer[i] == MAP_FAILED) {
       return v4l2_error("mmap");
     }

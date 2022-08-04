@@ -14,8 +14,8 @@ pxpos_t::operator std::string() const {
 
 uint32_t pxpos_t::r2() const {
   return (
-      static_cast<uint32_t>(x * x) + // overflow-safe
-      static_cast<uint32_t>(y * y));
+        static_cast<uint32_t>(x * x) + // overflow-safe
+        static_cast<uint32_t>(y * y));
 }
 
 std::ostream& operator<<(std::ostream& os, pxpos_t const& p) {
