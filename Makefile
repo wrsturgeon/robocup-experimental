@@ -17,7 +17,7 @@ format:
 	find ./src ./include ./test -type f ! -name README.md | xargs clang-format -i --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0}' -Werror
 
 check:
-	find ./src ./include ./test -type f ! -name README.md | xargs clang-format -n --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0}' -Werror 2>/dev/null || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
+	find ./src ./include ./test -type f ! -name README.md | xargs clang-format -n --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0}' -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
 	./scripts/check.sh
 
 build/Makefile: build
