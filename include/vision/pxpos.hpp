@@ -9,8 +9,6 @@
 
 namespace vision {
 
-
-
 using pxidx_t = int16_t;
 
 // (0, 0) is the center of the image; expand outward from there
@@ -24,11 +22,6 @@ public:
   pxidx_t const y = 0;
   uint32_t r2() const;
 };
-
-// Declaration for cppclean
-std::ostream& operator<<(std::ostream& os, measure::Position const& p);
-
-
 
 } // namespace vision
 

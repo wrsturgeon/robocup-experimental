@@ -14,8 +14,6 @@
 #error "Compile with argument -D_BITS=$(getconf LONG_BIT)"
 #endif // ifdef _BITS
 
-
-
 #ifndef _IMAGE_H
 #define IMAGE_H 960
 #else
@@ -27,8 +25,6 @@
 #endif // _IMAGE_H > 0
 
 #endif // ifdef _IMAGE_H
-
-
 
 #ifndef _IMAGE_W
 #define IMAGE_W 1280
@@ -42,11 +38,7 @@
 
 #endif // ifdef _IMAGE_W
 
-
-
 #define IMAGE_DIAG_SQ ((IMAGE_W * IMAGE_W) + (IMAGE_H * IMAGE_H))
-
-
 
 #ifdef _NAO_HEIGHT_MM
 #define NAO_HEIGHT_MM _NAO_HEIGHT_MM
@@ -54,8 +46,6 @@
 // TODO: this is a ROUGH ESTIMATE
 #define NAO_HEIGHT_MM 500
 #endif // ifdef _NAO_HEIGHT_MM
-
-
 
 #ifdef _DEBUG
 #define DEBUG _DEBUG

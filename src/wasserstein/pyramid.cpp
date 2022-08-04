@@ -2,15 +2,11 @@
 
 namespace wasserstein {
 
-
-
-using Eigen::placeholders::all;
 using Eigen::seqN;
+using Eigen::placeholders::all;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
-
-
 
 inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) {
   return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0;
@@ -37,9 +33,9 @@ typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
-  // Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
-  #define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"
+Pyramid<w, h>::Pyramid(uint8_t* const __restrict src) {
+// Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
+#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"
   static_assert(!sizeof(Pyramid<0, 0>), PYRAMID_ERROR);
   static_assert(sizeof(Pyramid<1, 1>) == 1, PYRAMID_ERROR);
   // memcpy(_array, src, n_px);
@@ -50,14 +46,12 @@ Pyramid<w, h>::Pyramid(uint8_t *const __restrict src) {
   build_eigen(internal_map);
 }
 
-
-
 template <vision::pxidx_t w, vision::pxidx_t h>
 void Pyramid<w, h>::build_manual() {
   // Assumes we've already filled `_array` with valid image data
 
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
-  
+
   // NOTE: AN INFINITE CONSTRUCTOR LOOP DOES *NOT* THROW A COMPILE-TIME ERROR
   // Need to verify that we have > 0 pixels to fill, else infinite loop of constructing nothing
   if ((!half_w) || (!half_h)) {
@@ -75,7 +69,7 @@ void Pyramid<w, h>::build_manual() {
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
       twice = static_cast<vision::pxidx_t>(x << 1); // TODO: verify no overflow
-      a = _array[y][twice    ];
+      a = _array[y][twice];
       b = _array[y][twice | 1];
       tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
     }
@@ -86,7 +80,7 @@ void Pyramid<w, h>::build_manual() {
   for (vision::pxidx_t y = 0; y < half_h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
       twice = static_cast<vision::pxidx_t>(y << 1); // TODO: verify no overflow
-      a = tmp[twice    ][x];
+      a = tmp[twice][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
     }
@@ -94,8 +88,6 @@ void Pyramid<w, h>::build_manual() {
 
   dst.build_manual();
 }
-
-
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
@@ -138,8 +130,6 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
     }
   }
 }
-
-
 
 #pragma clang diagnostic pop
 

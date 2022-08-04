@@ -8,8 +8,6 @@
 
 namespace training {
 
-
-
 /**
  * Mechanism for randomizing access to training data to temper recency bias.
  * WARNING: Not responsible for initializing, maintaining, or freeing data!
@@ -31,8 +29,6 @@ protected:
   uint8_t rnd_uses_left;
   std::unique_ptr<T const> data[n];
 };
-
-
 
 } // namespace training
 
