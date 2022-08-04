@@ -6,6 +6,7 @@ endif
 
 .PHONY: run check
 ALL_SRC_INCLUDE := $(shell find ./src ./include)
+FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-format --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0, ConstructorInitializerIndentWidth: 6, ContinuationIndentWidth: 6}' -Werror
 
 run: check build/Makefile
 	cd ./build && make
@@ -14,10 +15,10 @@ release test: check build/Makefile
 	cd ./build && make $(@)
 
 format:
-	find ./src ./include ./test -type f ! -name README.md | xargs clang-format -i --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0}' -Werror
+	$(FORMAT) -i
 
 check:
-	find ./src ./include ./test -type f ! -name README.md | xargs clang-format -n --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0}' -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
+	$(FORMAT) -n || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
 	./scripts/check.sh
 
 build/Makefile: build
