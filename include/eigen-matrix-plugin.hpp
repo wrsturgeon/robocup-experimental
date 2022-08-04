@@ -8,9 +8,6 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Pac
 template <typename lhs_t>
 struct scalar_rshift_op : internal::binary_op_base<lhs_t, uint8_t> {
   typedef typename ScalarBinaryOpTraits<lhs_t, uint8_t, scalar_rshift_op>::ReturnType result_t;
-#ifdef EIGEN_SCALAR_BINARY_OP_PLUGIN
-  scalar_rshift_op(){EIGEN_SCALAR_BINARY_OP_PLUGIN}
-#endif
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t
   operator()(lhs_t const& a, uint8_t const& b) const {
     return a >> b;
