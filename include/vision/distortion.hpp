@@ -1,14 +1,12 @@
 #ifndef VISION_DISTORTION_HPP_
 #define VISION_DISTORTION_HPP_
 
-#include "vision/pxpos.hpp"
 #include "util/constexpr-math.hpp"
+#include "vision/pxpos.hpp"
 
 #include <math.h>
 
 namespace vision {
-
-
 
 /**
  * Class holding parameters representing the idiosyncrasies of any given camera.
@@ -19,8 +17,11 @@ class Lens {
 public:
   Lens(Lens const&) = delete;
   Lens(int16_t radial_ = 0, int16_t tangential_x_ = 0, int16_t tangential_y_ = 0);
-  template <uint32_t diag_sq> pxpos_t undistort(pxpos_t px);
-  template <uint32_t diag_sq> pxpos_t redistort(pxpos_t px);
+  template <uint32_t diag_sq>
+  pxpos_t undistort(pxpos_t px);
+  template <uint32_t diag_sq>
+  pxpos_t redistort(pxpos_t px);
+
 protected:
   int16_t radial; // 8 bits used; extra for smooth gradient descent
   int16_t tangential_x;
@@ -28,8 +29,6 @@ protected:
   // uint16_t zoom = 16384;
   uint16_t inv_lr = 128; // Inverse learning rate: increment over time
 };
-
-
 
 } // namespace vision
 

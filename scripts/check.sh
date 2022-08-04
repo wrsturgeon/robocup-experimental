@@ -134,7 +134,7 @@ do
     fi
 
     # Ending those guards & namespace
-    if [ "$(tail -n5 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_" ]
+    if [ "$(tail -n4 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_" ]
     then
       echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n    #endif // ${DIRUPPER}_${FILEUPPER}_"
       EXIT_CODE=1
