@@ -39,6 +39,7 @@
 
 /* struct for query ctrl and menu */
 typedef struct query_node query_node;
+
 struct query_node {
   char* key;
   void* value;
