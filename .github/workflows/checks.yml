@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           sudo apt-get update
-          sudo apt-get install clang-format
+          sudo apt-get install clang-format-$(clang --version | cut -d. -f1 | rev | cut -d' ' -f1 | rev)
           PATH=$(find -L /usr/lib -maxdepth 1 -type d -iname 'llvm*' | sort -r | head -n1)/bin:$PATH
           make test
   build-mac:
