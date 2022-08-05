@@ -74,28 +74,28 @@ do
 done
 
 # Assert "eigen.h" and not any of Eigen's headers
-if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
+if grep -Rn ./src ./include ./test -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
 then
   echo -e "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
-if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp 2>/dev/null
+if grep -Rn ./src ./include ./test -e 'options.hpp' --exclude=options.hpp 2>/dev/null
 then
   echo -e "  Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "gtest/gtest.h"
-if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
+if grep -Rn ./src ./include ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
 then
   echo -e "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "eigen-matrix-plugin.hpp"
-if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
+if grep -Rn ./src ./include ./test -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
 then
   echo -e "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
@@ -129,14 +129,14 @@ do
     # Include guards at the top
     if [ "$(head -n3 ${file} | tr -d '\n')" != "#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
     then
-      echo -e "  Missing or unsafe #include guards at the top of ${file}; please use the following:\n    #ifndef ${DIRUPPER}_${FILEUPPER}_\n    #define ${DIRUPPER}_${FILEUPPER}_"
+      echo -e "  Missing or unsafe #include guards at the top of ${file} ; please use the following:\n    #ifndef ${DIRUPPER}_${FILEUPPER}_\n    #define ${DIRUPPER}_${FILEUPPER}_"
       EXIT_CODE=1
     fi
 
     # Ending those guards & namespace
     if [ "$(tail -n4 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_" ]
     then
-      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n    #endif // ${DIRUPPER}_${FILEUPPER}_"
+      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file} ; please use the following:\n    } // namespace ${dirname}\n    [empty line]\n    #endif // ${DIRUPPER}_${FILEUPPER}_"
       EXIT_CODE=1
     fi
 
@@ -169,7 +169,7 @@ do
     if [ ! -z "${LAST_LOCAL}" ] && [ ! -z "${FIRST_SYSTEM}" ] && [ "${LAST_LOCAL}" -gt "${FIRST_SYSTEM}" ]
     then
       echo "  Please #include in reverse-dependency order (specific to general) so we don't omit necessary #includes in other files"
-      echo -e "    In ${file}: last local include (\"...\") on line ${LAST_LOCAL}; first system include (<...>) on line ${FIRST_SYSTEM}"
+      echo -e "    In ${file} : last local include (\"...\") on line ${LAST_LOCAL}; first system include (<...>) on line ${FIRST_SYSTEM}"
       echo
       EXIT_CODE=1
     fi

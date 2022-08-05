@@ -29,11 +29,6 @@ SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
 
-INCLUDE_EIGEN=-iquote $(TPY)/eigen
-INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
-INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
-INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
-
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
@@ -55,6 +50,8 @@ eigen: $(TPY)
 	$(call pull,https://gitlab.com/libeigen/eigen.git)
 gtest: $(TPY)
 	$(call pull,https://github.com/google/googletest.git)
+highway: $(TPY)
+	$(call pull,https://github.com/google/highway.git)
 naoqi-driver: $(TPY)
 	$(call pull,https://github.com/ros-naoqi/naoqi_driver)
 naoqi-sdk: $(TPY)
@@ -73,9 +70,9 @@ naoqi-sdk: $(TPY)
 compile = echo "Compiling $(@)..." && clang++ -o ./$(@) $(<) $(strip $(COMMON))
 compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
-compile-tst = clang++ -o ./$(@) $(<) $(strip $(COMMON)) -include $(word 2,$(^)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
+compile-tst = clang++ -o ./$(@) $(<) $(strip $(COMMON)) -include $(word 2,$(^)) gmain.o gtest.o $(call nth_prereqs,4) -iquote $(TPY)/gtest/googletest/include $(strip $(TEST_FLAGS))
 
-nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) $(|) | cut -d' ' -f$(1)-))
+nth_prereqs = $(subst eigen,-iquote $(TPY)/eigen,$(subst highway,-iquote $(TPY)/highway,$(shell echo $(^) $(|) | cut -d' ' -f$(1)-)))
 
 deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
@@ -102,12 +99,14 @@ distortion.o: $(call deps,vision/distortion) | eigen
 # Testing
 gtest.o: | gtest
 	echo 'Compiling GoogleTest libraries...'
-	clang++ -o ./gtest.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
+	clang++ -o ./gtest.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest/include -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
 gmain.o: | gtest
 	echo 'Compiling GoogleTest main function...'
-	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
+	clang++ -o ./gmain.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest/include -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
 test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) | eigen
+	$(compile-tst)
+test_downsample: $(TST)/downsample.cpp $(call deps,highway/downsample) | highway
 	$(compile-tst)
 test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) units.o xoshiro.o | eigen
 	$(compile-tst)
