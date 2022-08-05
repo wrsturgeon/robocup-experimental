@@ -3,14 +3,16 @@
 namespace rnd {
 
 template <uint8_t k>
-static inline constexpr t rotl(const t x) {
+static inline constexpr t
+rotl(const t x) {
   return (x << k) | (x >> (BITS - k));
 }
 
 #if BITS == 64
 // https://prng.di.unimi.it/xoshiro256plusplus.c
 
-t next() {
+t
+next() {
   const t result = rotl<23>(s[0] + s[3]) + s[0];
 
   const t t = s[1] << 17;
@@ -30,7 +32,8 @@ t next() {
 #elif BITS == 32
 // https://prng.di.unimi.it/xoshiro128plusplus.c
 
-t next() {
+t
+next() {
   const t result = rotl<7>(s[0] + s[3]) + s[0];
 
   const t t = s[1] << 9;
@@ -49,7 +52,8 @@ t next() {
 
 #endif // 32b/64b
 
-bool bit() {
+bool
+bit() {
   static t state;
   static uint8_t uses;
   if (!uses) {

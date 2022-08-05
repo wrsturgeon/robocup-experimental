@@ -8,14 +8,19 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Pac
 template <typename lhs_t>
 struct scalar_rshift_op : internal::binary_op_base<lhs_t, uint8_t> {
   typedef typename ScalarBinaryOpTraits<lhs_t, uint8_t, scalar_rshift_op>::ReturnType result_t;
+
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t
   operator()(lhs_t const& a, uint8_t const& b) const {
     return a >> b;
   }
+
   template <typename Packet>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(Packet const& a, Packet const& b) const { return prshift(a, b); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet
+  packetOp(Packet const& a, Packet const& b) const { return prshift(a, b); }
+
   template <typename Packet>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t predux(Packet const& a) const { return Eigen::internal::predux(a); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t
+  predux(Packet const& a) const { return Eigen::internal::predux(a); }
 };
 
 template <typename Packet>
@@ -23,17 +28,24 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static pbitinv(Packet const& a) { r
 
 template <typename rhs_t>
 struct scalar_bitinv_op {
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const rhs_t operator()(const rhs_t& a) const { return ~a; }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const rhs_t
+  operator()(rhs_t const& a) const { return ~a; }
+
   template <typename Packet>
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(const Packet& a) const { return pbitinv(a); }
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet
+  packetOp(Packet const& a) const { return pbitinv(a); }
 };
 
 using RShiftReturnType = CwiseBinaryOp<scalar_rshift_op<Scalar>, Derived const, ConstantReturnType const>;
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE RShiftReturnType const operator>>(Scalar const& scalar) const {
+
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE RShiftReturnType const
+operator>>(Scalar const& scalar) const {
   return RShiftReturnType(derived(), Derived::Constant(rows(), cols(), scalar));
 }
 
 using BitInvReturnType = CwiseUnaryOp<scalar_bitinv_op<Scalar>, Derived const>;
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE BitInvReturnType const operator~() const {
+
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE BitInvReturnType const
+operator~() const {
   return BitInvReturnType(derived());
 }

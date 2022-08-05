@@ -8,7 +8,8 @@ using Eigen::placeholders::all;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
-inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h) {
+inline static constexpr size_t
+pyrsize(vision::pxidx_t w, vision::pxidx_t h) {
   return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0;
 }
 
@@ -19,12 +20,14 @@ template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-uint8_t& Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) {
+uint8_t&
+Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) {
   return _array[y][x];
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-typename Pyramid<w, h>::up_t& Pyramid<w, h>::up() {
+typename Pyramid<w, h>::up_t&
+Pyramid<w, h>::up() {
   return *reinterpret_cast<up_t*>(_up_raw);
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
@@ -47,7 +50,8 @@ Pyramid<w, h>::Pyramid(uint8_t* const __restrict src) {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void Pyramid<w, h>::build_manual() {
+void
+Pyramid<w, h>::build_manual() {
   // Assumes we've already filled `_array` with valid image data
 
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
@@ -90,7 +94,8 @@ void Pyramid<w, h>::build_manual() {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
+void
+Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
   static_assert(half_w && half_h, "Pyramid level to be constructed must have at least one pixel");
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
   uint8_t i0;
