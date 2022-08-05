@@ -15,6 +15,7 @@ jobs:
       - name: make test
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          sudo apt-get update
           sudo apt-get install clang-format
           PATH=$(find -L /usr/lib -maxdepth 1 -type d -iname 'llvm*' | sort -r | head -n1)/bin:$PATH
           make test
