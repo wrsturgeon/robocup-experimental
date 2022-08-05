@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eu
-
 if [ ${#} -lt 1 ]
 then
   echo 'Syntax: '${0}' <arguments to clang++>'
