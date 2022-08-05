@@ -13,7 +13,7 @@ do
   then
     echo "Testing ${CPP}..."
     rm -f ./default.profraw
-    ./test_${NOX}
+    ${DIR}/scripts/debug.sh ./test_${NOX}
     llvm-profdata merge ./default.profraw -o ./${NOX}.profdata || (echo 'No coverage' && exit 1)
     (llvm-cov report ./test_${NOX} --instr-profile=./${NOX}.profdata ${CPP} | sed '3q;d' | xargs ${DIR}/scripts/parse-coverage.sh) || \
     (llvm-cov show ./test_${NOX} --instr-profile=./${NOX}.profdata ${CPP} && exit 1)
