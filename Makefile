@@ -6,7 +6,7 @@ endif
 
 .PHONY: run check
 ALL_SRC_INCLUDE := $(shell find ./src ./include)
-FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-format --style='{BasedOnStyle: llvm, PointerAlignment: Left, ColumnLimit: 0, ConstructorInitializerIndentWidth: 6, ContinuationIndentWidth: 6}' -Werror
+FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-format --style=file -Werror
 
 run: check build/Makefile
 	cd ./build && make

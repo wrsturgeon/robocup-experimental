@@ -1,0 +1,12 @@
+BasedOnStyle: llvm
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+ColumnLimit: 0
+ConstructorInitializerIndentWidth: 6
+ContinuationIndentWidth: 6
+SeparateDefinitionBlocks: Always
+ShortNamespaceLines: 1
+AlwaysBreakAfterReturnType: AllDefinitions
+FixNamespaceComments: true
+Cpp11BracedListStyle: true
+QualifierAlignment: Right
