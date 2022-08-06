@@ -7,3 +7,6 @@
 [submodule "vcl"]
 	path = third-party/vcl
 	url = https://github.com/vectorclass/version2.git
+[submodule "highway"]
+	path = third-party/highway
+	url = https://github.com/google/highway.git
