@@ -42,21 +42,6 @@ release: release-flags
 
 
 
-# Dependencies
-pull = \
-echo "Pulling $(@)..."; \
-cd $(<); \
-(cd $(@) 2>/dev/null && git pull -q) || \
-(echo "  Downloading into $(TPY)/$(@)..." && git clone -q $(1) $(@) && echo '  Done!')
-
-$(TPY):
-	mkdir -p $(TPY)
-eigen: $(TPY)
-	$(call pull,https://gitlab.com/libeigen/eigen.git)
-gtest: $(TPY)
-	$(call pull,https://github.com/google/googletest.git)
-naoqi-driver: $(TPY)
-	$(call pull,https://github.com/ros-naoqi/naoqi_driver)
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
 	if [ ! -d $(<)/naoqi-sdk ]; then \

@@ -8,10 +8,10 @@ endif
 ALL_SRC_INCLUDE := $(shell find ./src ./include)
 FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-format --style=file -Werror
 
-run: check build/Makefile
+run: check submodules build/Makefile
 	cd ./build && make
 
-release test: check build/Makefile
+release test: check submodules build/Makefile
 	cd ./build && make $(@)
 
 format:
@@ -20,6 +20,9 @@ format:
 check:
 	$(FORMAT) -n || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
 	./scripts/check.sh
+
+submodules:
+	git submodule update --init --recursive --remote
 
 build/Makefile: build
 	echo 'Syncing ./build/Makefile with ./build.mk...'
