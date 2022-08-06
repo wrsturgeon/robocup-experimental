@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen vcl naoqi-driver naoqi-sdk test check-leak-detection
+.PHONY: eigen vcl highway naoqi-driver naoqi-sdk test check-leak-detection
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
