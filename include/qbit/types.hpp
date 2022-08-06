@@ -18,9 +18,8 @@ public:
 
 template <size_t n>
 class v {
-
-  // 8 4-bit ints per uint32_t
 protected:
+  // 8 4-bit ints per uint32_t
   uint32_t full[n >> 3];
   uint32_t part : (n & 7);
 
