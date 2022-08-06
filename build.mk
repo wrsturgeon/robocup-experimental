@@ -42,21 +42,6 @@ release: release-flags
 
 
 
-# Dependencies
-pull = \
-echo "Pulling $(@)..."; \
-cd $(<); \
-(cd $(@) 2>/dev/null && git pull -q) || \
-(echo "  Downloading into $(TPY)/$(@)..." && git clone -q $(1) $(@) && echo '  Done!')
-
-$(TPY):
-	mkdir -p $(TPY)
-eigen: $(TPY)
-	$(call pull,https://gitlab.com/libeigen/eigen.git)
-gtest: $(TPY)
-	$(call pull,https://github.com/google/googletest.git)
-naoqi-driver: $(TPY)
-	$(call pull,https://github.com/ros-naoqi/naoqi_driver)
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
 	if [ ! -d $(<)/naoqi-sdk ]; then \
@@ -100,10 +85,10 @@ distortion.o: $(call deps,vision/distortion) | eigen
 
 
 # Testing
-gtest.o: | gtest
+gtest.o:
 	echo 'Compiling GoogleTest libraries...'
 	clang++ -o ./gtest.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
-gmain.o: | gtest
+gmain.o:
 	echo 'Compiling GoogleTest main function...'
 	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
