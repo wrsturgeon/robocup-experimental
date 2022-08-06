@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen naoqi-driver naoqi-sdk test check-leak-detection
+.PHONY: eigen vcl naoqi-driver naoqi-sdk test check-leak-detection
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -31,6 +31,7 @@ TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) 
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
+INCLUDE_VCL=-iquote $(TPY)/vcl
 INCLUDE_NAOQI_DRIVER=-iquote $(TPY)/naoqi-driver
 INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
 
@@ -60,7 +61,7 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 compile-tst = clang++ -o ./$(@) $(<) $(strip $(COMMON)) -include $(word 2,$(^)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 
-nth_prereqs = $(subst eigen,$(INCLUDE_EIGEN),$(shell echo $(^) $(|) | cut -d' ' -f$(1)-))
+nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)
 
 deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
 
@@ -103,6 +104,8 @@ test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) xoshiro.o image-api.o | eigen
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
+	$(compile-tst)
+test_types: $(TST)/types.cpp $(call deps,qbit/types) | vcl
 	$(compile-tst)
 test_units: $(TST)/units.cpp $(call deps,measure/units) | eigen
 	$(compile-tst)
