@@ -1,1 +1,0 @@
-/Users/willsturgeon/Desktop/Code/robocup/src/hwy/README.md

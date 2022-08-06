@@ -118,6 +118,8 @@ test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) xoshiro.o imag
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
 	$(compile-tst)
+test_types: $(TST)/types.cpp $(call deps,qbit/types) | eigen
+	$(compile-tst)
 test_units: $(TST)/units.cpp $(call deps,measure/units) | eigen
 	$(compile-tst)
 test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
