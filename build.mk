@@ -85,10 +85,10 @@ distortion.o: $(call deps,vision/distortion) | eigen
 
 
 # Testing
-gtest.o: | gtest
+gtest.o:
 	echo 'Compiling GoogleTest libraries...'
 	clang++ -o ./gtest.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
-gmain.o: | gtest
+gmain.o:
 	echo 'Compiling GoogleTest main function...'
 	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
