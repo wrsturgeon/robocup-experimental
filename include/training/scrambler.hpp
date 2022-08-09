@@ -1,5 +1,4 @@
-#ifndef TRAINING_SCRAMBLER_HPP_
-#define TRAINING_SCRAMBLER_HPP_
+#pragma once
 
 #include "rnd/xoshiro.hpp"
 
@@ -31,5 +30,3 @@ protected:
 };
 
 } // namespace training
-
-#endif // TRAINING_SCRAMBLER_HPP_

@@ -1,5 +1,4 @@
-#ifndef WASSERSTEIN_PYRAMID_HPP_
-#define WASSERSTEIN_PYRAMID_HPP_
+#pragma once
 
 #include "rnd/xoshiro.hpp"
 #include "vision/image-api.hpp"
@@ -14,6 +13,8 @@ namespace wasserstein {
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
+
+inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h); // NOLINT(clang-diagnostic-unneeded-internal-declaration)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
@@ -51,5 +52,3 @@ public:
 #pragma clang diagnostic pop
 
 } // namespace wasserstein
-
-#endif // WASSERSTEIN_PYRAMID_HPP_
