@@ -2,7 +2,7 @@
 #include "gtest.hpp"
 
 class UnitsPosTTest : public measure::pos_t, public testing::Test {
-protected:
+ protected:
   void
   SetUp() override { internal = 42; }
 };

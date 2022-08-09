@@ -7,4 +7,4 @@ namespace measure {
 
 auto sample_field_lines() -> Position;
 
-} // namespace measure
+}  // namespace measure

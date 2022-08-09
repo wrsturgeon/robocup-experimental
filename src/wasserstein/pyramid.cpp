@@ -9,7 +9,7 @@ using Eigen::placeholders::all;
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
 // TODO(wrsturgeon): consteval when clang-tidy implements it
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t { // NOLINT(misc-no-recursion)
+inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t {  // NOLINT(misc-no-recursion)
   return ((w != 0) && (h != 0))
                ? static_cast<size_t>(w * h) + pyrsize(
                                                     static_cast<vision::pxidx_t>(w >> 1),
@@ -34,19 +34,19 @@ Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) : _array{uninitializ
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {} // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {}  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
-template <vision::pxidx_t w, vision::pxidx_t h> // NOLINT(fuchsia-overloaded-operator)
+template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(fuchsia-overloaded-operator)
 auto Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
   return _array[y][x];
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 auto Pyramid<w, h>::up() -> up_t& {
-  return *reinterpret_cast<up_t*>(_up_raw); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+  return *reinterpret_cast<up_t*>(_up_raw);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
@@ -73,13 +73,13 @@ void Pyramid<w, h>::build_manual() {
   // TODO(wrsturgeon): randomize shift when odd size
 
   // One dimension at a time: first half the width
-  uint8_t tmp[h][half_w]; // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t tmp[h][half_w];  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(x << 1); // TODO(wrsturgeon): verify no overflow
+      twice = static_cast<vision::pxidx_t>(x << 1);  // TODO(wrsturgeon): verify no overflow
       a = _array[y][twice];
       b = _array[y][twice | 1];
-      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
+      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1;  // Set a bit to represent left/right provenience (thx Sydney)
     }
   }
 
@@ -87,7 +87,7 @@ void Pyramid<w, h>::build_manual() {
   Pyramid<half_w, half_h>& dst = up();
   for (vision::pxidx_t y = 0; y < half_h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(y << 1); // TODO(wrsturgeon): verify no overflow
+      twice = static_cast<vision::pxidx_t>(y << 1);  // TODO(wrsturgeon): verify no overflow
       a = tmp[twice][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
@@ -119,7 +119,7 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
       i0 = static_cast<uint8_t>(rnd::bit());
     }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
-  } else { // Literally anything else
+  } else {  // Literally anything else
     auto upper_map = EigenMap<half_w, half_h>{next._array};
     if constexpr ((w & 1) == 0) {
       i0 = 0;
@@ -141,4 +141,4 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
 
 #pragma clang diagnostic pop
 
-} // namespace wasserstein
+}  // namespace wasserstein

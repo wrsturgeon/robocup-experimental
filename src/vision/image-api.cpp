@@ -15,4 +15,4 @@ consteval auto NaoImage<w, h>::height() -> pxidx_t {
   return h;
 }
 
-} // namespace vision
+}  // namespace vision

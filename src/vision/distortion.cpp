@@ -13,4 +13,4 @@ auto Lens::redistort(pxpos_t px) -> pxpos_t {
         static_cast<int16_t>(((px.y << 16) + (px.x * tangential_x)) / (65536 + scaled))};
 }
 
-} // namespace vision
+}  // namespace vision
