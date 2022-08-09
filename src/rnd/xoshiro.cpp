@@ -11,8 +11,9 @@ rotl(const t x) {
 #if BITS == 64
 // https://prng.di.unimi.it/xoshiro256plusplus.c
 
-t
-next() {
+static t s[4] = {0xe220a8397b1dcdaf, 0x6e789e6aa1b965f4, 0x6c45d188009454f, 0xf88bb8a8724c81ec}; // global
+
+t next() {
   const t result = rotl<23>(s[0] + s[3]) + s[0];
 
   const t t = s[1] << 17;
@@ -32,8 +33,9 @@ next() {
 #elif BITS == 32
 // https://prng.di.unimi.it/xoshiro128plusplus.c
 
-t
-next() {
+static t s[4] = {0x7b1dcdaf, 0xa1b965f4, 0x8009454f, 0x724c81ec}; // global
+
+t next() {
   const t result = rotl<7>(s[0] + s[3]) + s[0];
 
   const t t = s[1] << 9;
@@ -52,8 +54,7 @@ next() {
 
 #endif // 32b/64b
 
-bool
-bit() {
+bool bit() {
   static t state;
   static uint8_t uses;
   if (!uses) {

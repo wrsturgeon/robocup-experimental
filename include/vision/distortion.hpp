@@ -1,5 +1,4 @@
-#ifndef VISION_DISTORTION_HPP_
-#define VISION_DISTORTION_HPP_
+#pragma once
 
 #include "util/constexpr-math.hpp"
 #include "vision/pxpos.hpp"
@@ -31,5 +30,3 @@ protected:
 };
 
 } // namespace vision
-
-#endif // VISION_DISTORTION_HPP_

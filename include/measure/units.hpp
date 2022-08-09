@@ -1,5 +1,4 @@
-#ifndef MEASURE_UNITS_HPP_
-#define MEASURE_UNITS_HPP_
+#pragma once
 
 #include <iostream>
 #include <math.h>
@@ -44,5 +43,3 @@ protected:
 };
 
 } // namespace measure
-
-#endif // MEASURE_UNITS_HPP_

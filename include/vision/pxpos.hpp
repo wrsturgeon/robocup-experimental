@@ -1,5 +1,4 @@
-#ifndef VISION_PXPOS_HPP_
-#define VISION_PXPOS_HPP_
+#pragma once
 
 #include "measure/units.hpp"
 
@@ -24,5 +23,3 @@ public:
 };
 
 } // namespace vision
-
-#endif // VISION_PXPOS_HPP_

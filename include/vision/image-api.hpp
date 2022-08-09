@@ -1,5 +1,4 @@
-#ifndef VISION_IMAGE_API_HPP_
-#define VISION_IMAGE_API_HPP_
+#pragma once
 
 #include "pxpos.hpp"
 
@@ -25,5 +24,3 @@ protected:
 };
 
 } // namespace vision
-
-#endif // VISION_IMAGE_API_HPP_

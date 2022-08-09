@@ -52,8 +52,7 @@ xioctl(int fd, unsigned long request, void* arg) {
   return r;
 }
 
-int
-v4l2_query_menu(v4l2_device* vdev, struct v4l2_queryctrl* queryctrl) {
+int v4l2_query_menu(v4l2_device* vdev, struct v4l2_queryctrl* queryctrl) {
   struct v4l2_querymenu querymenu;
 
   querymenu.id = queryctrl->id;
@@ -70,8 +69,7 @@ v4l2_query_menu(v4l2_device* vdev, struct v4l2_queryctrl* queryctrl) {
   return 0;
 }
 
-int
-v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int addr_end) {
+int v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int addr_end) {
   struct v4l2_queryctrl queryctrl;
 
   for (queryctrl.id = addr_begin; queryctrl.id < addr_end; queryctrl.id++) {
@@ -104,16 +102,14 @@ v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int addr_en
   return 0;
 }
 
-int
-v4l2_error(char const* error_msg) {
+int v4l2_error(char const* error_msg) {
   int x = errno;
   fprintf(stderr, "Err: %d\n", x);
   fprintf(stderr, "V4L2 error: %s\n", error_msg);
   return -2;
 }
 
-int
-v4l2_uninit_mmap(v4l2_device* vdev) {
+int v4l2_uninit_mmap(v4l2_device* vdev) {
   for (unsigned int i = 0; i < NBUFFERS; ++i) {
     if (munmap(vdev->buffer[i], vdev->buf_len[i]) == -1) {
       return v4l2_error("munmap");
@@ -124,8 +120,7 @@ v4l2_uninit_mmap(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_init_mmap(v4l2_device* vdev) {
+int v4l2_init_mmap(v4l2_device* vdev) {
   struct v4l2_requestbuffers req;
   req.count = NBUFFERS;
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -165,8 +160,7 @@ v4l2_init_mmap(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_open(char const* device) {
+int v4l2_open(char const* device) {
   int video_fd = open(device, O_RDWR); // open video device with system call
   if (video_fd == -1) {
     return v4l2_error("Could not open video device");
@@ -175,15 +169,13 @@ v4l2_open(char const* device) {
   }
 }
 
-int
-v4l2_close_query(v4l2_device* vdev) {
+int v4l2_close_query(v4l2_device* vdev) {
   release_node(vdev->ctrl_map);
   release_node(vdev->menu_map);
   return 0;
 }
 
-int
-v4l2_close(v4l2_device* vdev) {
+int v4l2_close(v4l2_device* vdev) {
   v4l2_uninit_mmap(vdev);
   // TODO: free control (this comment is from the original legacy C file--still relevant??)
   v4l2_close_query(vdev);
@@ -194,8 +186,7 @@ v4l2_close(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_init(v4l2_device* vdev) {
+int v4l2_init(v4l2_device* vdev) {
   struct v4l2_capability video_cap;
   // check if capture and streaming device
   if (xioctl(vdev->fd, VIDIOC_QUERYCAP, &video_cap) == -1) {
@@ -273,8 +264,7 @@ v4l2_init(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_stream_on(v4l2_device* vdev) {
+int v4l2_stream_on(v4l2_device* vdev) {
   printf("IN v4l2_stream_on %d \n", vdev->count);
   struct v4l2_buffer buf;
   for (unsigned int i = 0; i < NBUFFERS; i++) {
@@ -294,8 +284,7 @@ v4l2_stream_on(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_stream_off(v4l2_device* vdev) {
+int v4l2_stream_off(v4l2_device* vdev) {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (xioctl(vdev->fd, VIDIOC_STREAMOFF, &type) == -1) {
     return v4l2_error("VIDIOC_STREAMOFF");
@@ -303,8 +292,7 @@ v4l2_stream_off(v4l2_device* vdev) {
   return 0;
 }
 
-int
-v4l2_get_ctrl(v4l2_device* vdev, char const* name, int* value) {
+int v4l2_get_ctrl(v4l2_device* vdev, char const* name, int* value) {
   struct v4l2_queryctrl* ictrl = get_query_node(vdev->ctrl_map, name);
   if (!ictrl) {
     fprintf(stderr, "Unknown control '%s'\n", name);
@@ -318,8 +306,7 @@ v4l2_get_ctrl(v4l2_device* vdev, char const* name, int* value) {
   return ret;
 }
 
-int
-v4l2_set_ctrl(v4l2_device* vdev, char const* name, int value) {
+int v4l2_set_ctrl(v4l2_device* vdev, char const* name, int value) {
   struct v4l2_queryctrl* ictrl = get_query_node(vdev->ctrl_map, name);
   if (!ictrl) {
     fprintf(stderr, "Unknown control '%s'\n", name);
@@ -333,8 +320,7 @@ v4l2_set_ctrl(v4l2_device* vdev, char const* name, int value) {
   return xioctl(vdev->fd, VIDIOC_S_CTRL, &ctrl);
 }
 
-int
-v4l2_read_frame(v4l2_device* vdev) {
+int v4l2_read_frame(v4l2_device* vdev) {
   struct v4l2_buffer buf;
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;

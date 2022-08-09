@@ -1,5 +1,4 @@
-#ifndef QBIT_TYPES_HPP_
-#define QBIT_TYPES_HPP_
+#pragma once
 
 #include "vcl.hpp"
 
@@ -28,5 +27,3 @@ public:
 };
 
 } // namespace qbit
-
-#endif // QBIT_TYPES_HPP_

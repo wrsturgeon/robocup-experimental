@@ -126,27 +126,6 @@ do
     filename=$(echo ${file} | rev | cut -d/ -f1 | rev)
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr './-' '_')
 
-    # Include guards at the top
-    if [ "$(head -n3 ${file} | tr -d '\n')" != "#ifndef ${DIRUPPER}_${FILEUPPER}_#define ${DIRUPPER}_${FILEUPPER}_" ]
-    then
-      echo -e "  Missing or unsafe #include guards at the top of ${file}; please use the following:\n    #ifndef ${DIRUPPER}_${FILEUPPER}_\n    #define ${DIRUPPER}_${FILEUPPER}_"
-      EXIT_CODE=1
-    fi
-
-    # Ending those guards & namespace
-    if [ "$(tail -n4 ${file} | tr -d '\n')" != "} // namespace ${dirname}#endif // ${DIRUPPER}_${FILEUPPER}_" ]
-    then
-      echo -e "  Missing or unsafe #include guards and namespace at the bottom of ${file}; please use the following:\n    #endif // ${DIRUPPER}_${FILEUPPER}_"
-      EXIT_CODE=1
-    fi
-
-    # Ending newline
-    if [ ! -z "$(tail -c1 ${file})" ]
-    then
-      echo -e "  Missing newline at the end of ${file}"
-      EXIT_CODE=1
-    fi
-
     # No #includes inside namespace
     LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
     if [ -z "${LAST_NAMESPACE}" ]

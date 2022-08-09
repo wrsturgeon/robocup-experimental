@@ -50,8 +50,7 @@ Pyramid<w, h>::Pyramid(uint8_t* const __restrict src) {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void
-Pyramid<w, h>::build_manual() {
+void Pyramid<w, h>::build_manual() {
   // Assumes we've already filled `_array` with valid image data
 
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
@@ -94,8 +93,7 @@ Pyramid<w, h>::build_manual() {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void
-Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
+void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
   static_assert(half_w && half_h, "Pyramid level to be constructed must have at least one pixel");
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
   uint8_t i0;
