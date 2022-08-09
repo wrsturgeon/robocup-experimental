@@ -2,6 +2,7 @@
 
 namespace measure {
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 auto sample_field_lines() -> Position {
   static constexpr uint8_t rnd_uses = BITS >> 4; // 16b each time
   static rnd::t rnd_state;
@@ -49,7 +50,6 @@ auto sample_field_lines() -> Position {
      *  [16]      +3900      -1100 +1100   2200   56800
      *  [17]   +3900 +4500      +1100       600   57400
      */
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     if (x < 30000) {
       if (x < 15000)
         return (x < 6000)
@@ -87,9 +87,9 @@ auto sample_field_lines() -> Position {
                    : Position{static_cast<int16_t>(3900), static_cast<int16_t>(x - 55700)}; // [16] : 54600 - 56800
     else if (x < 57400)
       return Position{static_cast<int16_t>(x - 52900), static_cast<int16_t>(1100)}; // [17] : 56800 - 57400
-    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     // If >= 57400, resample
   } while (true);
 }
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 } // namespace measure
