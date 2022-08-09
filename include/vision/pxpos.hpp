@@ -2,8 +2,8 @@
 
 #include "measure/units.hpp"
 
-#include <iostream>
 #include <stdint.h>
+#include <iostream>
 #include <string>
 
 namespace vision {
@@ -12,7 +12,7 @@ using pxidx_t = int16_t;
 
 // (0, 0) is the center of the image; expand outward from there
 class pxpos_t {
-public:
+ public:
   pxpos_t(pxpos_t const&) = delete;
   explicit pxpos_t(pxidx_t x_ = 0, pxidx_t y_ = 0);
   operator std::string() const;
@@ -22,4 +22,4 @@ public:
   auto r2() const -> uint32_t;
 };
 
-} // namespace vision
+}  // namespace vision

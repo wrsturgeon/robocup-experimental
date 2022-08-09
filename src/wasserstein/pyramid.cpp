@@ -8,7 +8,7 @@ using Eigen::placeholders::all;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t { // NOLINT(misc-no-recursion)
+inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t {  // NOLINT(misc-no-recursion)
   return ((w != 0) && (h != 0))
                ? static_cast<size_t>(w * h) + pyrsize(
                                                     static_cast<vision::pxidx_t>(w >> 1),
@@ -17,26 +17,26 @@ inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> si
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {} // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {}  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
-template <vision::pxidx_t w, vision::pxidx_t h> // NOLINT(fuchsia-overloaded-operator)
+template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(fuchsia-overloaded-operator)
 auto Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
   return _array[y][x];
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 auto Pyramid<w, h>::up() -> up_t& {
-  return *reinterpret_cast<up_t*>(_up_raw); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+  return *reinterpret_cast<up_t*>(_up_raw);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
   // And keep in mind that 0-element arrays are a compiler extension
 }
 
-#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw" // NOLINT(cppcoreguidelines-macro-usage)
+#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"  // NOLINT(cppcoreguidelines-macro-usage)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
@@ -47,7 +47,7 @@ Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
   // build();
   EigenMap<w, h> input_map{src};
   EigenMap<w, h> internal_map{&_array[0][0]};
-  internal_map = ~input_map; // 255 -> 0, 254 -> 1, ..., 0 -> 255
+  internal_map = ~input_map;  // 255 -> 0, 254 -> 1, ..., 0 -> 255
   build_eigen(internal_map);
 }
 
@@ -70,13 +70,13 @@ void Pyramid<w, h>::build_manual() {
   // TODO: randomize shift when odd size
 
   // One dimension at a time: first half the width
-  uint8_t tmp[h][half_w]; // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t tmp[h][half_w];  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(x << 1); // TODO: verify no overflow
+      twice = static_cast<vision::pxidx_t>(x << 1);  // TODO: verify no overflow
       a = _array[y][twice];
       b = _array[y][twice | 1];
-      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
+      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1;  // Set a bit to represent left/right provenience (thx Sydney)
     }
   }
 
@@ -84,7 +84,7 @@ void Pyramid<w, h>::build_manual() {
   Pyramid<half_w, half_h>& dst = up();
   for (vision::pxidx_t y = 0; y < half_h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(y << 1); // TODO: verify no overflow
+      twice = static_cast<vision::pxidx_t>(y << 1);  // TODO: verify no overflow
       a = tmp[twice][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
@@ -116,7 +116,7 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
       i0 = 0;
     }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
-  } else { // Literally anything else
+  } else {  // Literally anything else
     EigenMap<half_w, half_h> upper_map{next._array};
     if constexpr (w & 1) {
       i0 = rnd::bit();
@@ -138,4 +138,4 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
 
 #pragma clang diagnostic pop
 
-} // namespace wasserstein
+}  // namespace wasserstein

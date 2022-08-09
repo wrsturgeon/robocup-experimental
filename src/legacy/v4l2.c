@@ -10,7 +10,7 @@ add_query_node(
   query_node* new_node = malloc(sizeof(query_node));
   new_node->key = malloc(len + 1);
   memcpy(new_node->key, key, len);
-  new_node->key[len] = 0; // null terminator for strcmp
+  new_node->key[len] = 0;  // null terminator for strcmp
 
   new_node->value = malloc(query_value_len);
   memcpy(new_node->value, query_value, sizeof query_value_len);
@@ -86,16 +86,16 @@ int v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int add
     fflush(stdout);
 
     switch (queryctrl.type) {
-    case V4L2_CTRL_TYPE_MENU:
-      v4l2_query_menu(vdev, &queryctrl);
-    case V4L2_CTRL_TYPE_INTEGER:
-    case V4L2_CTRL_TYPE_BOOLEAN:
-    case V4L2_CTRL_TYPE_BUTTON:
-      vdev->ctrl_map = add_query_node(vdev->ctrl_map,
-                                      (char*)queryctrl.name, &queryctrl, sizeof queryctrl);
-      break;
-    default:
-      break;
+      case V4L2_CTRL_TYPE_MENU:
+        v4l2_query_menu(vdev, &queryctrl);
+      case V4L2_CTRL_TYPE_INTEGER:
+      case V4L2_CTRL_TYPE_BOOLEAN:
+      case V4L2_CTRL_TYPE_BUTTON:
+        vdev->ctrl_map = add_query_node(vdev->ctrl_map,
+                                        (char*)queryctrl.name, &queryctrl, sizeof queryctrl);
+        break;
+      default:
+        break;
     }
   }
 
@@ -145,10 +145,10 @@ int v4l2_init_mmap(v4l2_device* vdev) {
     }
     vdev->buf_len[i] = buf.length;
     vdev->buffer[i] = mmap(
-          NULL, // start anywhere
+          NULL,  // start anywhere
           buf.length,
-          PROT_READ | PROT_WRITE, // required
-          MAP_SHARED,             // recommended
+          PROT_READ | PROT_WRITE,  // required
+          MAP_SHARED,              // recommended
           vdev->fd,
           buf.m.offset);
     if (vdev->buffer[i] == MAP_FAILED) {
@@ -161,7 +161,7 @@ int v4l2_init_mmap(v4l2_device* vdev) {
 }
 
 int v4l2_open(char const* device) {
-  int video_fd = open(device, O_RDWR); // open video device with system call
+  int video_fd = open(device, O_RDWR);  // open video device with system call
   if (video_fd == -1) {
     return v4l2_error("Could not open video device");
   } else {
@@ -215,7 +215,7 @@ int v4l2_init(v4l2_device* vdev) {
   } else if (!strcmp(vdev->pixelformat, "mjpeg")) {
     video_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
   } else if (!strcmp(vdev->pixelformat, "uyvy")) {
-    video_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY; // iSight
+    video_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;  // iSight
   } else {
     video_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     fprintf(stderr, "unknown pixelformat, use YUYV in default");
@@ -326,12 +326,12 @@ int v4l2_read_frame(v4l2_device* vdev) {
   buf.memory = V4L2_MEMORY_MMAP;
   if (xioctl(vdev->fd, VIDIOC_DQBUF, &buf) == -1) {
     switch (errno) {
-    case EAGAIN:
-      // printf("no frame available\n");
-      return -1;
-    // case EIO: // Could ignore EIO
-    default:
-      return v4l2_error("VIDIOC_DQBUF");
+      case EAGAIN:
+        // printf("no frame available\n");
+        return -1;
+      // case EIO: // Could ignore EIO
+      default:
+        return v4l2_error("VIDIOC_DQBUF");
     }
   }
   assert(buf.index < NBUFFERS);
