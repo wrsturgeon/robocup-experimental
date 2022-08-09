@@ -17,7 +17,7 @@ inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> si
                : 0;
 }
 
-#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw" // NOLINT(cppcoreguidelines-macro-usage)
+#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"  // NOLINT(cppcoreguidelines-macro-usage)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) : _array{uninitialized(_array)},
@@ -29,7 +29,7 @@ Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) : _array{uninitializ
   // build();
   EigenMap<w, h> input_map{src};
   EigenMap<w, h> internal_map{&_array[0][0]};
-  internal_map = ~input_map; // 255 -> 0, 254 -> 1, ..., 0 -> 255
+  internal_map = ~input_map;  // 255 -> 0, 254 -> 1, ..., 0 -> 255
   build_eigen(internal_map);
 }
 

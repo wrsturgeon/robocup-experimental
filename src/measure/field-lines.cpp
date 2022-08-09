@@ -93,4 +93,4 @@ auto sample_field_lines() -> Position {
 
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-} // namespace measure
+}  // namespace measure
