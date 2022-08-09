@@ -38,10 +38,8 @@ INCLUDE_NAOQI_SDK=-iquote $(TPY)/naoqi-sdk
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
-release: release-flags
+release:
 	echo 'TODO'
-
-
 
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
@@ -59,7 +57,10 @@ naoqi-sdk: $(TPY)
 compile = echo "Compiling $(@)..." && clang++ -o ./$(@) $(<) $(strip $(COMMON))
 compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
-compile-tst = clang++ -o ./$(@) $(<) $(strip $(COMMON)) -include $(word 2,$(^)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
+TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
+compile-tst = echo "Tidying $(@)..." && \
+clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-readability-identifier-length,-fuchsia-trailing-return,-hicpp-signed-bitwise --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
+echo '  All good; compiling...' && clang++ -o ./$(@) $(<) -include $(word 2,$(^)) $(TEST_CLANG_ARGS)
 
 nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)
 

@@ -11,7 +11,7 @@ FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-fo
 run: check submodules build/Makefile
 	cd ./build && make
 
-release test: check submodules build/Makefile
+release test tidy: check submodules build/Makefile
 	cd ./build && make $(@)
 
 format:
