@@ -14,13 +14,13 @@ namespace wasserstein {
 template <vision::pxidx_t w, vision::pxidx_t h>
 using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t; // NOLINT(clang-diagnostic-unneeded-internal-declaration)
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
 // Forward declaration to use in sizing memory below
 inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t; // NOLINT(clang-diagnostic-unneeded-internal-declaration)
+
+// TODO(wrsturgeon): ^^^ consteval when clang-tidy implements it
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {

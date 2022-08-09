@@ -127,18 +127,22 @@ do
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr './-' '_')
 
     # No #includes inside namespace
-    LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
-    if [ -z "${LAST_NAMESPACE}" ]
+    if [ ${dir} != './include/util/' ]
     then
-      echo -e "  Please use \`namespace ${dirname}\` in ${file}"
-    else
-      LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
-      if ([ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ])
+      LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
+      if [ -z "${LAST_NAMESPACE}" ]
       then
-        echo "  Please make sure all headers are #include'd before opening a namespace in ${file}"
-        echo "    Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
-        echo
+        echo -e "  Please use \`namespace ${dirname}\` in ${file}"
         EXIT_CODE=1
+      else
+        LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
+        if ([ ! -z "${LAST_INCLUDE}" ] && [ ${LAST_INCLUDE} -gt "${LAST_NAMESPACE}" ])
+        then
+          echo "  Please make sure all headers are #include'd before opening a namespace in ${file}"
+          echo "    Last #include on line ${LAST_INCLUDE}; last namespace on line ${LAST_NAMESPACE}"
+          echo
+          EXIT_CODE=1
+        fi
       fi
     fi
 
