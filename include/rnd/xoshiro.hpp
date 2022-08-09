@@ -7,14 +7,14 @@
 
 namespace rnd {
 
-#if BITS == 64      // https://prng.di.unimi.it/xoshiro256plusplus.c
-using t = uint64_t; // rnd::t
-#elif BITS == 32    // https://prng.di.unimi.it/xoshiro128plusplus.c
-using t = uint32_t; // rnd::t
-#endif              // 32b/64b
+#if BITS == 64       // https://prng.di.unimi.it/xoshiro256plusplus.c
+using t = uint64_t;  // rnd::t
+#elif BITS == 32     // https://prng.di.unimi.it/xoshiro128plusplus.c
+using t = uint32_t;  // rnd::t
+#endif               // 32b/64b
 
 t next();
 
 bool bit();
 
-} // namespace rnd
+}  // namespace rnd

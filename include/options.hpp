@@ -8,11 +8,11 @@
 #define BITS _BITS
 #else
 #error "Invalid value for _BITS"
-#endif // 32/64
+#endif  // 32/64
 
 #else
 #error "Compile with argument -D_BITS=$(getconf LONG_BIT)"
-#endif // ifdef _BITS
+#endif  // ifdef _BITS
 
 #ifndef _IMAGE_H
 #define IMAGE_H 960
@@ -22,9 +22,9 @@
 #define IMAGE_H _IMAGE_H
 #else
 #error "_IMAGE_H <= 0"
-#endif // _IMAGE_H > 0
+#endif  // _IMAGE_H > 0
 
-#endif // ifdef _IMAGE_H
+#endif  // ifdef _IMAGE_H
 
 #ifndef _IMAGE_W
 #define IMAGE_W 1280
@@ -34,9 +34,9 @@
 #define IMAGE_W _IMAGE_W
 #else
 #error "_IMAGE_W <= 0"
-#endif // _IMAGE_W > 0
+#endif  // _IMAGE_W > 0
 
-#endif // ifdef _IMAGE_W
+#endif  // ifdef _IMAGE_W
 
 #define IMAGE_DIAG_SQ ((IMAGE_W * IMAGE_W) + (IMAGE_H * IMAGE_H))
 
@@ -45,10 +45,10 @@
 #else
 // TODO: this is a ROUGH ESTIMATE
 #define NAO_HEIGHT_MM 500
-#endif // ifdef _NAO_HEIGHT_MM
+#endif  // ifdef _NAO_HEIGHT_MM
 
 #ifdef _DEBUG
 #define DEBUG _DEBUG
 #else
 #define DEBUG 0
-#endif // ifdef _DEBUG
+#endif  // ifdef _DEBUG

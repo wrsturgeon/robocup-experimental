@@ -45,7 +45,7 @@ Pyramid<w, h>::Pyramid(uint8_t* const __restrict src) {
   // build();
   EigenMap<w, h> input_map{src};
   EigenMap<w, h> internal_map{&_array[0][0]};
-  internal_map = ~input_map; // 255 -> 0, 254 -> 1, ..., 0 -> 255
+  internal_map = ~input_map;  // 255 -> 0, 254 -> 1, ..., 0 -> 255
   build_eigen(internal_map);
 }
 
@@ -71,10 +71,10 @@ void Pyramid<w, h>::build_manual() {
   uint8_t tmp[h][half_w];
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(x << 1); // TODO: verify no overflow
+      twice = static_cast<vision::pxidx_t>(x << 1);  // TODO: verify no overflow
       a = _array[y][twice];
       b = _array[y][twice | 1];
-      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1; // Set a bit to represent left/right provenience (thx Sydney)
+      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1;  // Set a bit to represent left/right provenience (thx Sydney)
     }
   }
 
@@ -82,7 +82,7 @@ void Pyramid<w, h>::build_manual() {
   Pyramid<half_w, half_h>& dst = up();
   for (vision::pxidx_t y = 0; y < half_h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
-      twice = static_cast<vision::pxidx_t>(y << 1); // TODO: verify no overflow
+      twice = static_cast<vision::pxidx_t>(y << 1);  // TODO: verify no overflow
       a = tmp[twice][x];
       b = tmp[twice | 1][x];
       dst(x, y) = ((a >> 2) > (b >> 2)) ? a & ~2 : b | 2;
@@ -114,7 +114,7 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
       i0 = 0;
     }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
-  } else { // Literally anything else
+  } else {  // Literally anything else
     EigenMap<half_w, half_h> upper_map{&next._array[0][0]};
     if constexpr (w & 1) {
       i0 = rnd::bit();
@@ -136,4 +136,4 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
 
 #pragma clang diagnostic pop
 
-} // namespace wasserstein
+}  // namespace wasserstein

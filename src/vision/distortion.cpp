@@ -7,11 +7,11 @@ Lens::Lens(int16_t radial_, int16_t tangential_x_, int16_t tangential_y_) : radi
 template <uint32_t diag_sq>
 pxpos_t
 Lens::redistort(pxpos_t px) {
-  uint16_t r2 = util::rshift<util::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y)); // 16 bits, scaled to account for image size.
-  int16_t scaled = (radial * r2 /* 32-bit */) >> 16 /* 16-bit */;                      // Multiplied by the learnable parameter.
+  uint16_t r2 = util::rshift<util::lgp1(diag_sq) - 16>((px.x * px.x) + (px.y * px.y));  // 16 bits, scaled to account for image size.
+  int16_t scaled = (radial * r2 /* 32-bit */) >> 16 /* 16-bit */;                       // Multiplied by the learnable parameter.
   return pxpos_t{
         static_cast<int16_t>(((px.x << 16) + (px.y * tangential_y)) / (65536 + scaled)),
         static_cast<int16_t>(((px.y << 16) + (px.x * tangential_x)) / (65536 + scaled))};
 }
 
-} // namespace vision
+}  // namespace vision

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "rnd/xoshiro.hpp"
+#include <stddef.h>  // size_t
 
-#include <memory>   // std::unique_ptr
-#include <stddef.h> // size_t
+#include <memory>  // std::unique_ptr
+
+#include "rnd/xoshiro.hpp"
 
 namespace training {
 
@@ -13,20 +14,20 @@ namespace training {
  */
 template <typename T, uint8_t abits = 12>
 class Scrambler {
-public:
+ public:
   Scrambler(Scrambler const&) = delete;
   Scrambler();
-  std::unique_ptr<T const> store_and_recall(std::unique_ptr<T const>& current); // THIS CAN AND WILL BE NULL
-protected:
+  std::unique_ptr<T const> store_and_recall(std::unique_ptr<T const>& current);  // THIS CAN AND WILL BE NULL
+ protected:
   static_assert(abits, "Scrambler abits can't be 0");
   static_assert(abits <= 16, "No fucking way you're going to need more than 65,536 memories at a time");
   static constexpr size_t n = static_cast<size_t>(1) << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
-  static constexpr uint8_t n_renew = BITS / abits; // Number of times we can use xoshiro result
+  static constexpr uint8_t n_renew = BITS / abits;  // Number of times we can use xoshiro result
   static constexpr rnd::t bitmask = n - 1;
   rnd::t rnd_state;
   uint8_t rnd_uses_left;
   std::unique_ptr<T const> data[n];
 };
 
-} // namespace training
+}  // namespace training

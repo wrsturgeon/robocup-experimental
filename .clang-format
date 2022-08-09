@@ -1,4 +1,4 @@
-BasedOnStyle: llvm
+BasedOnStyle: Google
 PointerAlignment: Left
 ReferenceAlignment: Pointer
 ColumnLimit: 0

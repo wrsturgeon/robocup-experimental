@@ -1,4 +1,5 @@
 #include "rnd/xoshiro.hpp"
+
 #include "gtest.hpp"
 
 TEST(Xoshiro, Rotl1) { ASSERT_EQ(rnd::rotl<1>(42), static_cast<rnd::t>(84)); }

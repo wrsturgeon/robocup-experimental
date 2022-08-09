@@ -1,5 +1,4 @@
-#ifndef MEASURE_GAME_DATA_HPP_
-#define MEASURE_GAME_DATA_HPP_
+#pragma once
 
 #include "measure/units.hpp"
 
@@ -10,6 +9,4 @@ struct GameData {
   pos_t ball_pos;
 };
 
-} // namespace measure
-
-#endif // MEASURE_GAME_DATA_HPP_
+}  // namespace measure

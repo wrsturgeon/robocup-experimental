@@ -1,4 +1,5 @@
 #include "vision/image-api.hpp"
+
 #include "gtest.hpp"
 
 TEST(ImageAPI, NaoImageW) { ASSERT_EQ((vision::NaoImage<42, 13>{}.width()), 42); }

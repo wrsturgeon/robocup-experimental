@@ -42,4 +42,4 @@ operator<<(std::ostream& os, Position const& p) {
   return os << static_cast<std::string>(p);
 }
 
-} // namespace measure
+}  // namespace measure

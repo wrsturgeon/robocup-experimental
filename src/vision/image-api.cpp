@@ -17,4 +17,4 @@ NaoImage<w, h>::height() {
   return h;
 }
 
-} // namespace vision
+}  // namespace vision

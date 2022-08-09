@@ -1,10 +1,11 @@
 #pragma once
 
-#include "measure/units.hpp"
+#include <stdint.h>
 
 #include <iostream>
-#include <stdint.h>
 #include <string>
+
+#include "measure/units.hpp"
 
 namespace vision {
 
@@ -12,7 +13,7 @@ using pxidx_t = int16_t;
 
 // (0, 0) is the center of the image; expand outward from there
 class pxpos_t {
-public:
+ public:
   pxpos_t(pxpos_t const&) = delete;
   explicit pxpos_t(pxidx_t x_ = 0, pxidx_t y_ = 0);
   operator std::string() const;
@@ -22,4 +23,4 @@ public:
   uint32_t r2() const;
 };
 
-} // namespace vision
+}  // namespace vision

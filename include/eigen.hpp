@@ -1,5 +1,4 @@
-#ifndef EIGEN_HPP_
-#define EIGEN_HPP_
+#pragma once
 
 #define EIGEN_MATRIXBASE_PLUGIN "eigen-matrix-plugin.hpp"
 
@@ -11,5 +10,3 @@
 #include "Eigen/Core"
 #include "unsupported/Eigen/CXX11/TensorSymmetry"
 #pragma clang diagnostic pop
-
-#endif // EIGEN_HPP_
