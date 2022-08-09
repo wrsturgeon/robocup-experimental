@@ -18,9 +18,9 @@ SCT := $(DIR)/scripts
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
 FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
+INCLUDES := -include $(INC)/options.hpp -iquote $(INC) $(shell find $(INC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
+WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
@@ -59,7 +59,7 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
-clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=modernize-use-trailing-return-type,-llvmlibc-*,-readability-identifier-length,-fuchsia-trailing-return,-hicpp-signed-bitwise --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
+clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-llvm-header-guard,-llvm-include-order,-readability-identifier-length,-fuchsia-trailing-return,-fuchsia-overloaded-operator,-hicpp-signed-bitwise,-altera-unroll-loops --warnings-as-errors=*,-bugprone-easily-swappable-parameters -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
 echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
 
 nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)

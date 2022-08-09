@@ -2,10 +2,14 @@
 
 namespace measure {
 
+static constexpr float kMMPerMeter = 1000.F;
+
 pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
+#if DEBUG
   if ((internal >> lc) != mm) {
     throw std::overflow_error("pos_t overflow");
   }
+#endif
 }
 
 auto pos_t::mm() const -> float {
@@ -13,20 +17,20 @@ auto pos_t::mm() const -> float {
 }
 
 auto pos_t::meters() const -> float {
-  return mm() / 1000.f;
+  return mm() / kMMPerMeter;
 }
 
 pos_t::operator std::string() const {
-  return std::to_string((internal >> lc) / 1000.f) + 'm';
+  return std::to_string(static_cast<float>(internal >> lc) / kMMPerMeter) + 'm';
 }
 
 auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
-pos_t::operator int16_t() const {
-  return internal;
-}
+// pos_t::operator int16_t() const {
+//   return internal;
+// }
 
 Position::Position(int16_t x_mm, int16_t y_mm) : x{x_mm}, y{y_mm} {}
 

@@ -14,12 +14,11 @@ namespace wasserstein {
 template <vision::pxidx_t w, vision::pxidx_t h>
 using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t;  // NOLINT(clang-diagnostic-unneeded-internal-declaration)
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
 // Forward declaration to use in sizing memory below
+// TODO(wrsturgeon): consteval when clang-tidy implements it
 inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t;  // NOLINT(clang-diagnostic-unneeded-internal-declaration)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
@@ -42,7 +41,7 @@ class Pyramid {
  public:
   explicit Pyramid(uint8_t src[h][w]);  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   explicit Pyramid(vision::NaoImage<w, h> const& src);
-  auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&;  // NOLINT(fuchsia-overloaded-operator)
+  auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&;
   auto up() -> up_t&;
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!

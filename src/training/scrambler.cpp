@@ -3,11 +3,16 @@
 namespace training {
 
 template <typename T, uint8_t abits>
-Scrambler<T, abits>::Scrambler() : rnd_uses_left{0} {}
+Scrambler<T, abits>::Scrambler() : rnd_state{uninitialized<rnd::t>()}, rnd_uses_left{0}, counter{0} {}
 
 template <typename T, uint8_t abits>
-auto Scrambler<T, abits>::store_and_recall(std::unique_ptr<T const>& current) -> std::unique_ptr<T const> {
-  if (!rnd_uses_left) {
+void Scrambler<T, abits>::store_only(T&& current) {
+  data[counter++] = std::move(current);
+}
+
+template <typename T, uint8_t abits>
+auto Scrambler<T, abits>::store_and_recall(T&& current) -> T {
+  if (rnd_uses_left == 0) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();
   } else {
@@ -15,9 +20,8 @@ auto Scrambler<T, abits>::store_and_recall(std::unique_ptr<T const>& current) ->
   }
   rnd::t rndidx = rnd_state & bitmask;
   rnd_state >>= abits;
-  std::unique_ptr<T const> tmp = std::move(data[rndidx]);  // Get the data that's currently at the
-  data[rndidx] = std::move(current);
-  return std::move(tmp);
+  std::swap(data[rndidx], current);
+  return std::move(current);
 }
 
 }  // namespace training
