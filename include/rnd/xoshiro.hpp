@@ -13,8 +13,8 @@ using t = uint64_t; // rnd::t
 using t = uint32_t; // rnd::t
 #endif              // 32b/64b
 
-t next();
+auto next() -> t;
 
-bool bit();
+auto bit() -> bool;
 
 } // namespace rnd

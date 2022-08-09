@@ -6,14 +6,12 @@ template <pxidx_t w, pxidx_t h>
 NaoImage<w, h>::NaoImage() : internal{} {}
 
 template <pxidx_t w, pxidx_t h>
-constexpr pxidx_t
-NaoImage<w, h>::width() {
+constexpr auto NaoImage<w, h>::width() -> pxidx_t {
   return w;
 }
 
 template <pxidx_t w, pxidx_t h>
-constexpr pxidx_t
-NaoImage<w, h>::height() {
+constexpr auto NaoImage<w, h>::height() -> pxidx_t {
   return h;
 }
 

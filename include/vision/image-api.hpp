@@ -13,8 +13,8 @@ class NaoImage {
 public:
   NaoImage(NaoImage const&) = delete;
   NaoImage();
-  static constexpr pxidx_t width();
-  static constexpr pxidx_t height();
+  static constexpr auto width() -> pxidx_t;
+  static constexpr auto height() -> pxidx_t;
 
 protected:
   static constexpr int format = Eigen::StorageOptions::RowMajor;

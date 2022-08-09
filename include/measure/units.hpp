@@ -19,10 +19,10 @@ public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
   pos_t(pos_t const&) = delete;
   pos_t(int16_t mm = 0);
-  inline float mm() const;
-  inline float meters() const;
+  inline auto mm() const -> float;
+  inline auto meters() const -> float;
   inline operator std::string() const;
-  friend std::ostream& operator<<(std::ostream& os, pos_t const& p);
+  friend auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream&;
 
 protected:
   int16_t internal;
@@ -36,7 +36,7 @@ public:
   Position(Position const&) = delete;
   Position(int16_t x_mm, int16_t y_mm);
   operator std::string() const;
-  friend std::ostream& operator<<(std::ostream& os, Position const& p);
+  friend auto operator<<(std::ostream& os, Position const& p) -> std::ostream&;
 
 protected:
   pos_t x, y;
