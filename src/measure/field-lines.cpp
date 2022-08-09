@@ -90,6 +90,7 @@ auto sample_field_lines() -> Position {
     // If >= 57400, resample
   } while (true);
 }
+
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 } // namespace measure
