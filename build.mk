@@ -21,7 +21,7 @@ FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -include $(INC)/options.hpp -iquote $(INC)
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-keyword-macro -Wno-poison-system-directories
-COMMON := $(strip $(FLAGS)) $(strip $(INCLUDES)) $(strip $(MACROS)) $(strip $(WARNINGS))
+COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
@@ -59,8 +59,8 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
-clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-readability-identifier-length,-fuchsia-trailing-return,-hicpp-signed-bitwise --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
-echo '  All good; compiling...' && clang++ -o ./$(@) $(<) -include $(word 2,$(^)) $(TEST_CLANG_ARGS)
+clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=-llvmlibc-*,-readability-identifier-length,-fuchsia-trailing-return,-hicpp-signed-bitwise --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
+echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
 
 nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)
 
@@ -105,8 +105,6 @@ test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) xoshiro.o image-api.o | eigen
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
-	$(compile-tst)
-test_types: $(TST)/types.cpp $(call deps,qbit/types) | vcl
 	$(compile-tst)
 test_units: $(TST)/units.cpp $(call deps,measure/units) | eigen
 	$(compile-tst)

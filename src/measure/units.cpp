@@ -8,13 +8,11 @@ pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
   }
 }
 
-float
-pos_t::mm() const {
+float pos_t::mm() const {
   return ldexpf(internal, -lc);
 }
 
-float
-pos_t::meters() const {
+float pos_t::meters() const {
   return mm() / 1000.f;
 }
 
