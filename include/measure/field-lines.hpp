@@ -5,6 +5,6 @@
 
 namespace measure {
 
-Position sample_field_lines();
+auto sample_field_lines() -> Position;
 
 } // namespace measure

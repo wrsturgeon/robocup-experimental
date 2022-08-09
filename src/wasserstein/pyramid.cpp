@@ -8,37 +8,39 @@ using Eigen::placeholders::all;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
-inline static constexpr size_t
-pyrsize(vision::pxidx_t w, vision::pxidx_t h) {
-  return (w && h) ? static_cast<size_t>(w * h) + pyrsize(w >> 1, h >> 1) : 0;
+inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t { // NOLINT(misc-no-recursion)
+  return ((w != 0) && (h != 0))
+               ? static_cast<size_t>(w * h) + pyrsize(
+                                                    static_cast<vision::pxidx_t>(w >> 1),
+                                                    static_cast<vision::pxidx_t>(h >> 1))
+               : 0;
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{&src[0][0]} {}
+Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {} // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
-template <vision::pxidx_t w, vision::pxidx_t h>
-uint8_t&
-Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) {
+template <vision::pxidx_t w, vision::pxidx_t h> // NOLINT(fuchsia-overloaded-operator)
+auto Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
   return _array[y][x];
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-typename Pyramid<w, h>::up_t&
-Pyramid<w, h>::up() {
-  return *reinterpret_cast<up_t*>(_up_raw);
+auto Pyramid<w, h>::up() -> up_t& {
+  return *reinterpret_cast<up_t*>(_up_raw); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
   // And keep in mind that 0-element arrays are a compiler extension
 }
 
+#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw" // NOLINT(cppcoreguidelines-macro-usage)
+
 template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t* const __restrict src) {
-// Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
-#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"
+Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
+  // Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
   static_assert(!sizeof(Pyramid<0, 0>), PYRAMID_ERROR);
   static_assert(sizeof(Pyramid<1, 1>) == 1, PYRAMID_ERROR);
   // memcpy(_array, src, n_px);
@@ -68,7 +70,7 @@ void Pyramid<w, h>::build_manual() {
   // TODO: randomize shift when odd size
 
   // One dimension at a time: first half the width
-  uint8_t tmp[h][half_w];
+  uint8_t tmp[h][half_w]; // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
       twice = static_cast<vision::pxidx_t>(x << 1); // TODO: verify no overflow
@@ -101,7 +103,7 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
 
   // Eigen has some obsessive beef with things that look like column vectors but aren't
   if constexpr (half_w == 1) {
-    Eigen::Map<Eigen::Vector<uint8_t, half_h>> upper_map{&next._array[0][0]};
+    Eigen::Map<Eigen::Vector<uint8_t, half_h>> upper_map{next._array};
     if constexpr (w & 1) {
       i0 = rnd::bit();
     } else {
@@ -115,7 +117,7 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower_map) {
     }
     upper_map = (tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1);
   } else { // Literally anything else
-    EigenMap<half_w, half_h> upper_map{&next._array[0][0]};
+    EigenMap<half_w, half_h> upper_map{next._array};
     if constexpr (w & 1) {
       i0 = rnd::bit();
     } else {

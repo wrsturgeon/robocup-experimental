@@ -8,11 +8,11 @@ pos_t::pos_t(int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
   }
 }
 
-float pos_t::mm() const {
+auto pos_t::mm() const -> float {
   return ldexpf(internal, -lc);
 }
 
-float pos_t::meters() const {
+auto pos_t::meters() const -> float {
   return mm() / 1000.f;
 }
 
@@ -20,8 +20,7 @@ pos_t::operator std::string() const {
   return std::to_string((internal >> lc) / 1000.f) + 'm';
 }
 
-std::ostream&
-operator<<(std::ostream& os, pos_t const& p) {
+auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
@@ -37,8 +36,7 @@ Position::operator std::string() const {
          static_cast<std::string>(y) + " y)";
 }
 
-std::ostream&
-operator<<(std::ostream& os, Position const& p) {
+auto operator<<(std::ostream& os, Position const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 

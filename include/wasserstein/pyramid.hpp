@@ -7,17 +7,20 @@
 #include "eigen.hpp"
 
 #include <iostream>
-#include <string.h>
+#include <string>
 
 namespace wasserstein {
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 
-inline static constexpr size_t pyrsize(vision::pxidx_t w, vision::pxidx_t h); // NOLINT(clang-diagnostic-unneeded-internal-declaration)
+inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t; // NOLINT(clang-diagnostic-unneeded-internal-declaration)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wzero-length-array"
+
+// Forward declaration to use in sizing memory below
+inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t; // NOLINT(clang-diagnostic-unneeded-internal-declaration)
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {
@@ -32,17 +35,15 @@ protected:
   void build_manual();                               // Max-pooling (directional flags)
   void build_eigen(EigenMap<w, h> const& lower_map); // Mean-pooling (automatic)
 private:
-  uint8_t _array[h][w];         // NOT uint8_t**, thankfully--contiguous row-major format
-  uint8_t _up_raw[bytes_above]; // Please never access directly: use up()
-  Pyramid(uint8_t* const __restrict src);
+  uint8_t _array[h][w];         // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t _up_raw[bytes_above]; // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  explicit Pyramid(uint8_t const* __restrict src);
 
 public:
-  Pyramid() = delete;
-  Pyramid(Pyramid const&) = delete;
-  Pyramid(uint8_t src[h][w]);
-  Pyramid(vision::NaoImage<w, h> const& src);
-  uint8_t& operator()(vision::pxidx_t x, vision::pxidx_t y);
-  up_t& up();
+  explicit Pyramid(uint8_t src[h][w]); // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  explicit Pyramid(vision::NaoImage<w, h> const& src);
+  auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&; // NOLINT(fuchsia-overloaded-operator)
+  auto up() -> up_t&;
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!
   // We just need some kind of minimal (preferably compile-time) bounds checking in public methods

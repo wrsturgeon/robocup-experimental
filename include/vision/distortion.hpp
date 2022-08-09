@@ -17,9 +17,9 @@ public:
   Lens(Lens const&) = delete;
   Lens(int16_t radial_ = 0, int16_t tangential_x_ = 0, int16_t tangential_y_ = 0);
   template <uint32_t diag_sq>
-  pxpos_t undistort(pxpos_t px);
+  auto undistort(pxpos_t px) -> pxpos_t;
   template <uint32_t diag_sq>
-  pxpos_t redistort(pxpos_t px);
+  auto redistort(pxpos_t px) -> pxpos_t;
 
 protected:
   int16_t radial; // 8 bits used; extra for smooth gradient descent

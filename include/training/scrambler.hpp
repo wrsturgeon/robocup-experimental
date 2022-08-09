@@ -16,7 +16,7 @@ class Scrambler {
 public:
   Scrambler(Scrambler const&) = delete;
   Scrambler();
-  std::unique_ptr<T const> store_and_recall(std::unique_ptr<T const>& current); // THIS CAN AND WILL BE NULL
+  auto store_and_recall(std::unique_ptr<T const>& current) -> std::unique_ptr<T const>; // THIS CAN AND WILL BE NULL
 protected:
   static_assert(abits, "Scrambler abits can't be 0");
   static_assert(abits <= 16, "No fucking way you're going to need more than 65,536 memories at a time");

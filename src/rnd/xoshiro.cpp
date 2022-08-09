@@ -3,8 +3,7 @@
 namespace rnd {
 
 template <uint8_t k>
-static inline constexpr t
-rotl(const t x) {
+static inline constexpr auto rotl(const t x) -> t {
   return (x << k) | (x >> (BITS - k));
 }
 
@@ -13,17 +12,17 @@ rotl(const t x) {
 
 static t s[4] = {0xe220a8397b1dcdaf, 0x6e789e6aa1b965f4, 0x6c45d188009454f, 0xf88bb8a8724c81ec}; // global
 
-t next() {
-  const t result = rotl<23>(s[0] + s[3]) + s[0];
+auto next() -> t {
+  t const result = rotl<23>(s[0] + s[3]) + s[0];
 
-  const t t = s[1] << 17;
+  t const tmp = s[1] << 17;
 
   s[2] ^= s[0];
   s[3] ^= s[1];
   s[1] ^= s[2];
   s[0] ^= s[3];
 
-  s[2] ^= t;
+  s[2] ^= tmp;
 
   s[3] = rotl<45>(s[3]);
 
@@ -35,7 +34,7 @@ t next() {
 
 static t s[4] = {0x7b1dcdaf, 0xa1b965f4, 0x8009454f, 0x724c81ec}; // global
 
-t next() {
+auto next() -> t {
   const t result = rotl<7>(s[0] + s[3]) + s[0];
 
   const t t = s[1] << 9;
@@ -54,7 +53,7 @@ t next() {
 
 #endif // 32b/64b
 
-bool bit() {
+auto bit() -> bool {
   static t state;
   static uint8_t uses;
   if (!uses) {
