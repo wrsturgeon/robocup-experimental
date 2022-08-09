@@ -19,9 +19,8 @@ inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> si
 
 #define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"  // NOLINT(cppcoreguidelines-macro-usage)
 
-template <vision::pxidx_t w, vision::pxidx_t h>
-Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) : _array{uninitialized(_array)},
-                                                              _up_raw{uninitialized(_up_raw)} {
+template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
   // Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
   static_assert(sizeof(Pyramid<0, 0>) == 0, PYRAMID_ERROR);
   static_assert(sizeof(Pyramid<1, 1>) == 1, PYRAMID_ERROR);
@@ -33,10 +32,10 @@ Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) : _array{uninitializ
   build_eigen(internal_map);
 }
 
-template <vision::pxidx_t w, vision::pxidx_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>              // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {}  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 
-template <vision::pxidx_t w, vision::pxidx_t h>
+template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
 template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(fuchsia-overloaded-operator)

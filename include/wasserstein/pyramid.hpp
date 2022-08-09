@@ -18,9 +18,8 @@ using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 #pragma clang diagnostic ignored "-Wzero-length-array"
 
 // Forward declaration to use in sizing memory below
+// TODO(wrsturgeon): consteval when clang-tidy implements it
 inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t;  // NOLINT(clang-diagnostic-unneeded-internal-declaration)
-
-// TODO(wrsturgeon): ^^^ consteval when clang-tidy implements it
 
 template <vision::pxidx_t w, vision::pxidx_t h>
 class Pyramid {
