@@ -53,7 +53,7 @@ auto bit() -> bool {
   } else {
     --uses;
   }
-  bool rtn = static_cast<bool>(state);  // === (state & 1)
+  bool const rtn = static_cast<bool>(state);  // === (state & 1)
   state >>= 1;
   return rtn;
 }
