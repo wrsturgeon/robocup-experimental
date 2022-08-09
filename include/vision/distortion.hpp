@@ -2,7 +2,7 @@
 
 #include "vision/pxpos.hpp"
 
-#include <math.h>
+#include <cstdint>
 
 namespace vision {
 
@@ -13,19 +13,17 @@ namespace vision {
  */
 class Lens {
  public:
-  Lens(Lens const&) = delete;
-  Lens(int16_t radial_ = 0, int16_t tangential_x_ = 0, int16_t tangential_y_ = 0);
-  template <uint32_t diag_sq>
-  auto undistort(pxpos_t px) -> pxpos_t;
-  template <uint32_t diag_sq>
-  auto redistort(pxpos_t px) -> pxpos_t;
+  explicit Lens(std::int16_t, std::int16_t, std::int16_t);
+  template <std::uint32_t>
+  auto undistort(pxpos_t) -> pxpos_t;
+  template <std::uint32_t>
+  auto redistort(pxpos_t) -> pxpos_t;
 
- protected:
-  int16_t radial;  // 8 bits used; extra for smooth gradient descent
-  int16_t tangential_x;
-  int16_t tangential_y;
-  // uint16_t zoom = 16384;
-  uint16_t inv_lr = 128;  // Inverse learning rate: increment over time
+ private:
+  std::int16_t radial;  // 8 bits used; extra for smooth gradient descent
+  std::int16_t tangential_x;
+  std::int16_t tangential_y;
+  std::uint16_t inv_lr;  // Inverse learning rate: increment over time
 };
 
 }  // namespace vision
