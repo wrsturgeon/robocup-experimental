@@ -19,15 +19,15 @@ class pos_t {
   // Purposefully no integer conversion ops: must intentionally take pos_t
   pos_t(pos_t const&) = delete;
   pos_t(int16_t mm = 0);
-  inline auto mm() const -> float;
-  inline auto meters() const -> float;
-  inline operator std::string() const;
+  auto mm() const -> float;
+  auto meters() const -> float;
+  operator std::string() const;
   friend auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream&;
 
  protected:
   int16_t internal;
   static constexpr uint8_t lc = 1;  // lg(conversion to mm)
-  inline explicit operator int16_t() const;
+  explicit operator int16_t() const;
   // TODO: verify (and prefably autoenforce at compile time) that this fits within a SIGNED SIZE (int16_t) array
 };
 

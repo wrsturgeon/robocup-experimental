@@ -59,7 +59,7 @@ compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
-clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-llvm-header-guard,-llvm-include-order,-readability-identifier-length,-fuchsia-trailing-return,-hicpp-signed-bitwise,-altera-unroll-loops --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
+clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-llvm-header-guard,-llvm-include-order,-readability-identifier-length,-fuchsia-trailing-return,-fuchsia-overloaded-operator,-hicpp-signed-bitwise,-altera-unroll-loops --warnings-as-errors=* -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
 echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
 
 nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)

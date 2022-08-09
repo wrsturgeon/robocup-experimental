@@ -22,7 +22,7 @@ check:
 	./scripts/check.sh
 
 submodules:
-	git submodule update --init --recursive --remote
+	git submodule update --init --recursive
 
 build/Makefile: build
 	echo 'Syncing ./build/Makefile with ./build.mk...'

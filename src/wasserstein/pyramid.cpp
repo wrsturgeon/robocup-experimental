@@ -38,7 +38,7 @@ Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {}  // NOLINT(cppcoregu
 template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
-template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(fuchsia-overloaded-operator)
+template <vision::pxidx_t w, vision::pxidx_t h>
 auto Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
   return _array[y][x];
 }

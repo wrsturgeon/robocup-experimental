@@ -41,7 +41,7 @@ class Pyramid {
  public:
   explicit Pyramid(uint8_t src[h][w]);  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   explicit Pyramid(vision::NaoImage<w, h> const& src);
-  auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&;  // NOLINT(fuchsia-overloaded-operator)
+  auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&;
   auto up() -> up_t&;
   // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
   // it'll still return the same 0-element Pyramid!

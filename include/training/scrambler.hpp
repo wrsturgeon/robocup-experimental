@@ -2,31 +2,37 @@
 
 #include "rnd/xoshiro.hpp"
 
-#include <stddef.h>  // size_t
-#include <memory>    // std::unique_ptr
+#include <array>    // std::array
+#include <cstddef>  // std::size_t
+#include <memory>   // std::unique_ptr
+#include <utility>  // std::move, std::swap
 
 namespace training {
+
+static constexpr uint8_t kDefaultABits = 12;
+static constexpr uint8_t kMaxABits = 16;
 
 /**
  * Mechanism for randomizing access to training data to temper recency bias.
  * WARNING: Not responsible for initializing, maintaining, or freeing data!
  */
-template <typename T, uint8_t abits = 12>
+template <typename T, uint8_t abits = kDefaultABits>
 class Scrambler {
  public:
-  Scrambler(Scrambler const&) = delete;
   Scrambler();
-  auto store_and_recall(std::unique_ptr<T const>& current) -> std::unique_ptr<T const>;  // THIS CAN AND WILL BE NULL
- protected:
+  void store_only(T&& current);             // Call EXACTLY 1<<abits times, then use store_and_recall
+  auto store_and_recall(T&& current) -> T;  // WARNING: Use `store_only` EXACTLY 1<<abits times before calling this!
+ private:
   static_assert(abits, "Scrambler abits can't be 0");
-  static_assert(abits <= 16, "No fucking way you're going to need more than 65,536 memories at a time");
-  static constexpr size_t n = static_cast<size_t>(1) << abits;
+  static_assert(abits <= kMaxABits, "No fucking way you're going to need that many memories at a time");
+  static constexpr std::size_t n = static_cast<std::size_t>(1) << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
   static constexpr uint8_t n_renew = BITS / abits;  // Number of times we can use xoshiro result
   static constexpr rnd::t bitmask = n - 1;
   rnd::t rnd_state;
   uint8_t rnd_uses_left;
-  std::unique_ptr<T const> data[n];
+  std::array<T, n> data;
+  unsigned counter : abits;
 };
 
 }  // namespace training

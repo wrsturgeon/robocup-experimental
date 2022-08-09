@@ -76,28 +76,28 @@ done
 # Assert "eigen.h" and not any of Eigen's headers
 if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
 then
-  echo -e "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
+  echo "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
 if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp 2>/dev/null
 then
-  echo -e "  Please don't manually #include "options.hpp"; it's included automatically\n"
+  echo "  Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "gtest/gtest.h"
 if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
 then
-  echo -e "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
+  echo "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
   EXIT_CODE=1
 fi
 
 # Assert no manual "eigen-matrix-plugin.hpp"
 if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
 then
-  echo -e "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
+  echo "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
 fi
 
@@ -110,7 +110,7 @@ do
   # Make sure folder name is lowercase
   if [ "${dirname}" != "$(echo ${dirname} | tr '[:upper:]' '[:lower:]')" ]
   then
-    echo -e "  Please lowercase folder ${dir}"
+    echo "  Please lowercase folder ${dir}"
     EXIT_CODE=1
   fi
 
@@ -132,7 +132,7 @@ do
       LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
       if [ -z "${LAST_NAMESPACE}" ]
       then
-        echo -e "  Please use \`namespace ${dirname}\` in ${file}"
+        echo "  Please use \`namespace ${dirname}\` in ${file}"
         EXIT_CODE=1
       else
         LAST_INCLUDE="$(grep -n '#include' ${file} | tail -n1 | cut -d: -f1)"
@@ -152,7 +152,7 @@ do
     if [ ! -z "${LAST_LOCAL}" ] && [ ! -z "${FIRST_SYSTEM}" ] && [ "${LAST_LOCAL}" -gt "${FIRST_SYSTEM}" ]
     then
       echo "  Please #include in reverse-dependency order (specific to general) so we don't omit necessary #includes in other files"
-      echo -e "    In ${file}: last local include (\"...\") on line ${LAST_LOCAL}; first system include (<...>) on line ${FIRST_SYSTEM}"
+      echo "    In ${file}: last local include (\"...\") on line ${LAST_LOCAL}; first system include (<...>) on line ${FIRST_SYSTEM}"
       echo
       EXIT_CODE=1
     fi
@@ -192,7 +192,7 @@ done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo -e "  All clear!"
+  echo "  All clear!"
 fi
 
 exit ${EXIT_CODE}
