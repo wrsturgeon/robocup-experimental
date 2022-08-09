@@ -1,5 +1,4 @@
-#ifndef TRAINING_MEMORY_HPP_
-#define TRAINING_MEMORY_HPP_
+#pragma once
 
 #include "measure/units.hpp"
 #include "vision/image-api.hpp"
@@ -14,6 +13,4 @@ struct Memory {
   vision::NaoImage<w, h> im;
 };
 
-} // namespace training
-
-#endif // TRAINING_MEMORY_HPP_
+}  // namespace training

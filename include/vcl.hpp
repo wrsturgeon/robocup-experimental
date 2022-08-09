@@ -1,5 +1,4 @@
-#ifndef VCL_HPP_
-#define VCL_HPP_
+#pragma once
 
 #define VCL_NAMESPACE vcl
 
@@ -14,5 +13,3 @@
 #pragma clang diagnostic ignored "-Wdouble-promotion"
 #include "vectorclass.h"
 #pragma clang diagnostic pop
-
-#endif // VCL_HPP_

@@ -15,9 +15,9 @@ auto Scrambler<T, abits>::store_and_recall(std::unique_ptr<T const>& current) ->
   }
   rnd::t rndidx = rnd_state & bitmask;
   rnd_state >>= abits;
-  std::unique_ptr<T const> tmp = std::move(data[rndidx]); // Get the data that's currently at the
+  std::unique_ptr<T const> tmp = std::move(data[rndidx]);  // Get the data that's currently at the
   data[rndidx] = std::move(current);
   return std::move(tmp);
 }
 
-} // namespace training
+}  // namespace training

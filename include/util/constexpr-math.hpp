@@ -1,5 +1,4 @@
-#ifndef UTIL_CONSTEXPR_MATH_HPP_
-#define UTIL_CONSTEXPR_MATH_HPP_
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -27,6 +26,4 @@ lgp1(T x) {
   return x ? 1 + lgp1(x >> 1) : 0;
 }
 
-} // namespace util
-
-#endif // UTIL_CONSTEXPR_MATH_HPP_
+}  // namespace util

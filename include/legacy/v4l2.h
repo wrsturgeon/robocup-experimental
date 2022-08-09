@@ -1,18 +1,17 @@
-#ifndef LEGACY_V4L2_H_
-#define LEGACY_V4L2_H_
+#pragma once
 
 #define INVERT 0
 #define NBUFFERS 2
 
-#include <assert.h>    // assert
-#include <errno.h>     // errno
-#include <fcntl.h>     // open
-#include <stdio.h>     // fprintf
-#include <stdlib.h>    // malloc
-#include <string.h>    // strcmp
-#include <sys/ioctl.h> // ioctl
-#include <sys/mman.h>  // mmap
-#include <unistd.h>    // close
+#include <assert.h>     // assert
+#include <errno.h>      // errno
+#include <fcntl.h>      // open
+#include <stdio.h>      // fprintf
+#include <stdlib.h>     // malloc
+#include <string.h>     // strcmp
+#include <sys/ioctl.h>  // ioctl
+#include <sys/mman.h>   // mmap
+#include <unistd.h>     // close
 
 #include <linux/videodev2.h>
 
@@ -72,5 +71,3 @@ int v4l2_read_frame(v4l2_device* vdev);
 int v4l2_init_mmap(v4l2_device* vdev);
 int v4l2_uninit_mmap(v4l2_device* vdev);
 int v4l2_close_query(v4l2_device* vdev);
-
-#endif // LEGACY_V4L2_H_

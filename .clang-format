@@ -1,11 +1,10 @@
-BasedOnStyle: llvm
+BasedOnStyle: Google
 PointerAlignment: Left
 ReferenceAlignment: Pointer
 ColumnLimit: 0
+QualifierAlignment: Right
+IncludeBlocks: Preserve
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
-SeparateDefinitionBlocks: Always
-ShortNamespaceLines: 1
 FixNamespaceComments: true
 Cpp11BracedListStyle: true
-QualifierAlignment: Right

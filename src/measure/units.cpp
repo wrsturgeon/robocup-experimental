@@ -40,4 +40,4 @@ auto operator<<(std::ostream& os, Position const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
-} // namespace measure
+}  // namespace measure
