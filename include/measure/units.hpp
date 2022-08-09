@@ -1,7 +1,7 @@
 #pragma once
 
-#include <math.h>
-#include <stdint.h>
+#include <cmath>
+#include <cstdint>
 #include <iostream>
 
 namespace measure {
@@ -17,29 +17,28 @@ namespace measure {
 class pos_t {
  public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
-  pos_t(pos_t const&) = delete;
-  pos_t(int16_t mm = 0);
-  auto mm() const -> float;
-  auto meters() const -> float;
-  operator std::string() const;
-  friend auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream&;
+  explicit pos_t(std::int16_t);
+  [[nodiscard]] auto mm() const -> float;
+  [[nodiscard]] auto meters() const -> float;
+  explicit operator std::string() const;
+  friend auto operator<<(std::ostream&, pos_t const&) -> std::ostream&;
 
- protected:
-  int16_t internal;
-  static constexpr uint8_t lc = 1;  // lg(conversion to mm)
-  explicit operator int16_t() const;
-  // TODO: verify (and prefably autoenforce at compile time) that this fits within a SIGNED SIZE (int16_t) array
+ private:
+  std::int16_t internal;
+  static constexpr std::uint8_t lc = 1;  // lg(conversion to mm)
+  // explicit operator std::int16_t() const;
+  // TODO(wrsturgeon): verify (prefably at compile time) that this fits within a SIGNED-size (std::int16_t) array
 };
 
 class Position {
  public:
-  Position(Position const&) = delete;
-  Position(int16_t x_mm, int16_t y_mm);
-  operator std::string() const;
-  friend auto operator<<(std::ostream& os, Position const& p) -> std::ostream&;
+  Position(std::int16_t, std::int16_t);
+  explicit operator std::string() const;
+  friend auto operator<<(std::ostream&, Position const&) -> std::ostream&;
 
- protected:
-  pos_t x, y;
+ private:
+  pos_t x;
+  pos_t y;
 };
 
 }  // namespace measure

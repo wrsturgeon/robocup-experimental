@@ -1,12 +1,6 @@
 #include "measure/units.hpp"
 #include "gtest.hpp"
 
-class UnitsPosTTest : public measure::pos_t, public testing::Test {
- protected:
-  void
-  SetUp() override { internal = 42; }
-};
-
 TEST(Units, PosTZero) { ASSERT_FLOAT_EQ(measure::pos_t{0}.mm(), 0.f); }
 
 TEST(Units, PosTOne) { ASSERT_FLOAT_EQ(measure::pos_t{1}.mm(), 1.f); }
@@ -27,8 +21,6 @@ TEST(Units, PosTStream) {
   std::ostream os{nullptr};
   ASSERT_NO_THROW(os << measure::pos_t{42});
 }
-
-TEST_F(UnitsPosTTest, Int16) { ASSERT_EQ(operator int16_t(), 42); }
 
 TEST(Units, PositionString) { ASSERT_EQ(static_cast<std::string>(measure::Position{1000, 1000}), "(1.000000m x, 1.000000m y)"); }
 
