@@ -12,15 +12,13 @@ pxpos_t::operator std::string() const {
          std::to_string(y) + "y)";
 }
 
-uint32_t
-pxpos_t::r2() const {
+auto pxpos_t::r2() const -> uint32_t {
   return (
         static_cast<uint32_t>(x * x) + // overflow-safe
         static_cast<uint32_t>(y * y));
 }
 
-std::ostream&
-operator<<(std::ostream& os, pxpos_t const& p) {
+auto operator<<(std::ostream& os, pxpos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
