@@ -1,10 +1,37 @@
 BasedOnStyle: Google
-PointerAlignment: Left
-ReferenceAlignment: Pointer
-ColumnLimit: 0
-QualifierAlignment: Right
-IncludeBlocks: Preserve
+# AccessModifierOffset: -2
+AlignAfterOpenBracket: AlwaysBreak
+AlignArrayOfStructures: Right
+# AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
+# AlignConsecutiveDeclarations: Consecutive
+AlignOperands: DontAlign
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+AlwaysBreakTemplateDeclarations: MultiLine
+BinPackArguments: false
+BinPackParameters: false
+# BreakBeforeBraces: Stroustrup
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+ColumnLimit: 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
-FixNamespaceComments: true
 Cpp11BracedListStyle: true
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Never
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+# InsertBraces: true # Unsupported until v15
+InsertTrailingCommas: Wrapped
+PackConstructorInitializers: CurrentLine
+PenaltyBreakAssignment: 1000000
+PenaltyBreakTemplateDeclaration: 0
+PenaltyIndentedWhitespace: 100000
+PenaltyReturnTypeOnItsOwnLine: 1000000
+PointerAlignment: Left
+QualifierAlignment: Right
+ReferenceAlignment: Pointer
+# SeparateDefinitionBlocks: Always

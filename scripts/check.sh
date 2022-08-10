@@ -6,21 +6,21 @@ echo 'Checking code style and safety...'
 
 EXIT_CODE=0
 
-# Assert only .cpp in ./src/ & ./test/
-INVALID_FILES=$(find ./src ./test -type f ! -iname '*.cpp' ! -name README.md)
+# Assert only .cpp in ./test/
+INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md)
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo '  Please only use .cpp & README.md in ./src/ & ./test/'
+  echo '  Please only use .cpp & README.md in ./test/'
   echo "    $(${INVALID_FILES} | grep -v legacy)"
   EXIT_CODE=1
 fi
 
-# Assert only .hpp in ./include/
-INVALID_FILES=$(find ./include -type f ! -iname '*.hpp' ! -name README.md)
+# Assert only .hpp in ./src/
+INVALID_FILES=$(find ./src -type f ! -iname '*.hpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo '  Please use only .hpp & README.md in ./include/'
+  echo '  Please use only .hpp & README.md in ./src/'
   echo "    "$(echo ${INVALID_FILES} | grep -v legacy)
   EXIT_CODE=1
 fi
@@ -28,7 +28,7 @@ fi
 # Assert no _, only - in filenames
 find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
 find . -name '*.icloud' | xargs -I{} rm {} # More dumb Mac shit
-INVALID_FILES=$(find ./src ./test ./include -name '*_*')
+INVALID_FILES=$(find ./src ./test ./src -name '*_*')
 if [ ! -z "${INVALID_FILES}" ]
 then
   echo '  Please use hyphens instead of underscores in filenames'
@@ -36,52 +36,15 @@ then
   EXIT_CODE=1
 fi
 
-# Assert all folders in ./src/ and ./include/ are mutual
-for dir in $(find ./src -type d -mindepth 1)
-do
-  if [ ! -d "./include/${dir:6}" ]
-  then
-    echo "  Missing ./include/${dir:6}"
-    EXIT_CODE=1
-  fi
-done
-for dir in $(find ./include -type d -mindepth 1 ! -name util)
-do
-  if [ ! -d "./src/${dir:10}" ]
-  then
-    echo "  Missing ./src/${dir:10}"
-    EXIT_CODE=1
-  fi
-done
-
-# Assert all existing cpp-hpp pairs are properly fused
-# Assert no one-liners in cpp files (with great sorrow, but for coverage <3)
-for file in $(find ./src -type f ! -name README.md)
-do
-  HEADER=$(echo ${file:6} | rev | cut -d. -f2- | rev).hpp
-  DIRNAME=$(echo ${file:6} | rev | cut -d/ -f2 | rev)
-  if ([ -f ./include/${HEADER} ] && [ "$(head -n4 ${file} | tr -d '\n')" != '#include "'${HEADER}'"namespace '${DIRNAME}' {' ])
-  then
-    echo "  Please #include \"${HEADER}\" on the first line of ${file} and open the ${DIRNAME} namespace"
-    EXIT_CODE=1
-  fi
-  if grep -nq '{.*;.*}' ${file}
-  then
-    echo '  Please define braced blocks on a separate line for coverage'
-    grep -n '{.*;.*}' ${file} | cut -d: -f1 | xargs -I{} echo '    '${file}:{}
-    EXIT_CODE=1
-  fi
-done
-
-# Assert "eigen.h" and not any of Eigen's headers
-if grep -Rn ./src ./include -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
+# Assert eigen.hpp, not any of Eigen's headers
+if grep -Rn ./src -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
 then
   echo "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
   EXIT_CODE=1
 fi
 
 # Assert no manual "options.hpp"
-if grep -Rn ./src ./include -e 'options.hpp' --exclude=options.hpp 2>/dev/null
+if grep -Rn ./src -e 'options.hpp' --exclude=options.hpp 2>/dev/null
 then
   echo "  Please don't manually #include "options.hpp"; it's included automatically\n"
   EXIT_CODE=1
@@ -95,14 +58,14 @@ then
 fi
 
 # Assert no manual "eigen-matrix-plugin.hpp"
-if grep -Rn ./src ./include -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
+if grep -Rn ./src -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
 then
   echo "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
 fi
 
-# Assert #include guards & namespaces
-for dir in ./include/*/
+# Assert for each directory in ./src/
+for dir in ./src/*/
 do
   dirname=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev)
   DIRUPPER=$(echo ${dirname} | tr '[:lower:]' '[:upper:]')
@@ -127,7 +90,7 @@ do
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr './-' '_')
 
     # No #includes inside namespace
-    if [ ${dir} != './include/util/' ]
+    if [ ${dir} != './src/util/' ]
     then
       LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
       if [ -z "${LAST_NAMESPACE}" ]
@@ -157,19 +120,10 @@ do
       EXIT_CODE=1
     fi
 
-    for hpp in $(find ./include -type f ! -path '*/util/*' ! -name eigen-matrix-plugin.hpp)
-    do
-      if grep -n ${hpp} -e '{' | grep -v namespace | grep -v class | grep -v struct | grep -v global
-      then
-        echo "  Please don't define anything in .hpp files (just declare)"
-        EXIT_CODE=1
-      fi
-    done
-
   done
 done
 
-for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*')
+for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
   TEST_FILE="./test/${FNAME}.cpp"
@@ -178,21 +132,50 @@ do
     echo "  Please write ${TEST_FILE} to test ${file}"
     EXIT_CODE=1
   fi
-  if ! (head -n1 ${TEST_FILE} | grep -q '#include ".*'${FNAME}'.hpp"')
+  if [ -f ${TEST_FILE} ]
   then
-    echo "  Please #include the original .hpp on the first line of ${TEST_FILE}"
-    EXIT_CODE=1
+    if ! (head -n1 ${TEST_FILE} | grep -q '#include ".*'${FNAME}'.hpp"')
+    then
+      echo "  Please #include the original .hpp on the first line of ${TEST_FILE}"
+      EXIT_CODE=1
+    fi
+    if [ "$(sed '2q;d' ${TEST_FILE})" != '' ]
+    then
+      echo "  Please leave a blank line between your hpp and gtest in ${TEST_FILE}"
+      EXIT_CODE=1
+    else
+      if ! (sed '3q;d' ${TEST_FILE} | grep -q '#include "gtest.hpp"')
+      then
+        echo '  Please #include "gtest.hpp" on the third line of '${TEST_FILE}
+        EXIT_CODE=1
+      fi
+    fi
   fi
-  if ! (sed '2q;d' ${TEST_FILE} | grep -q '#include "gtest.hpp"')
-  then
-    echo '  Please #include "gtest.hpp" on the second line of '${TEST_FILE}
-    EXIT_CODE=1
-  fi
+  for occurrence in $(grep -n 'class .* {' ${file} | cut -d: -f1)
+  do
+    occurrence=$((occurrence+1))
+    line_contents=$(sed ${occurrence}'q;d' ${file})
+    while [ "${line_contents}" != '};' ]
+    do
+      if ((echo "${line_contents}" | grep '^   ' > /dev/null) || (echo "${line_contents}" | grep '^  {' > /dev/null))
+      then
+        echo -e "  Please don't define multi-line items within a \`class\` block ( ${file}:${occurrence} )"
+        EXIT_CODE=1
+      fi
+      if echo "${line_contents}" | grep '^$' > /dev/null
+      then
+        echo -e "  Please don't leave blank lines within a \`class\` block ( ${file}:${occurrence} )"
+        EXIT_CODE=1
+      fi
+      occurrence=$((occurrence+1))
+      line_contents=$(sed ${occurrence}'q;d' ${file})
+    done
+  done
 done
 
 if [ ${EXIT_CODE} -eq 0 ]
 then
-  echo "  All clear!"
+  echo "  All good!"
 fi
 
 exit ${EXIT_CODE}
