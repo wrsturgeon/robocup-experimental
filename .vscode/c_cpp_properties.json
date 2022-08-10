@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/third-party/eigen",
+                "${workspaceFolder}/third-party/gtest/googletest/include",
+                "${workspaceFolder}/third-party/vcl"
+            ],
+            "defines": [
+              "_DEBUG=1",
+              "_BITS=32"
+            ],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/local/opt/llvm/bin/clang",
+            "compilerArgs": [
+              "-include ${workspaceFolder}/src/options.hpp"
+            ],
+            "cppStandard": "c++20",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
