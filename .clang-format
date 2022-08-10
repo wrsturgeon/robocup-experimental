@@ -28,6 +28,7 @@ InsertTrailingCommas: Wrapped
 PackConstructorInitializers: CurrentLine
 PenaltyBreakAssignment: 1000000
 PenaltyReturnTypeOnItsOwnLine: 1000000
+PenaltyIndentedWhitespace: 1000000
 PointerAlignment: Left
 QualifierAlignment: Right
 ReferenceAlignment: Pointer

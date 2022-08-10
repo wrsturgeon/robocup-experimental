@@ -33,9 +33,7 @@ private:
 
 class Position {
 public:
-  Position(std::int16_t, std::int16_t) :
-        x{x_mm},
-        y{y_mm} {}
+  Position(std::int16_t, std::int16_t);
   explicit operator std::string() const;
   friend auto operator<<(std::ostream&, Position const&) -> std::ostream&;
 private:
@@ -56,16 +54,20 @@ pos_t::operator std::string() const {
   return std::to_string(static_cast<float>(internal >> lc) / kMMPerMeter) + 'm';
 }
 
-auto pos_t::operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
+auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
+
+Position::Position(std::int16_t x_mm, std::int16_t y_mm) :
+      x{x_mm},
+      y{y_mm} {}
 
 Position::operator std::string() const {
   return '(' + static_cast<std::string>(x) + " x, " +
         static_cast<std::string>(y) + " y)";
 }
 
-auto Position::operator<<(std::ostream& os, Position const& p) -> std::ostream& {
+auto operator<<(std::ostream& os, Position const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 

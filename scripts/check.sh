@@ -157,9 +157,9 @@ do
     line_contents=$(sed ${occurrence}'q;d' ${file})
     while [ "${line_contents}" != '};' ]
     do
-      if (echo "${line_contents}" | grep '^  {' > /dev/null)
+      if ((echo "${line_contents}" | grep '^   ' > /dev/null) || (echo "${line_contents}" | grep '^  {' > /dev/null))
       then
-        echo -e "  Please don't define multi-line functions within a \`class\` block ( ${file}:${occurrence} )"
+        echo -e "  Please don't define multi-line items within a \`class\` block ( ${file}:${occurrence} )"
         EXIT_CODE=1
       fi
       if echo "${line_contents}" | grep '^$' > /dev/null
