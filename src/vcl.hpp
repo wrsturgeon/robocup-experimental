@@ -11,5 +11,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wcast-qual"
 #pragma clang diagnostic ignored "-Wdouble-promotion"
+// NOLINTBEGIN
 #include "vectorclass.h"
+// NOLINTEND
 #pragma clang diagnostic pop

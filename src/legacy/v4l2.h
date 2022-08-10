@@ -3,6 +3,8 @@
 #define INVERT 0
 #define NBUFFERS 2
 
+#include <linux/videodev2.h>
+
 #include <assert.h>     // assert
 #include <errno.h>      // errno
 #include <fcntl.h>      // open
@@ -12,8 +14,6 @@
 #include <sys/ioctl.h>  // ioctl
 #include <sys/mman.h>   // mmap
 #include <unistd.h>     // close
-
-#include <linux/videodev2.h>
 
 // Logitech UVC controls
 #ifndef V4L2_CID_FOCUS

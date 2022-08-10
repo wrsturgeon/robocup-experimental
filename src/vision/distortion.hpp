@@ -1,34 +1,64 @@
 #pragma once
 
+#include "util/custom-ints.hpp"
+#include "util/uninitialized.hpp"
 #include "vision/pxpos.hpp"
 
+#include <bit>
 #include <cstdint>
 
 namespace vision {
 
-static constexpr std::uint16_t kDefaultInvLR = 128;
-// Don't change the below without also changing ...int16_t -> ...intN_t
 static constexpr std::uint8_t kLensBits = 16;
-static constexpr std::int32_t kOneLS = 1 << kLensBits;
+using intlens_t = custom_int<kLensBits>::signed_t;
+using uintlens_t = custom_int<kLensBits>::unsigned_t;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+using extlens_t = custom_int<(kLensBits << 1)>::signed_t;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+using uextlens_t = custom_int<(kLensBits << 1)>::unsigned_t;
+static constexpr extlens_t kOneLS = 1 << kLensBits;
+static constexpr uintlens_t kDefaultInvLR = 128;
 
-Lens::Lens(std::int16_t radial_, std::int16_t tangential_x_, std::int16_t tangential_y_) :
-      radial{radial_},
-      tangential_x{tangential_x_},
-      tangential_y{tangential_y_},
-      inv_lr{kDefaultInvLR} {}
+/**
+ * Class holding parameters representing the idiosyncrasies of any given camera.
+ * Can be manually undone & redone to verify current view against internal estimate.
+ * TODO: Make these compile-time when not `TRAINING`, configured then saved to disk
+ */
+class Lens {
+ public:
+  explicit Lens(intlens_t radial, intlens_t tangential_x, intlens_t tangential_y);
+  template <uextlens_t diag_sq> auto undistort(pxpos_t px) -> pxpos_t;
+  template <uextlens_t diag_sq> auto redistort(pxpos_t px) -> pxpos_t;
+ private:
+  intlens_t rad;  // 8 bits used; extra for smooth gradient descent
+  intlens_t tan_x;
+  intlens_t tan_y;
+  uintlens_t inv_lr{kDefaultInvLR};  // Inverse learning rate: increment over time
+};
+
+Lens::Lens(std::int16_t radial, std::int16_t tangential_x, std::int16_t tangential_y) :
+      rad{radial},
+      tan_x{tangential_x},
+      tan_y{tangential_y} {}
 
 template <std::uint32_t diag_sq>
 auto
 Lens::redistort(pxpos_t px) -> pxpos_t {
-  // kLensBits bits, scaled to account for image size.
-  std::uint16_t r2 = rshift<lgp1(diag_sq) - kLensBits>((px.x_ * px.x_) + (px.y_ * px.y_));
-  auto scaled = static_cast<std::int16_t>(static_cast<std::int32_t>(radial * r2) >> kLensBits);
+  // Pack it to the brim while maintaining that the largest possible won't overflow
+  static constexpr std::int8_t rs_amt = std::bit_width(diag_sq) - kLensBits;
+  auto rsq = uninitialized<uintlens_t>();
+  if constexpr (rs_amt < 0) {
+    rsq = uintlens_t{px.r2() << -rs_amt};
+  } else {
+    rsq = uintlens_t{px.r2() >> rs_amt};
+  }
+  auto scaled = static_cast<intlens_t>(static_cast<extlens_t>(rad * rsq) >> kLensBits);
   return pxpos_t{
         static_cast<std::int16_t>(
-              ((px.x_ << kLensBits) + (px.y_ * tangential_y)) /
+              ((px.x_ << kLensBits) + (px.y_ * tan_y)) /
               static_cast<std::int32_t>(kOneLS + scaled)),
         static_cast<std::int16_t>(
-              ((px.y_ << kLensBits) + (px.x_ * tangential_x)) /
+              ((px.y_ << kLensBits) + (px.x_ * tan_x)) /
               static_cast<std::int32_t>(kOneLS + scaled))};
 }
 

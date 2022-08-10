@@ -14,10 +14,10 @@ TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCT := $(DIR)/scripts
 
-ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
+ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -include $(SRC)/options.hpp -iquote $(SRC) $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
+INCLUDES := -include $(SRC)/options.hpp -iquote $(SRC) #$(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
@@ -59,7 +59,7 @@ compile-bin = $(compile) $(prereqs) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
 TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(prereqs) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
-clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-llvm-header-guard,-llvm-include-order,-readability-identifier-length,-fuchsia-trailing-return,-fuchsia-overloaded-operator,-hicpp-signed-bitwise,-altera-unroll-loops --warnings-as-errors=*,-bugprone-easily-swappable-parameters -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
+clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
 echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
 
 deps = $(SRC)/$(1).hpp
@@ -83,6 +83,8 @@ test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) | eigen
 test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 	$(compile-tst)
 test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) | eigen
+	$(compile-tst)
+test_rshift: $(TST)/rshift.cpp $(call deps,util/rshift)
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
 	$(compile-tst)
@@ -109,3 +111,5 @@ test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 
 
 # TODO: use PGO (profiling-guided optimization)
+
+# TODO: NOLINTBEGIN/END around system/library headers

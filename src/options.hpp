@@ -15,37 +15,25 @@
 #error "Compile with argument -D_BITS=$(getconf LONG_BIT)"
 #endif  // ifdef _BITS
 
-#ifndef _IMAGE_H
-#define IMAGE_H 960
+#ifdef _IMAGE_H
+static constexpr unsigned int kImageH = _IMAGE_H;
 #else
+static constexpr unsigned int kImageH = 960;
+#endif
 
-#if _IMAGE_H > 0
-#define IMAGE_H _IMAGE_H
+#ifdef _IMAGE_W
+static constexpr unsigned int kImageW = _IMAGE_W;
 #else
-#error "_IMAGE_H <= 0"
-#endif  // _IMAGE_H > 0
-
-#endif  // ifdef _IMAGE_H
-
-#ifndef _IMAGE_W
-#define IMAGE_W 1280
-#else
-
-#if _IMAGE_W > 0
-#define IMAGE_W _IMAGE_W
-#else
-#error "_IMAGE_W <= 0"
-#endif  // _IMAGE_W > 0
-
-#endif  // ifdef _IMAGE_W
+static constexpr unsigned int kImageW = 1280;
+#endif
 
 #define IMAGE_DIAG_SQ ((IMAGE_W * IMAGE_W) + (IMAGE_H * IMAGE_H))
 
 #ifdef _NAO_HEIGHT_MM
-#define NAO_HEIGHT_MM _NAO_HEIGHT_MM
+static constexpr unsigned int kNaoHeightMM = _NAO_HEIGHT_MM;
 #else
-// TODO: this is a ROUGH ESTIMATE
-#define NAO_HEIGHT_MM 500
+static constexpr unsigned int kNaoHeightMM = 500;  // TODO(wrsturgeon): this is a ROUGH
+                                                   // ESTIMATE
 #endif  // ifdef _NAO_HEIGHT_MM
 
 #ifdef _DEBUG
