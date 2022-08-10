@@ -5,13 +5,12 @@ ifndef VERBOSE
 endif
 
 .PHONY: run check
-ALL_SRC_INCLUDE := $(shell find ./src ./include)
-FORMAT := find ./src ./include ./test -type f ! -name README.md | xargs clang-format --style=file -Werror
+FORMAT := find ./src ./test -type f ! -name README.md | xargs clang-format --style=file -Werror
 
-run: check submodules build/Makefile
+run: format check submodules build/Makefile
 	cd ./build && make
 
-release test tidy: check submodules build/Makefile
+release test tidy: format check submodules build/Makefile
 	cd ./build && make $(@)
 
 format:

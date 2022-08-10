@@ -6,7 +6,9 @@
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 #pragma clang diagnostic ignored "-Wundef"
+// NOLINTBEGIN
 #include "gtest/gtest.h"
+// NOLINTEND
 #pragma clang diagnostic pop
 
 #pragma clang diagnostic push

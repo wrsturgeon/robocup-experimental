@@ -2,8 +2,6 @@
 
 set -eu
 
-echo "${@}"
-
 if [ ${3} -ne 0 ]
 then
   echo "Missing ${3} region(s) in ${1} (${4} covered)"

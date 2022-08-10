@@ -1,0 +1,16 @@
+Checks: '*,
+  -altera-unroll-loops,
+  -fuchsia-overloaded-operator,
+  -fuchsia-trailing-return,
+  -hicpp-signed-bitwise,
+  -llvmlibc-*,
+  -llvm-header-guard,
+  -llvm-include-order,
+  -misc-definitions-in-headers,
+  -readability-identifier-length'
+CheckOptions:
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: '1;2'
+FormatStyle: file
+HeaderFilterRegex: '.*'
+WarningsAsErrors: '*,-bugprone-easily-swappable-parameters'
