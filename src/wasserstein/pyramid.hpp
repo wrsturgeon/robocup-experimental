@@ -88,6 +88,19 @@ Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal
 template <vision::pxidx_t w, vision::pxidx_t h>
 auto
 Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
+  if constexpr (kDebug) {
+    if ((x < 0) || (y < 0)) {
+      throw std::out_of_range{
+            "Pyramid::operator(): negative index (" + std::to_string(x) + ", " +
+            std::to_string(y) + ')'};
+    }
+    if (x >= w || y >= h) {
+      throw std::out_of_range{
+            "Pyramid of size (" + std::to_string(w) + ", " + std::to_string(h) +
+            ") called operator() at position (" + std::to_string(x) + ", " +
+            std::to_string(y) + ')'};
+    }
+  }
   return _array[y][x];
 }
 

@@ -13,10 +13,10 @@ do
   then
     echo "Testing ${CPP}..."
     rm -f ./default.profraw
-    # lldb ./test_${NOX} -b -o run --one-line-on-crash 'thread backtrace' # This is great but WON'T fail if it leaks or tests fail
-    ./test_${NOX}
+    # lldb ./test-${NOX} -b -o run --one-line-on-crash 'thread backtrace' # This is great but WON'T fail if it leaks or tests fail
+    ./test-${NOX}
     llvm-profdata merge ./default.profraw -o ./${NOX}.profdata || (echo 'No coverage' && exit 1)
-    (llvm-cov report ./test_${NOX} --instr-profile=./${NOX}.profdata ${CPP} | sed '3q;d' | xargs ${DIR}/scripts/parse-coverage.sh) || \
-    (llvm-cov show ./test_${NOX} --instr-profile=./${NOX}.profdata ${CPP} && exit 1)
+    (llvm-cov report ./test-${NOX} --instr-profile=./${NOX}.profdata ${CPP} | sed '3q;d' | xargs ${DIR}/scripts/parse-coverage.sh) || \
+    (llvm-cov show ./test-${NOX} --instr-profile=./${NOX}.profdata ${CPP} && exit 1)
   fi
 done

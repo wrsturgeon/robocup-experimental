@@ -42,9 +42,9 @@ class Position {
 };
 
 pos_t::pos_t(std::int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
-#if DEBUG
-  if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
-#endif
+  if constexpr (kDebug) {
+    if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
+  }
 }
 
 pos_t::operator std::string() const {

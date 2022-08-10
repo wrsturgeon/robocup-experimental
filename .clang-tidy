@@ -9,8 +9,8 @@ Checks: '*,
   -misc-definitions-in-headers,
   -readability-identifier-length'
 CheckOptions:
-  - key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
-    value: '1'
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: '1;2'
 FormatStyle: file
 HeaderFilterRegex: '.*'
 WarningsAsErrors: '*,-bugprone-easily-swappable-parameters'

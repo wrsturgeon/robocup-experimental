@@ -10,7 +10,7 @@ namespace measure {
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 auto
 sample_field_lines() -> Position {  // NOLINT(readability-function-cognitive-complexity)
-  static constexpr std::uint8_t rnd_uses = BITS >> 4;
+  static constexpr std::uint8_t rnd_uses = kSystemBits >> 4;
   static rnd::t rnd_state;
   static std::uint8_t rnd_uses_left;  // Not initializing: compiler doesn't need the extra
                                       // first-time-calling-or-not flag

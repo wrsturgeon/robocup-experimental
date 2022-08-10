@@ -27,7 +27,7 @@ template <typename T, uint8_t abits = kDefaultABits> class Scrambler {
   static_assert(abits <= kMaxABits, "No way you'll need this many memories at a time");
   static constexpr std::size_t n = static_cast<std::size_t>(1) << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
-  static constexpr uint8_t n_renew = BITS / abits;  // Number of times to use xoshiro result
+  static constexpr uint8_t n_renew = kSystemBits / abits;  // Number of uses per xoshiro result
   static constexpr rnd::t bitmask = n - 1;
   rnd::t rnd_state;
   uint8_t rnd_uses_left{0};

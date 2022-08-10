@@ -14,7 +14,7 @@ TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCT := $(DIR)/scripts
 
-ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
+ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test-$(dir))
 
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -include $(SRC)/options.hpp -iquote $(SRC) #$(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
@@ -22,7 +22,7 @@ MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_DEBUG
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
@@ -74,23 +74,23 @@ gmain.o:
 	echo 'Compiling GoogleTest main function...'
 	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
 
-test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) | eigen
+test-distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) | eigen
 	$(compile-tst)
-test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) | eigen
+test-field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) | eigen
 	$(compile-tst)
-test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) | eigen
+test-image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) | eigen
 	$(compile-tst)
-test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
+test-pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 	$(compile-tst)
-test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) | eigen
+test-pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) | eigen
 	$(compile-tst)
-test_rshift: $(TST)/rshift.cpp $(call deps,util/rshift)
+test-rshift: $(TST)/rshift.cpp $(call deps,util/rshift)
 	$(compile-tst)
-test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
+test-scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
 	$(compile-tst)
-test_units: $(TST)/units.cpp $(call deps,measure/units) | eigen
+test-units: $(TST)/units.cpp $(call deps,measure/units) | eigen
 	$(compile-tst)
-test_xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
+test-xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 	$(compile-tst)
 
 check-leak-detection: ../test/leak.cpp

@@ -6,7 +6,7 @@
 #ifdef _BITS
 
 #if _BITS == 32 || _BITS == 64
-#define BITS _BITS
+static constexpr unsigned kSystemBits = _BITS;
 #else
 #error "Invalid value for _BITS"
 #endif  // 32/64
@@ -37,7 +37,8 @@ static constexpr unsigned int kNaoHeightMM = 500;  // TODO(wrsturgeon): this is 
 #endif  // ifdef _NAO_HEIGHT_MM
 
 #ifdef _DEBUG
-#define DEBUG _DEBUG
+// NOLINTNEXTLINE(modernize-use-bool-literals)
+static constexpr auto kDebug = static_cast<bool>(_DEBUG);
 #else
-#define DEBUG 0
+static constexpr auto kDebug = false;
 #endif  // ifdef _DEBUG
