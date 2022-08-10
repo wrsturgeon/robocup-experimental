@@ -1,4 +1,4 @@
-// No #include guards: we assert that it's never manually included in check.sh
+#pragma once
 
 // Included at Eigen/src/Core/MatrixBase.h:132 (WITHIN Eigen namespace)
 

@@ -8,7 +8,7 @@ fi
 
 if [ $(PWD | rev | cut -d/ -f1) != 'pucobor' ]
 then
-  echo 'Please run from the `robocup` folder as `./scripts/debug.sh <arguments to clang++>`'
+  echo 'Please run from the `robocup` folder as `./test/scripts/debug.sh <arguments to clang++>`'
   exit 1
 fi
 

@@ -7,7 +7,7 @@ echo 'Checking code style and safety...'
 EXIT_CODE=0
 
 # Assert only .cpp in ./test/
-INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md)
+INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md ! -path '*/scripts/*')
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
@@ -33,34 +33,6 @@ if [ ! -z "${INVALID_FILES}" ]
 then
   echo '  Please use hyphens instead of underscores in filenames'
   echo "    "${INVALID_FILES}
-  EXIT_CODE=1
-fi
-
-# Assert eigen.hpp, not any of Eigen's headers
-if grep -Rn ./src -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
-then
-  echo "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"
-  EXIT_CODE=1
-fi
-
-# Assert no manual "options.hpp"
-if grep -Rn ./src -e 'options.hpp' --exclude=options.hpp 2>/dev/null
-then
-  echo "  Please don't manually #include "options.hpp"; it's included automatically\n"
-  EXIT_CODE=1
-fi
-
-# Assert no manual "gtest/gtest.h"
-if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
-then
-  echo "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
-  EXIT_CODE=1
-fi
-
-# Assert no manual "eigen-matrix-plugin.hpp"
-if grep -Rn ./src -e 'eigen-matrix-plugin.hpp' --exclude=eigen.hpp 2>/dev/null
-then
-  echo "  Please don't manually #include \"eigen-matrix-plugin.hpp\"; it's included in Eigen::Matrix"
   EXIT_CODE=1
 fi
 

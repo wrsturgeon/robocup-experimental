@@ -12,7 +12,7 @@ DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
 TPY := $(DIR)/third-party
 TST := $(DIR)/test
-SCT := $(DIR)/scripts
+SCT := $(TST)/scripts
 
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test-$(dir))
 
