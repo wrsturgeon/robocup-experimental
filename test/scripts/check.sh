@@ -7,7 +7,7 @@ echo 'Checking code style and safety...'
 EXIT_CODE=0
 
 # Assert only .cpp in ./test/
-INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md)
+INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md ! -path '*/scripts/*')
 # Unfortunately using grep -v legacy above causes the script to crash
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
@@ -51,7 +51,7 @@ then
 fi
 
 # Assert no manual "gtest/gtest.h"
-if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp
+if grep -Rn ./src ./test -e 'gtest/gtest.h' --exclude=gtest.hpp --exclude='*/scripts/*'
 then
   echo "Please #include "gtest.hpp" instead of "gtest/gtest.h" to avoid 3rd-party errors showing up as ours\n"
   EXIT_CODE=1
