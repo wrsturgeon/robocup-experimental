@@ -105,7 +105,7 @@ endif
 noextn = $(shell echo $(1) | rev | cut -d/ -f1 | cut -d. -f2- | rev)
 
 test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
-	./scripts/test.sh
+	./test/scripts/test.sh
 
 
 
