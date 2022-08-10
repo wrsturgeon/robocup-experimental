@@ -41,12 +41,9 @@ private:
   pos_t y;
 };
 
-pos_t::pos_t(std::int16_t mm) :
-      internal{static_cast<int16_t>(mm << lc)} {
+pos_t::pos_t(std::int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
 #if DEBUG
-  if ((internal >> lc) != mm) {
-    throw std::overflow_error("pos_t overflow");
-  }
+  if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
 #endif
 }
 
@@ -54,20 +51,19 @@ pos_t::operator std::string() const {
   return std::to_string(static_cast<float>(internal >> lc) / kMMPerMeter) + 'm';
 }
 
-auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
+auto
+operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
-Position::Position(std::int16_t x_mm, std::int16_t y_mm) :
-      x{x_mm},
-      y{y_mm} {}
+Position::Position(std::int16_t x_mm, std::int16_t y_mm) : x{x_mm}, y{y_mm} {}
 
 Position::operator std::string() const {
-  return '(' + static_cast<std::string>(x) + " x, " +
-        static_cast<std::string>(y) + " y)";
+  return '(' + static_cast<std::string>(x) + " x, " + static_cast<std::string>(y) + " y)";
 }
 
-auto operator<<(std::ostream& os, Position const& p) -> std::ostream& {
+auto
+operator<<(std::ostream& os, Position const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 

@@ -12,7 +12,5 @@ TEST(Xoshiro, StartSameEveryTimeBit) { ASSERT_EQ(rnd::bit(), true); }
 
 TEST(Xoshiro, BitRefill) {
   uint8_t i = 0;
-  do {
-    rnd::bit();
-  } while (++i);
+  do { rnd::bit(); } while (++i);
 }

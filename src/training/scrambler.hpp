@@ -16,12 +16,14 @@ Scrambler<T, abits>::Scrambler() :
       counter{0} {}
 
 template <typename T, uint8_t abits>
-void Scrambler<T, abits>::store_only(T&& current) {
+void
+Scrambler<T, abits>::store_only(T&& current) {
   data[counter++] = std::move(current);
 }
 
 template <typename T, uint8_t abits>
-auto Scrambler<T, abits>::store_and_recall(T&& current) -> T {
+auto
+Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   if (rnd_uses_left == 0) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();

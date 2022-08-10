@@ -8,13 +8,12 @@
 namespace measure {
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-auto sample_field_lines()
-      -> Position {  // NOLINT(readability-function-cognitive-complexity)
+auto
+sample_field_lines() -> Position {  // NOLINT(readability-function-cognitive-complexity)
   static constexpr std::uint8_t rnd_uses = BITS >> 4;
   static rnd::t rnd_state;
-  static std::uint8_t
-        rnd_uses_left;  // Not initializing: compiler doesn't need the extra
-                        // first-time-calling-or-not flag
+  static std::uint8_t rnd_uses_left;  // Not initializing: compiler doesn't need the extra
+                                      // first-time-calling-or-not flag
   do {
     if (rnd_uses_left == 0) {
       rnd_uses_left = rnd_uses - 1;
@@ -63,49 +62,93 @@ auto sample_field_lines()
         return (x < 6000)
               ? Position{static_cast<std::int16_t>(-4500), static_cast<std::int16_t>(x - 3000)}
               // [ 1] :     0 -  6000
-              : Position{static_cast<std::int16_t>(x - 10500), static_cast<std::int16_t>(3000)};  // [ 2] :  6000 - 15000
-      }                                                                                           //
-      return (x < 21000)                                                                          //
+              : Position{
+                      static_cast<std::int16_t>(x - 10500),
+                      static_cast<std::int16_t>(3000)};  // [ 2] :  6000 - 15000
+      }                                                  //
+      return (x < 21000)                                 //
             ? Position{static_cast<std::int16_t>(4500), static_cast<std::int16_t>(x - 18000)}
             // [ 3] : 15000 - 21000
-            : Position{static_cast<std::int16_t>(x - 25500), static_cast<std::int16_t>(-3000)};  // [ 4] : 21000 - 30000
-    }                                                                                            //
-    if (x < 48950) {                                                                             //
-      if (x < 37650) {                                                                           //
-        return (x < 36000)                                                                       //
+            : Position{
+                    static_cast<std::int16_t>(x - 25500),
+                    static_cast<std::int16_t>(-3000)};  // [
+                                                        // 4]
+                                                        // :
+                                                        // 21000
+                                                        // -
+                                                        // 30000
+    }                                                   //
+    if (x < 48950) {                                    //
+      if (x < 37650) {                                  //
+        return (x < 36000)                              //
               ? Position{static_cast<std::int16_t>(0), static_cast<std::int16_t>(x - 33000)}
-              // [ 5] : 30000 - 36000
-              : Position{static_cast<std::int16_t>(x - 40500), static_cast<std::int16_t>(-2000)};  // [ 6] : 36000 - 37650
-      }                                                                                            //
-      if (x < 43300) {                                                                             //
-        return (x < 41650)                                                                         //
+              // [
+              // 5]
+              // :
+              // 30000
+              // -
+              // 36000
+              : Position{
+                      static_cast<std::int16_t>(x - 40500),
+                      static_cast<std::int16_t>(-2000)};  // [ 6] : 36000 - 37650
+      }                                                   //
+      if (x < 43300) {                                    //
+        return (x < 41650)                                //
               ? Position{static_cast<std::int16_t>(-2850), static_cast<std::int16_t>(x - 39650)}
               // [ 7] : 37650 - 41650
-              : Position{static_cast<std::int16_t>(x - 46150), static_cast<std::int16_t>(2000)};   // [ 8] : 41650 - 43300
-      }                                                                                            //
-      return (x < 44950)                                                                           //
-            ? Position{static_cast<std::int16_t>(x - 40450), static_cast<std::int16_t>(-2000)}     // [ 9] : 43300 - 44950
-            : Position{static_cast<std::int16_t>(2850), static_cast<std::int16_t>(x - 46950)};     // [10] : 44950 - 48950
-    }                                                                                              //
-    if (x < 54000) {                                                                               //
-      if (x < 51200) {                                                                             //
-        return (x < 50600)                                                                         //
-              ? Position{static_cast<std::int16_t>(x - 46100), static_cast<std::int16_t>(2000)}    // [11] : 48950 - 50600
-              : Position{static_cast<std::int16_t>(x - 55100), static_cast<std::int16_t>(-1100)};  // [12] : 50600 - 51200
-      }                                                                                            //
-      return (x < 53400)                                                                           //
+              : Position{
+                      static_cast<std::int16_t>(x - 46150),
+                      static_cast<std::int16_t>(2000)};  // [ 8] : 41650 - 43300
+      }                                                  //
+      return (x < 44950)                                 //
+            ? Position{static_cast<std::int16_t>(x - 40450), static_cast<std::int16_t>(-2000)}
+            // [ 9] : 43300 - 44950
+            : Position{
+                    static_cast<std::int16_t>(2850),
+                    static_cast<std::int16_t>(x - 46950)};  // [10]
+                                                            // :
+                                                            // 44950
+                                                            // -
+                                                            // 48950
+    }                                                       //
+    if (x < 54000) {                                        //
+      if (x < 51200) {                                      //
+        return (x < 50600)                                  //
+              ? Position{static_cast<std::int16_t>(x - 46100), static_cast<std::int16_t>(2000)}
+              // [11] : 48950 - 50600
+              : Position{
+                      static_cast<std::int16_t>(x - 55100),
+                      static_cast<std::int16_t>(-1100)};  // [12] : 50600 - 51200
+      }                                                   //
+      return (x < 53400)                                  //
             ? Position{static_cast<std::int16_t>(-3900), static_cast<std::int16_t>(x - 52300)}
             // [13] : 51200 - 53400
-            : Position{static_cast<std::int16_t>(x - 57900), static_cast<std::int16_t>(1100)};  // [14] : 53400 - 54000
-    }                                                                                           //
-    if (x < 56800) {                                                                            //
-      return (x < 54600)                                                                        //
-            ? Position{static_cast<std::int16_t>(x - 50100), static_cast<std::int16_t>(-1100)}  // [15] : 54000 - 54600
-            : Position{static_cast<std::int16_t>(3900), static_cast<std::int16_t>(x - 55700)};  // [16] : 54600 - 56800
-    }                                                                                           //
-    if (x < 57400) {                                                                            //
-      return Position{static_cast<std::int16_t>(x - 52900), static_cast<std::int16_t>(1100)};   // [17] : 56800 - 57400
-    }                                                                                           //
+            : Position{
+                    static_cast<std::int16_t>(x - 57900),
+                    static_cast<std::int16_t>(1100)};  // [14]
+                                                       // :
+                                                       // 53400
+                                                       // -
+                                                       // 54000
+    }                                                  //
+    if (x < 56800) {                                   //
+      return (x < 54600)                               //
+            ? Position{static_cast<std::int16_t>(x - 50100), static_cast<std::int16_t>(-1100)}
+            // [15] : 54000 - 54600
+            : Position{
+                    static_cast<std::int16_t>(3900),
+                    static_cast<std::int16_t>(x - 55700)};  // [16]
+                                                            // :
+                                                            // 54600
+                                                            // -
+                                                            // 56800
+    }                                                       //
+    if (x < 57400) {                                        //
+      return Position{
+            static_cast<std::int16_t>(x - 52900), static_cast<std::int16_t>(1100)};  // [17] :
+                                                                                     // 56800 -
+                                                                                     // 57400
+    }                                                                                //
     // If >= 57400, resample
   } while (true);
 }

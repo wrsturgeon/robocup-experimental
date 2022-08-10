@@ -36,7 +36,7 @@ then
   EXIT_CODE=1
 fi
 
-# Assert "eigen.h" and not any of Eigen's headers
+# Assert eigen.hpp, not any of Eigen's headers
 if grep -Rn ./src -e '#include' --exclude=eigen.hpp 2>/dev/null | grep Eigen
 then
   echo "  Please #include \"eigen.hpp\" instead of Eigen's internal headers"

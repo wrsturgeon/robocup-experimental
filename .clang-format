@@ -6,16 +6,17 @@ AlignArrayOfStructures: Right
 AlignConsecutiveBitFields: Consecutive
 # AlignConsecutiveDeclarations: Consecutive
 AlignOperands: DontAlign
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterReturnType: TopLevelDefinitions
 AlwaysBreakTemplateDeclarations: MultiLine
 BinPackArguments: false
 BinPackParameters: false
 # BreakBeforeBraces: Stroustrup
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
-ColumnLimit: 0
+ColumnLimit: 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
 Cpp11BracedListStyle: true
@@ -27,8 +28,9 @@ IncludeBlocks: Preserve
 InsertTrailingCommas: Wrapped
 PackConstructorInitializers: CurrentLine
 PenaltyBreakAssignment: 1000000
+PenaltyBreakTemplateDeclaration: 0
+PenaltyIndentedWhitespace: 100000
 PenaltyReturnTypeOnItsOwnLine: 1000000
-PenaltyIndentedWhitespace: 1000000
 PointerAlignment: Left
 QualifierAlignment: Right
 ReferenceAlignment: Pointer

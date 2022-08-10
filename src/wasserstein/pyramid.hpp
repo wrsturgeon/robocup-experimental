@@ -20,48 +20,51 @@ using Eigen::placeholders::all;
 template <vision::pxidx_t w, vision::pxidx_t h>
 using EigenMap = Eigen::Map<Eigen::Matrix<uint8_t, h, w, Eigen::RowMajor>>;
 
-// Forward declaration to use in sizing memory below
 // TODO(wrsturgeon): consteval when clang-tidy implements it
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t;  // NOLINT(clang-diagnostic-unneeded-internal-declaration)
+inline static constexpr auto
+pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t {  // NOLINT(misc-no-recursion)
+  return ((w != 0) && (h != 0))
+        ? static_cast<size_t>(w * h) +
+              pyrsize(
+                    static_cast<vision::pxidx_t>(w >> 1), static_cast<vision::pxidx_t>(h >> 1))
+        : 0;
+}
 
-template <vision::pxidx_t w, vision::pxidx_t h>
+template <vision::pxidx_t w = IMAGE_W, vision::pxidx_t h = IMAGE_H>  //
 class Pyramid {
 protected:
-  template <vision::pxidx_t w_, vision::pxidx_t h_>
-  friend class Pyramid;
+  template <vision::pxidx_t w_, vision::pxidx_t h_> friend class Pyramid;
   static constexpr uint32_t n_px = w * h;
   static constexpr vision::pxidx_t half_w = w >> 1;
   static constexpr vision::pxidx_t half_h = h >> 1;
-  static constexpr size_t bytes_above = pyrsize(half_w, half_h);  // C++ doesn't like substituting this directly
+  static constexpr size_t bytes_above = pyrsize(half_w, half_h);
   using up_t = Pyramid<half_w, half_h>;
   void build_manual();                                // Max-pooling (directional flags)
   void build_eigen(EigenMap<w, h> const& lower_map);  // Mean-pooling (automatic)
 private:
-  uint8_t _array[h][w];          // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
-  uint8_t _up_raw[bytes_above];  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t _array[h][w];
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t _up_raw[bytes_above];
   explicit Pyramid(uint8_t const* __restrict src);
 public:
-  explicit Pyramid(uint8_t src[h][w]);  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  explicit Pyramid(uint8_t src[h][w]);
   explicit Pyramid(vision::NaoImage<w, h> const& src);
   auto operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t&;
   auto up() -> up_t&;
-  // The coolest thing is that it doesn't even matter if we call up() one or two or n times too many--
-  // it'll still return the same 0-element Pyramid!
-  // We just need some kind of minimal (preferably compile-time) bounds checking in public methods
+  // The coolest thing is that it doesn't even matter if we call up() one or two or n times too
+  // many-- it'll still return the same 0-element Pyramid! We just need some kind of minimal
+  // (preferably compile-time) bounds checking in public methods
 };
 
-// TODO(wrsturgeon): consteval when clang-tidy implements it
-inline static constexpr auto pyrsize(vision::pxidx_t w, vision::pxidx_t h) -> size_t {  // NOLINT(misc-no-recursion)
-  return ((w != 0) && (h != 0))
-        ? static_cast<size_t>(w * h) + pyrsize(static_cast<vision::pxidx_t>(w >> 1), static_cast<vision::pxidx_t>(h >> 1))
-        : 0;
-}
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"
 
-#define PYRAMID_ERROR "Pyramid class must have only 2 allocated members: _array & _up_raw"  // NOLINT(cppcoreguidelines-macro-usage)
-
-template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+template <vision::pxidx_t w, vision::pxidx_t h>
 Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
-  // Private constructor: guaranteed that by this point, src points to valid (w, h) uint8_t data
+  // Private constructor: guaranteed that by this point, src points to valid (w, h) data
   static_assert(sizeof(Pyramid<0, 0>) == 0, PYRAMID_ERROR);
   static_assert(sizeof(Pyramid<1, 1>) == 1, PYRAMID_ERROR);
   // memcpy(_array, src, n_px);
@@ -72,24 +75,26 @@ Pyramid<w, h>::Pyramid(uint8_t const* const __restrict src) {
   build_eigen(internal_map);
 }
 
-template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+template <vision::pxidx_t w, vision::pxidx_t h>
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
-Pyramid<w, h>::Pyramid(uint8_t src[h][w]) :
-      Pyramid{src} {
-}
+Pyramid<w, h>::Pyramid(uint8_t src[h][w]) : Pyramid{src} {}
 
-template <vision::pxidx_t w, vision::pxidx_t h>  // NOLINT(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) :
-      Pyramid{src.internal.data()} {}
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+template <vision::pxidx_t w, vision::pxidx_t h>
+Pyramid<w, h>::Pyramid(vision::NaoImage<w, h> const& src) : Pyramid{src.internal.data()} {}
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-auto Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
+auto
+Pyramid<w, h>::operator()(vision::pxidx_t x, vision::pxidx_t y) -> uint8_t& {
   return _array[y][x];
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-auto Pyramid<w, h>::up() -> up_t& {
-  return *reinterpret_cast<up_t*>(_up_raw);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+auto
+Pyramid<w, h>::up() -> up_t& {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  return *reinterpret_cast<up_t*>(_up_raw);
   // The coolest thing is that it doesn't even matter if we call up() one or two
   // or n times too many-- it'll still return the same 0-element Pyramid! We
   // just need some kind of minimal (preferably compile-time) bounds checking in
@@ -98,16 +103,15 @@ auto Pyramid<w, h>::up() -> up_t& {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void Pyramid<w, h>::build_manual() {
+void
+Pyramid<w, h>::build_manual() {
   // Assumes we've already filled `_array` with valid image data
 
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
 
   // NOTE: AN INFINITE CONSTRUCTOR LOOP DOES *NOT* THROW A COMPILE-TIME ERROR
   // Need to verify that we have > 0 pixels to fill, else infinite loop of constructing nothing
-  if ((half_w == 0) || (half_h == 0)) {
-    return;
-  }
+  if ((half_w == 0) || (half_h == 0)) { return; }
 
   // Allocating for use in loops
   auto twice = uninitialized<vision::pxidx_t>();
@@ -117,15 +121,15 @@ void Pyramid<w, h>::build_manual() {
   // TODO(wrsturgeon): randomize shift when odd size
 
   // One dimension at a time: first half the width
-  uint8_t tmp[h][half_w];  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+  uint8_t tmp[h][half_w];
   for (vision::pxidx_t y = 0; y < h; ++y) {
     for (vision::pxidx_t x = 0; x < half_w; ++x) {
       twice = static_cast<vision::pxidx_t>(x << 1);  // TODO(wrsturgeon): verify no overflow
       a = _array[y][twice];
       b = _array[y][twice | 1];
-      tmp[y][x] = ((a >> 2) > (b >> 2))
-            ? a & ~1
-            : b | 1;  // Set a bit to represent left/right provenience (thx Sydney)
+      // Set a bit to represent left/right provenience (thx Sydney)
+      tmp[y][x] = ((a >> 2) > (b >> 2)) ? a & ~1 : b | 1;
     }
   }
 
@@ -144,8 +148,11 @@ void Pyramid<w, h>::build_manual() {
 }
 
 template <vision::pxidx_t w, vision::pxidx_t h>
-void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
-  static_assert((half_w != 0) && (half_h != 0), "Pyramid level to be constructed must have at least one pixel");
+void
+Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
+  static_assert(
+        (half_w != 0) && (half_h != 0),
+        "Pyramid level to be constructed must have at least one pixel");
   static_assert(sizeof(Pyramid<w, h>) == pyrsize(w, h), PYRAMID_ERROR);
   auto i0 = uninitialized<uint8_t>();
   Pyramid<half_w, half_h>& next = up();
@@ -158,13 +165,15 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
     } else {
       i0 = static_cast<uint8_t>(rnd::bit());
     }
-    auto tmp = ((lower(all, seqN(i0, half_w, 2)) >> 1) + (lower(all, seqN(i0 + 1, half_w, 2)) >> 1));
+    auto tmp{
+          (lower(all, seqN(i0, half_w, 2)) >> 1) +  //
+          (lower(all, seqN(i0 + 1, half_w, 2)) >> 1)};
     if constexpr ((h & 1) == 0) {
       i0 = 0;
     } else {
       i0 = static_cast<uint8_t>(rnd::bit());
     }
-    upper_map = ((tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1));
+    upper_map{(tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1)};
   } else {  // Literally anything else
     auto upper_map = EigenMap<half_w, half_h>{next._array};
     if constexpr ((w & 1) == 0) {
@@ -172,16 +181,16 @@ void Pyramid<w, h>::build_eigen(EigenMap<w, h> const& lower) {
     } else {
       i0 = static_cast<uint8_t>(rnd::bit());
     }
-    auto tmp = ((lower(all, seqN(i0, half_w, 2)) >> 1) + (lower(all, seqN(i0 + 1, half_w, 2)) >> 1));
+    auto tmp{
+          (lower(all, seqN(i0, half_w, 2)) >> 1) + //
+          (lower(all, seqN(i0 + 1, half_w, 2)) >> 1)};
     if constexpr ((h & 1) == 0) {
       i0 = 0;
     } else {
       i0 = static_cast<uint8_t>(rnd::bit());
     }
-    upper_map = ((tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1));
-    if constexpr (half_h != 1) {
-      next.build_eigen(upper_map);
-    }
+    upper_map{(tmp(seqN(i0, half_h, 2), all) >> 1) + (tmp(seqN(i0 + 1, half_h, 2), all) >> 1)};
+    if constexpr (half_h != 1) { next.build_eigen(upper_map); }
   }
 }
 

@@ -31,11 +31,13 @@ static constexpr std::uint8_T r2 = 11;
 #endif  // 32b/64b
 
 template <std::uint8_t k>
-static inline constexpr auto rotl(const t x) -> t {
+static inline constexpr auto
+rotl(const t x) -> t {
   return (x << k) | (x >> (BITS - k));
 }
 
-auto next() -> t {
+auto
+next() -> t {
   static auto s = std::array<t, 4>{s1, s2, s3, s4};
 
   t const result = rotl<r1>(s[0] + s[3]) + s[0];
@@ -54,7 +56,8 @@ auto next() -> t {
   return result;
 }
 
-auto bit() -> bool {
+auto
+bit() -> bool {
   static t state;
   static std::uint8_t uses;
   if (uses == 0) {

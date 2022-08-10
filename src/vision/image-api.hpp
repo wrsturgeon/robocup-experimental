@@ -8,7 +8,7 @@
 
 namespace vision {
 
-template <pxidx_t w = IMAGE_W, pxidx_t h = IMAGE_H>
+template <pxidx_t w = IMAGE_W, pxidx_t h = IMAGE_H>  //
 class NaoImage {
 public:
   NaoImage();
@@ -21,17 +21,18 @@ private:
   internal_t internal;  // Underlying Eigen tensor holding pixel values
 };
 
-template <pxidx_t w, pxidx_t h>
-NaoImage<w, h>::NaoImage() :
-      internal{} {}
+template <pxidx_t w, pxidx_t h>  //
+NaoImage<w, h>::NaoImage() : internal{} {}
 
 template <pxidx_t w, pxidx_t h>
-constexpr auto NaoImage<w, h>::width() -> pxidx_t {
+constexpr auto
+NaoImage<w, h>::width() -> pxidx_t {
   return w;
 }
 
 template <pxidx_t w, pxidx_t h>
-constexpr auto NaoImage<w, h>::height() -> pxidx_t {
+constexpr auto
+NaoImage<w, h>::height() -> pxidx_t {
   return h;
 }
 
