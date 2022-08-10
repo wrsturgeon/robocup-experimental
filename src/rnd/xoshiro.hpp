@@ -1,8 +1,16 @@
-#include "rnd/xoshiro.hpp"
+#pragma once
+
+// Some edits to Blackman & Vigna's xoshiro PRNGs.
+// See the below 64b & 32b sections for links.
+
+#include <array>
+#include <cstdint>
 
 namespace rnd {
 
-#if BITS == 64  // https://prng.di.unimi.it/xoshiro256plusplus.c
+#if BITS == 64
+// https://prng.di.unimi.it/xoshiro256plusplus.c
+using t = std::uint64_t;  // rnd::t
 static constexpr t s1 = 0xe220a8397b1dcdaf;
 static constexpr t s2 = 0x6e789e6aa1b965f4;
 static constexpr t s3 = 0x06c45d188009454f;
@@ -10,7 +18,9 @@ static constexpr t s4 = 0xf88bb8a8724c81ec;
 static constexpr std::uint8_t r1 = 23;
 static constexpr std::uint8_t l1 = 17;
 static constexpr std::uint8_t r2 = 45;
-#elif BITS == 32  // https://prng.di.unimi.it/xoshiro128plusplus.c
+#elif BITS == 32
+// https://prng.di.unimi.it/xoshiro128plusplus.c
+using t = std::uint32_t;  // rnd::t
 static constexpr t s1 = 0x7b1dcdaf;
 static constexpr t s2 = 0xa1b965f4;
 static constexpr t s3 = 0x8009454f;
@@ -18,7 +28,7 @@ static constexpr t s4 = 0x724c81ec;
 static constexpr std::uint8_t r1 = 7;
 static constexpr std::uint8_t l1 = 9;
 static constexpr std::uint8_T r2 = 11;
-#endif            // 32b/64b
+#endif  // 32b/64b
 
 template <std::uint8_t k>
 static inline constexpr auto rotl(const t x) -> t {

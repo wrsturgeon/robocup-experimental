@@ -5,11 +5,6 @@ shopt -s nullglob # Don't iterate with zero elements
 
 
 
-# Make a folder to declutter all the executables & coverage files
-mkdir -p ./coverage && cd coverage && rm -rf *
-
-
-
 echo 'Checking leak detection...'
 # Make sure we detect a genuine (test) memory leak
 clang++ ../test/leak.cpp -o ./run-test ${SANITIZE} ${ALL_FLAGS}

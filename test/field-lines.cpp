@@ -1,4 +1,5 @@
 #include "measure/field-lines.hpp"
+
 #include "gtest.hpp"
 
 TEST(FieldLines, Sample65536Times) {

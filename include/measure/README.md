@@ -1,1 +1,0 @@
-/Users/willsturgeon/Desktop/Code/robocup/src/measure/README.md

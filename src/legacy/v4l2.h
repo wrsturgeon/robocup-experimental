@@ -1,11 +1,65 @@
-#include "legacy/v4l2.h"
+#pragma once
 
-static query_node*
-add_query_node(
-      query_node* query,
-      char* key,
-      void* query_value,
-      long unsigned int query_value_len) {
+#define INVERT 0
+#define NBUFFERS 2
+
+#include <assert.h>     // assert
+#include <errno.h>      // errno
+#include <fcntl.h>      // open
+#include <stdio.h>      // fprintf
+#include <stdlib.h>     // malloc
+#include <string.h>     // strcmp
+#include <sys/ioctl.h>  // ioctl
+#include <sys/mman.h>   // mmap
+#include <unistd.h>     // close
+
+#include <linux/videodev2.h>
+
+// Logitech UVC controls
+#ifndef V4L2_CID_FOCUS
+#define V4L2_CID_FOCUS 0x0A046D04
+#endif
+
+#ifndef V4L2_CID_LED1_MODE
+#define V4L2_CID_LED1_MODE 0x0A046D05
+#endif
+
+#ifndef V4L2_CID_LED1_FREQUENCY
+#define V4L2_CID_LED1_FREQUENCY 0x0A046D06
+#endif
+
+#ifndef V4L2_CID_DISABLE_PROCESSING
+#define V4L2_CID_DISABLE_PROCESSING 0x0A046D71
+#endif
+
+#ifndef V4L2_CID_RAW_BITS_PER_PIXEL
+#define V4L2_CID_RAW_BITS_PER_PIXEL 0x0A046D72
+#endif
+
+/* struct for query ctrl and menu */
+typedef struct query_node query_node;
+
+struct query_node {
+  char* key;
+  void* value;
+  query_node* next;
+};
+
+/* struct for uvc camera object */
+typedef struct {
+  int fd;
+  int init;
+  int width;
+  int height;
+  int count;
+  char const* pixelformat;
+  void** buffer;
+  int* buf_len;
+  query_node* ctrl_map;
+  query_node* menu_map;
+} v4l2_device;
+
+static query_node* add_query_node(query_node* query, char* key, void* query_value, long unsigned int query_value_len) {
   size_t len = strlen(key);
   query_node* new_node = malloc(sizeof(query_node));
   new_node->key = malloc(len + 1);
@@ -18,8 +72,7 @@ add_query_node(
   return new_node;
 }
 
-static void
-release_node(query_node* query) {
+static void release_node(query_node* query) {
   query_node* ptr = query;
   query_node* curp;
   while (ptr) {
@@ -31,8 +84,7 @@ release_node(query_node* query) {
   }
 }
 
-static void*
-get_query_node(query_node* query, char const* key) {
+static void* get_query_node(query_node* query, char const* key) {
   query_node* qptr = query;
   while (qptr) {
     if (!strcmp(qptr->key, key)) {
@@ -43,8 +95,7 @@ get_query_node(query_node* query, char const* key) {
   return 0;
 }
 
-static int
-xioctl(int fd, unsigned long request, void* arg) {
+static int xioctl(int fd, unsigned long request, void* arg) {
   int r;
   do {
     r = ioctl(fd, request, arg);
@@ -60,8 +111,7 @@ int v4l2_query_menu(v4l2_device* vdev, struct v4l2_queryctrl* queryctrl) {
        querymenu.index <= (unsigned)queryctrl->maximum;
        querymenu.index++) {
     if (!ioctl(vdev->fd, VIDIOC_QUERYMENU, &querymenu)) {
-      vdev->menu_map = add_query_node(vdev->menu_map,
-                                      (char*)querymenu.name, &querymenu, sizeof querymenu);
+      vdev->menu_map = add_query_node(vdev->menu_map, (char*)querymenu.name, &querymenu, sizeof querymenu);
     } else {
       fprintf(stderr, "Could not query menu %d\n", querymenu.index);
     }
@@ -69,7 +119,8 @@ int v4l2_query_menu(v4l2_device* vdev, struct v4l2_queryctrl* queryctrl) {
   return 0;
 }
 
-int v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int addr_end) {
+int v4l2_query_ctrl(
+      v4l2_device* vdev, unsigned int addr_begin, unsigned int addr_end) {
   struct v4l2_queryctrl queryctrl;
 
   for (queryctrl.id = addr_begin; queryctrl.id < addr_end; queryctrl.id++) {
@@ -80,9 +131,7 @@ int v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int add
         fprintf(stderr, "Could not query control %d\n", queryctrl.id);
       }
     }
-    printf("queryctrl: \"%s\" 0x%x %d %d %d\n",
-           queryctrl.name, queryctrl.id, queryctrl.minimum,
-           queryctrl.maximum, queryctrl.default_value);
+    printf("queryctrl: \"%s\" 0x%x %d %d %d\n", queryctrl.name, queryctrl.id, queryctrl.minimum, queryctrl.maximum, queryctrl.default_value);
     fflush(stdout);
 
     switch (queryctrl.type) {
@@ -91,8 +140,7 @@ int v4l2_query_ctrl(v4l2_device* vdev, unsigned int addr_begin, unsigned int add
       case V4L2_CTRL_TYPE_INTEGER:
       case V4L2_CTRL_TYPE_BOOLEAN:
       case V4L2_CTRL_TYPE_BUTTON:
-        vdev->ctrl_map = add_query_node(vdev->ctrl_map,
-                                        (char*)queryctrl.name, &queryctrl, sizeof queryctrl);
+        vdev->ctrl_map = add_query_node(vdev->ctrl_map, (char*)queryctrl.name, &queryctrl, sizeof queryctrl);
         break;
       default:
         break;
@@ -144,13 +192,12 @@ int v4l2_init_mmap(v4l2_device* vdev) {
       return v4l2_error("VIDIOC_QUERYBUF");
     }
     vdev->buf_len[i] = buf.length;
-    vdev->buffer[i] = mmap(
-          NULL,  // start anywhere
-          buf.length,
-          PROT_READ | PROT_WRITE,  // required
-          MAP_SHARED,              // recommended
-          vdev->fd,
-          buf.m.offset);
+    vdev->buffer[i] = mmap(NULL,  // start anywhere
+                           buf.length,
+                           PROT_READ | PROT_WRITE,  // required
+                           MAP_SHARED,              // recommended
+                           vdev->fd,
+                           buf.m.offset);
     if (vdev->buffer[i] == MAP_FAILED) {
       return v4l2_error("mmap");
     }
@@ -177,7 +224,8 @@ int v4l2_close_query(v4l2_device* vdev) {
 
 int v4l2_close(v4l2_device* vdev) {
   v4l2_uninit_mmap(vdev);
-  // TODO: free control (this comment is from the original legacy C file--still relevant??)
+  // TODO: free control (this comment is from the original legacy C file--still
+  // relevant??)
   v4l2_close_query(vdev);
   if (close(vdev->fd) == -1) {
     return v4l2_error("Closing video device");
@@ -254,9 +302,7 @@ int v4l2_init(v4l2_device* vdev) {
   if (xioctl(vdev->fd, VIDIOC_S_PARM, &streamparm) == -1) {
     return v4l2_error("failed to set frame rate");
   }
-  printf("frame rate: %d/%d\n",
-         streamparm.parm.capture.timeperframe.numerator,
-         streamparm.parm.capture.timeperframe.denominator);
+  printf("frame rate: %d/%d\n", streamparm.parm.capture.timeperframe.numerator, streamparm.parm.capture.timeperframe.denominator);
   fflush(stdout);
 
   v4l2_init_mmap(vdev);

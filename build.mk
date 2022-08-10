@@ -10,21 +10,20 @@ CXX := clang++ # $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr
 
 DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
-INC := $(DIR)/include
 TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCT := $(DIR)/scripts
 
-ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 -iname '*.cpp' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
+ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md | rev | cut -d/ -f1 | cut -d. -f2- | rev),test_$(dir))
 
-FLAGS := -std=gnu++20 -flto -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -include $(INC)/options.hpp -iquote $(INC) $(shell find $(INC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
+FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
+INCLUDES := -include $(SRC)/options.hpp -iquote $(SRC) $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
 MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories
+WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 SANITIZE := -fsanitize=leak
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
@@ -54,35 +53,16 @@ naoqi-sdk: $(TPY)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Compilation
 
+prereqs = $(foreach library,$(|),-iquote $(TPY)/$(library))
 compile = echo "Compiling $(@)..." && clang++ -o ./$(@) $(<) $(strip $(COMMON))
-compile-bin = $(compile) $(call nth_prereqs,3) $(strip $(RELEASE_FLAGS))
+compile-bin = $(compile) $(prereqs) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
-TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(call nth_prereqs,4) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
+TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(prereqs) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
 clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -checks=*,-llvmlibc-*,-llvm-header-guard,-llvm-include-order,-readability-identifier-length,-fuchsia-trailing-return,-fuchsia-overloaded-operator,-hicpp-signed-bitwise,-altera-unroll-loops --warnings-as-errors=*,-bugprone-easily-swappable-parameters -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
 echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
 
-nth_prereqs = $(shell echo $(^) $(foreach library,$(|),-iquote $(TPY)/$(library)) | cut -d' ' -f$(1)-)
-
-deps = $(SRC)/$(1).cpp $(INC)/$(1).hpp
-
-
-
-# No dependencies
-pxpos.o: $(call deps,vision/pxpos)
-	$(compile-lib)
-xoshiro.o: $(call deps,rnd/xoshiro)
-	$(compile-lib)
-
-# Only third-party libraries
-units.o: $(call deps,measure/units) | eigen
-	$(compile-lib)
-image-api.o: $(call deps,vision/image-api) | eigen
-	$(compile-lib)
-
-# All others, in some dependency-based order
-distortion.o: $(call deps,vision/distortion) | eigen
-	$(compile-lib)
+deps = $(SRC)/$(1).hpp
 
 
 
@@ -96,13 +76,13 @@ gmain.o:
 
 test_distortion: $(TST)/distortion.cpp $(call deps,vision/distortion) | eigen
 	$(compile-tst)
-test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) units.o xoshiro.o | eigen
+test_field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines) | eigen
 	$(compile-tst)
-test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) distortion.o pxpos.o | eigen
+test_image-api: $(TST)/image-api.cpp $(call deps,vision/image-api) | eigen
 	$(compile-tst)
 test_pxpos: $(TST)/pxpos.cpp $(call deps,vision/pxpos)
 	$(compile-tst)
-test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) xoshiro.o image-api.o | eigen
+test_pyramid: $(TST)/pyramid.cpp $(call deps,wasserstein/pyramid) | eigen
 	$(compile-tst)
 test_scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
 	$(compile-tst)
@@ -121,7 +101,6 @@ endif
 	rm ./check-leak-detection
 	echo '  Detected intentional leak'
 
-srcify = $(subst include,src,$(subst .hpp,.cpp,$(1)))
 noextn = $(shell echo $(1) | rev | cut -d/ -f1 | cut -d. -f2- | rev)
 
 test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
@@ -130,5 +109,3 @@ test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 
 
 # TODO: use PGO (profiling-guided optimization)
-
-# TODO: undo src/include split

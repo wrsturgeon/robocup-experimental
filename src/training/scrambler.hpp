@@ -1,9 +1,19 @@
-#include "training/scrambler.hpp"
+#pragma once
+
+#include "rnd/xoshiro.hpp"
+
+#include <array>    // std::array
+#include <cstddef>  // std::size_t
+#include <memory>   // std::unique_ptr
+#include <utility>  // std::move, std::swap
 
 namespace training {
 
 template <typename T, uint8_t abits>
-Scrambler<T, abits>::Scrambler() : rnd_state{uninitialized<rnd::t>()}, rnd_uses_left{0}, counter{0} {}
+Scrambler<T, abits>::Scrambler() :
+      rnd_state{uninitialized<rnd::t>()},
+      rnd_uses_left{0},
+      counter{0} {}
 
 template <typename T, uint8_t abits>
 void Scrambler<T, abits>::store_only(T&& current) {
