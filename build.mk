@@ -111,5 +111,3 @@ test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
 
 
 # TODO: use PGO (profiling-guided optimization)
-
-# TODO: NOLINTBEGIN/END around system/library headers

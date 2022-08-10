@@ -10,7 +10,7 @@ Checks: '*,
   -readability-identifier-length'
 CheckOptions:
   - key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
-    value: '16'
+    value: '1'
 FormatStyle: file
 HeaderFilterRegex: '.*'
 WarningsAsErrors: '*,-bugprone-easily-swappable-parameters'

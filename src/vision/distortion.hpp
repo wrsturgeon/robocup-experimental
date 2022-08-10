@@ -12,9 +12,7 @@ namespace vision {
 static constexpr std::uint8_t kLensBits = 16;
 using intlens_t = custom_int<kLensBits>::signed_t;
 using uintlens_t = custom_int<kLensBits>::unsigned_t;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using extlens_t = custom_int<(kLensBits << 1)>::signed_t;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using uextlens_t = custom_int<(kLensBits << 1)>::unsigned_t;
 static constexpr extlens_t kOneLS = 1 << kLensBits;
 static constexpr uintlens_t kDefaultInvLR = 128;

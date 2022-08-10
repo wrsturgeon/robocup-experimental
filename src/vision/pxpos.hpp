@@ -11,7 +11,6 @@ namespace vision {
 
 static constexpr std::uint8_t kPxBits = 16;
 using pxidx_t = custom_int<kPxBits>::signed_t;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using pxrsq_t = custom_int<(kPxBits << 1)>::unsigned_t;
 
 // Forward declaration to friend below
