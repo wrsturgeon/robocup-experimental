@@ -12,6 +12,7 @@ DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
 TPY := $(DIR)/third-party
 TST := $(DIR)/test
+SCT := $(TST)/scripts
 
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test-$(dir))
 
@@ -105,7 +106,7 @@ endif
 noextn = $(shell echo $(1) | rev | cut -d/ -f1 | cut -d. -f2- | rev)
 
 test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
-	./test/scripts/test.sh
+	$(SCT)/test.sh
 
 
 
