@@ -6,7 +6,7 @@ AlignArrayOfStructures: Right
 AlignConsecutiveBitFields: Consecutive
 # AlignConsecutiveDeclarations: Consecutive
 AlignOperands: DontAlign
-AllowAllParametersOfDeclarationOnNextLine: false
+# AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterReturnType: TopLevelDefinitions
@@ -20,6 +20,7 @@ ColumnLimit: 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
 Cpp11BracedListStyle: true
+DerivePointerAlignment: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Never
 FixNamespaceComments: true

@@ -5,7 +5,7 @@ ifndef VERBOSE
 endif
 
 .PHONY: run check
-FORMAT := find ./src ./test -type f -iname '*.*pp' | xargs clang-format --style=file -Werror
+FORMAT := find ./src ./test -type f -iname '*.*pp' | xargs clang-format --style=file
 
 run: format check submodules build/Makefile
 	cd ./build && make
@@ -17,7 +17,7 @@ format:
 	$(FORMAT) -i
 
 check:
-	$(FORMAT) -n || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
+	$(FORMAT) -n -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
 	./test/scripts/check.sh
 
 submodules:

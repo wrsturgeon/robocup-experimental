@@ -47,7 +47,7 @@ Scrambler<T, abits>::store_only(T&& current) {
 template <typename T, uint8_t abits>
 auto
 Scrambler<T, abits>::store_and_recall(T&& current) -> T {
-  if (rnd_uses_left == 0) {
+  if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();
   } else {

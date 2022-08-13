@@ -10,7 +10,8 @@
             ],
             "defines": [
               "_DEBUG=1",
-              "_BITS=32"
+              "_BITS=32",
+              "EIGEN_INITIALIZE_MATRICES_BY_NAN=1"
             ],
             "macFrameworkPath": [
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks"

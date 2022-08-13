@@ -125,9 +125,8 @@ do
   fi
   for occurrence in $(grep -n 'class .* {' ${file} | cut -d: -f1)
   do
-    occurrence=$((occurrence+1))
     line_contents=$(sed ${occurrence}'q;d' ${file})
-    while [ "${line_contents}" != '};' ]
+    while ! (grep -q '};' <<< ${line_contents})
     do
       if ((echo "${line_contents}" | grep '^   ' > /dev/null) || (echo "${line_contents}" | grep '^  {' > /dev/null))
       then

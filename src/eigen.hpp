@@ -1,6 +1,6 @@
 #pragma once
 
-#define EIGEN_MATRIXBASE_PLUGIN "eigen-matrix-plugin.hpp"
+#define EIGEN_ARRAYBASE_PLUGIN "eigen-array-plugin.hpp"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
