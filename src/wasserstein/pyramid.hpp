@@ -59,14 +59,10 @@ template <imsize_t w, imsize_t h> class Pyramid : public Array<w, h> {
   Pyramid<hw, hh> const dn;  // downsample in O(1) (calculated once & saved)
 };
 
-/**
- * NEED TO FLIP (~) THE VALUES IN THE ARRAY FIRST
- * I've implemented a convenience function to do this:
- * say you have an Eigen::Array `a`, just literally do `~a`
- * It'll work everything out for you
- * But this makes sure we round _toward pure white_ to detect lines
- */
-// TODO(wrsturgeon): Implement a wrapper s.t. people don't have to remember
+// TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
+// eigen-array-plugin.hpp already provides a bit-inversion operator (~a)
+//   so we can flip it once and then bit-shift to the right (0.25, 0.5, 0.25)
+//   which would then favor white (now 0) as it's decimating bits
 template <imsize_t w, imsize_t h>
 template <typename Derived>
 Pyramid<w, h>::Pyramid(Eigen::ArrayBase<Derived> const& src) :
