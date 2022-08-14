@@ -22,33 +22,31 @@ using Array = Eigen::Array<dtype, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::Row
 
 template <typename Derived>
 inline __attribute__((always_inline)) auto
-min_pool(Eigen::ArrayBase<Derived> const& arr)
+max_pool(Eigen::ArrayBase<Derived> const& arr)
       -> Array<(Derived::ColsAtCompileTime >> 1), (Derived::RowsAtCompileTime >> 1)> {
   static constexpr imsize_t hw = Derived::ColsAtCompileTime >> 1;
   static constexpr imsize_t hh = Derived::RowsAtCompileTime >> 1;
-  if constexpr ((!hw) || (!hh)) { return Array<0, 0>{}; }
-  // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
-  auto tmp = arr(all, seq(0, hw, 2)).min(arr(all, seq(1, hw, 2)));
-  return tmp(seq(0, hh, 2), all).min(tmp(seq(1, hh, 2), all));
+  if constexpr (hw && hh) {  // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
+    auto tmp = arr(all, seq(0, hw, 2)).max(arr(all, seq(1, hw, 2)));
+    return tmp(seq(0, hh, 2), all).max(tmp(seq(1, hh, 2), all));
+  } else {
+    return Array<hw, hh>{};
+  }
 }
 
 template <imsize_t w, imsize_t h> class Pyramid;
-
 template <> class Pyramid<0, 0> {
- public:  // empty
+ public:
   template <typename T> explicit Pyramid(Eigen::ArrayBase<T> const& /*src*/) {}
 };
-
 template <imsize_t h> class Pyramid<0, h> {
- public:  // empty
+ public:
   template <typename T> explicit Pyramid(Eigen::ArrayBase<T> const& /*src*/) {}
 };
-
 template <imsize_t w> class Pyramid<w, 0> {
- public:  // empty
+ public:
   template <typename T> explicit Pyramid(Eigen::ArrayBase<T> const& /*src*/) {}
 };
-
 template <imsize_t w, imsize_t h> class Pyramid : public Array<w, h> {
  private:
   using EigenBase = Array<w, h>;
@@ -66,12 +64,12 @@ template <imsize_t w, imsize_t h> class Pyramid : public Array<w, h> {
 // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
 // eigen-array-plugin.hpp already provides a bit-inversion operator (~a)
 //   so we can flip it once and then bit-shift to the right (0.25, 0.5, 0.25)
-//   which would then favor white (now 0) as it's decimating bits
+//   which would then favor white (now flipped to 0) as it decimates bits
 template <imsize_t w, imsize_t h>
 template <typename Derived>
 Pyramid<w, h>::Pyramid(Eigen::ArrayBase<Derived> const& src) :
       EigenBase{src},
-      downsampled{min_pool(*this)} {
+      downsampled{max_pool(*this)} {
   static_assert(Derived::ColsAtCompileTime == w, "Pyramid width mismatch");
   static_assert(Derived::RowsAtCompileTime == h, "Pyramid height mismatch");
   // if constexpr ((Derived::ColsAtCompileTime != w) || (Derived::RowsAtCompileTime != h)) {
