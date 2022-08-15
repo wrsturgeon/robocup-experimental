@@ -40,9 +40,6 @@ class Layer : public Array<w, h> {
 };
 
 template <imsize_t w, imsize_t h> class Pyramid;
-template <> class Pyramid<0, 0> : public Layer<0, 0> {};
-template <imsize_t h> class Pyramid<0, h> : public Layer<0, h> {};
-template <imsize_t w> class Pyramid<w, 0> : public Layer<w, 0> {};
 template <> class Pyramid<1, 1> : public Layer<1, 1> {
  public:
   template <typename T> explicit Pyramid(Eigen::ArrayBase<T> const& src) : Layer<1, 1>{src} {}
