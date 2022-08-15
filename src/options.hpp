@@ -38,7 +38,7 @@ static constexpr unsigned int kNaoHeightMM = 500;  // TODO(wrsturgeon): this is 
 
 #ifdef _DEBUG
 // NOLINTNEXTLINE(modernize-use-bool-literals)
-static constexpr auto kDebug = static_cast<bool>(_DEBUG);
+static constexpr auto kDebug = _DEBUG;
 #else
 static constexpr auto kDebug = false;
 #endif  // ifdef _DEBUG

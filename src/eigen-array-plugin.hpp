@@ -1,6 +1,6 @@
 #pragma once
 
-// Included at Eigen/src/Core/MatrixBase.h:132 (WITHIN Eigen namespace)
+// Included at Eigen/src/Core/ArrayBase.h:132 (WITHIN Eigen namespace)
 
 template <typename Packet>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Packet const& b) {

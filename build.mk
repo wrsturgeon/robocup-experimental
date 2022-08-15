@@ -22,11 +22,10 @@ MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_DEBUG
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -fno-common -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
-SANITIZE := -fsanitize=leak
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_DEBUG
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(SANITIZE)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
 
 INCLUDE_EIGEN=-iquote $(TPY)/eigen
 INCLUDE_GTEST=-iquote $(TPY)/gtest/googletest/include
@@ -95,13 +94,14 @@ test-xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
 
 check-leak-detection: ../test/leak.cpp
 	$(compile) $(strip $(TEST_FLAGS))
-ifndef VERBOSE
-	! ./check-leak-detection >/dev/null 2>&1
+	echo '  Catching intentional leak...'
+ifdef VERBOSE
+	! $(SCT)/run-and-analyze.sh ./check-leak-detection
 else
-	! ./check-leak-detection 2>/dev/null
+	! $(SCT)/run-and-analyze.sh ./check-leak-detection >/dev/null 2>&1
 endif
 	rm ./check-leak-detection
-	echo '  Detected intentional leak'
+	echo '  Got it!'
 
 noextn = $(shell echo $(1) | rev | cut -d/ -f1 | cut -d. -f2- | rev)
 

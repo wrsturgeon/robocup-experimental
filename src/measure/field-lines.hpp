@@ -15,7 +15,7 @@ sample_field_lines() -> Position {  // NOLINT(readability-function-cognitive-com
   static std::uint8_t rnd_uses_left;  // Not initializing: compiler doesn't need the extra
                                       // first-time-calling-or-not flag
   do {
-    if (rnd_uses_left == 0) {
+    if (!rnd_uses_left) {
       rnd_uses_left = rnd_uses - 1;
       rnd_state = rnd::next();
     } else {

@@ -56,13 +56,13 @@ auto
 bit() -> bool {
   static t state;
   static std::uint8_t uses;
-  if (uses == 0) {
+  if (!uses) {
     uses = kSystemBits - 1;
     state = next();
   } else {
     --uses;
   }
-  bool const rtn = static_cast<bool>(state);  // === (state & 1)
+  bool const rtn = state & 1;
   state >>= 1;
   return rtn;
 }
