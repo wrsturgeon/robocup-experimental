@@ -20,7 +20,7 @@ class pxpos_t {
   pxidx_t const x;  // NOLINT(misc-non-private-member-variables-in-classes)
   pxidx_t const y;  // NOLINT(misc-non-private-member-variables-in-classes)
   explicit pxpos_t(pxidx_t xpos, pxidx_t ypos) : x{xpos}, y{ypos} {}
-  operator std::string() const;
+  explicit operator std::string() const;
   [[nodiscard]] auto r2() const -> pxr2_t;
 };
 
