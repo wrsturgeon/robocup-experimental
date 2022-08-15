@@ -10,3 +10,6 @@
 [submodule "highway"]
 	path = third-party/highway
 	url = https://github.com/google/highway.git
+[submodule "fpng"]
+	path = third-party/fpng
+	url = https://github.com/richgel999/fpng.git

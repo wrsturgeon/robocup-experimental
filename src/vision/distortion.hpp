@@ -2,7 +2,6 @@
 
 #include "util/custom-ints.hpp"
 #include "util/uninitialized.hpp"
-#include "vision/pxpos.hpp"
 
 #include <bit>
 #include <cstdint>
@@ -44,19 +43,19 @@ auto
 Lens::redistort(pxpos_t px) -> pxpos_t {
   // Pack it to the brim while maintaining that the largest possible won't overflow
   static constexpr std::int8_t rs_amt = std::bit_width(diag_sq) - kLensBits;
-  auto rsq = uninitialized<uintlens_t>();
+  auto r2 = uninitialized<uintlens_t>();
   if constexpr (rs_amt < 0) {
-    rsq = uintlens_t{px.r2() << -rs_amt};
+    r2 = uintlens_t{px.r2() << -rs_amt};
   } else {
-    rsq = uintlens_t{px.r2() >> rs_amt};
+    r2 = uintlens_t{px.r2() >> rs_amt};
   }
-  auto scaled = static_cast<intlens_t>(static_cast<extlens_t>(rad * rsq) >> kLensBits);
+  auto scaled = static_cast<intlens_t>(static_cast<extlens_t>(rad * r2) >> kLensBits);
   return pxpos_t{
         static_cast<std::int16_t>(
-              ((px.x_ << kLensBits) + (px.y_ * tan_y)) /
+              ((px.x << kLensBits) + (px.y * tan_y)) /
               static_cast<std::int32_t>(kOneLS + scaled)),
         static_cast<std::int16_t>(
-              ((px.y_ << kLensBits) + (px.x_ * tan_x)) /
+              ((px.y << kLensBits) + (px.x * tan_x)) /
               static_cast<std::int32_t>(kOneLS + scaled))};
 }
 
