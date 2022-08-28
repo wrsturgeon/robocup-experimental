@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utility>  // std::move
 #include <cstdint>
+#include <utility>  // std::move
 
 template <typename T>
 inline __attribute__((always_inline)) auto
