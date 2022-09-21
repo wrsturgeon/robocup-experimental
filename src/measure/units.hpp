@@ -1,5 +1,7 @@
 #pragma once
 
+#include "util/shift.hpp"
+
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -24,22 +26,28 @@ class pos_t {
   std::int16_t internal;
  public:
   // Purposefully no integer conversion ops: must intentionally take pos_t
-  explicit pos_t(std::int16_t mm);
+  constexpr explicit pos_t(std::int16_t mm);
   [[nodiscard]] auto mm() const -> float { return ldexpf(internal, -lc); }
   [[nodiscard]] auto meters() const -> float { return mm() / kMMPerMeter; }
   explicit operator std::string() const;
+  friend auto operator<<(std::ostream& os, pos_t const& p) -> std::ostream&;
+ private:
+  static constexpr std::uint8_t lc = 1;  // lg(conversion to mm)
+  // TODO(wrsturgeon): verify (prefably at compile time) that this fits within a
+  // SIGNED-size (std::int16_t) array
+  std::int16_t const internal;
 };
 
 class Position {
  public:
-  explicit Position(std::int16_t x_mm, std::int16_t y_mm);
+  explicit constexpr Position(std::int16_t x_mm, std::int16_t y_mm);
   explicit operator std::string() const;
  private:
-  pos_t x;
-  pos_t y;
+  pos_t const x;
+  pos_t const y;
 };
 
-pos_t::pos_t(std::int16_t mm) : internal{static_cast<int16_t>(mm << lc)} {
+constexpr pos_t::pos_t(std::int16_t mm) : internal{lshift<int16_t>(mm, lc)} {
   if constexpr (kDebug) {
     if ((internal >> lc) != mm) { throw std::overflow_error("pos_t overflow"); }
   }
@@ -54,7 +62,7 @@ operator<<(std::ostream& os, pos_t const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
-Position::Position(std::int16_t x_mm, std::int16_t y_mm) : x{x_mm}, y{y_mm} {}
+constexpr Position::Position(std::int16_t x_mm, std::int16_t y_mm) : x{x_mm}, y{y_mm} {}
 
 Position::operator std::string() const {
   return '(' + static_cast<std::string>(x) + " x, " + static_cast<std::string>(y) + " y)";
