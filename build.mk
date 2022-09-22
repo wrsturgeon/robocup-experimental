@@ -17,7 +17,7 @@ SCT := $(TST)/scripts
 ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test-$(dir))
 
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -iquote $(SRC) -iquote $(TPY)/eigen -iquote $(TPY)/gtest/googletest/include $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
+INCLUDES := -iquote $(SRC) -iquote $(TPY)/eigen $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
@@ -50,7 +50,7 @@ prereqs = $(foreach library,$(|),-iquote $(TPY)/$(library))
 compile = echo "Compiling $(@)..." && clang++ -o ./$(@) $(<) $(strip $(COMMON))
 compile-bin = $(compile) $(prereqs) $(strip $(RELEASE_FLAGS))
 compile-lib = $(compile-bin) -c
-TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(prereqs) $(strip $(INCLUDE_GTEST)) $(strip $(TEST_FLAGS))
+TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(prereqs) $(strip $(TEST_FLAGS))
 compile-tst = echo "Tidying $(@)..." && \
 clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
 echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
@@ -62,10 +62,10 @@ deps = $(SRC)/$(1).hpp
 # Testing
 gtest.o:
 	echo 'Compiling GoogleTest libraries...'
-	clang++ -o ./gtest.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest-all.cc
+	clang++ -o ./gtest.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
 gmain.o:
 	echo 'Compiling GoogleTest main function...'
-	clang++ -o ./gmain.o -c -w -O0 $(COMMON) $(INCLUDE_GTEST) -iquote $(TPY)/gtest/googletest $(TPY)/gtest/googletest/src/gtest_main.cc
+	clang++ -o ./gmain.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
 
 test-distortion: $(TST)/distortion.cpp $(call deps,vision/distortion)
 	$(compile-tst)
