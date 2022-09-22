@@ -7,11 +7,13 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Pac
   return a >> b;
 }
 
-template <typename lhs_t> struct scalar_rshift_op : internal::binary_op_base<lhs_t, uint8_t> {
-  typedef typename ScalarBinaryOpTraits<lhs_t, uint8_t, scalar_rshift_op>::ReturnType result_t;
+template <typename lhs_t>
+struct scalar_rshift_op : internal::binary_op_base<lhs_t, std::uint8_t> {
+  typedef typename ScalarBinaryOpTraits<lhs_t, std::uint8_t, scalar_rshift_op>::ReturnType
+        result_t;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t
-  operator()(lhs_t const& a, uint8_t const& b) const {
+  operator()(lhs_t const& a, std::uint8_t const& b) const {
     return a >> b;
   }
 

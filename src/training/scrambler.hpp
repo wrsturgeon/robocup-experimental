@@ -2,6 +2,8 @@
 
 #include "rnd/xoshiro.hpp"
 
+#include "util/uninitialized.hpp"
+
 #include <array>    // std::array
 #include <cstddef>  // std::size_t
 #include <memory>   // std::unique_ptr
@@ -9,14 +11,14 @@
 
 namespace training {
 
-static constexpr uint8_t kDefaultABits = 12;
-static constexpr uint8_t kMaxABits = 16;
+static constexpr std::uint8_t kDefaultABits = 12;
+static constexpr std::uint8_t kMaxABits = 16;
 
 /**
  * Mechanism for randomizing access to training data to temper recency bias.
  * WARNING: Not responsible for initializing, maintaining, or freeing data!
  */
-template <typename T, uint8_t abits = kDefaultABits> class Scrambler {
+template <typename T, std::uint8_t abits = kDefaultABits> class Scrambler {
  public:
   Scrambler();
   void store_only(T&& current);  // Call EXACTLY 1<<abits times, then use store_and_recall
@@ -26,24 +28,24 @@ template <typename T, uint8_t abits = kDefaultABits> class Scrambler {
   static_assert(abits <= kMaxABits, "No way you'll need this many memories at a time");
   static constexpr std::size_t n = static_cast<std::size_t>(1) << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
-  static constexpr uint8_t n_renew = kSystemBits / abits;  // Number of uses per xoshiro result
+  static constexpr std::uint8_t n_renew = kSystemBits / abits;  // # of uses per xoshiro result
   static constexpr rnd::t bitmask = n - 1;
   rnd::t rnd_state;
-  uint8_t rnd_uses_left{0};
+  std::uint8_t rnd_uses_left{0};
   std::array<T, n> data;
   unsigned counter : abits{0};
 };
 
-template <typename T, uint8_t abits>
+template <typename T, std::uint8_t abits>
 Scrambler<T, abits>::Scrambler() : rnd_state{uninitialized<rnd::t>()} {}
 
-template <typename T, uint8_t abits>
+template <typename T, std::uint8_t abits>
 void
 Scrambler<T, abits>::store_only(T&& current) {
   data[counter++] = std::move(current);
 }
 
-template <typename T, uint8_t abits>
+template <typename T, std::uint8_t abits>
 auto
 Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   if (!rnd_uses_left) {

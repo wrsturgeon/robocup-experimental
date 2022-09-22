@@ -1,39 +1,59 @@
 #pragma once
 
-// Force util include ordering
 #include "util/custom-ints.hpp"
+#include "util/fixed-point.hpp"
+#include "util/isqrt.hpp"
 
 #include "eigen.hpp"
 
+#include <bit>
+#include <cstddef>
 #include <cstdint>
 
 //%%%%%%%%%%%%%%%% Pixel positions
 
-static constexpr std::uint8_t kImageAddressBits = 16;  // e.g. 16 ==> up to 2^16-width images
+using imsize_t = std::uint16_t;
 
-using dtype = std::uint8_t;  // duh, but just in case
+static constexpr std::uint32_t kImageDiagSq = (kImageH * kImageH) + (kImageW * kImageW);
+static constexpr auto kImageDiag = isqrt<imsize_t>(kImageDiagSq);
+static constexpr std::uint8_t kLgImageDiag = std::bit_width(kImageDiag);
 
-using imsize_t = custom_int<kImageAddressBits>::unsigned_t;
-using px_t = custom_int<kImageAddressBits>::signed_t;
-using pxrsq_t = custom_int<(kImageAddressBits << 1)>::unsigned_t;
+// We need to be able to represent the negative image diagonal to subtract any two points
+static constexpr std::uint8_t kPxTBits = kLgImageDiag + 1;
+static constexpr std::uint8_t kPxTPw2 = 1 << std::bit_width(kPxTBits);  // e.g. 11 -> 16
+
+using pxint_t = typename custom_int<kPxTPw2>::signed_t;
+
+class px_t : public fp<kPxTPw2, kPxTPw2 - 1> {
+ private:
+  using Base = fp<kPxTPw2, kPxTPw2 - 1>;
+ public:
+  explicit constexpr px_t(pxint_t x) : Base{static_cast<pxint_t>(x << (kPxTPw2 - kPxTBits))} {}
+  // NOLINTNEXTLINE(hicpp-explicit-conversions,google-explicit-constructor)
+  constexpr px_t(Base const& x) : Base{x} {}
+};
 
 // (0, 0) is the center of the image; expand outward from there
 class px2d {
  public:
-  px_t const x;  // NOLINT(misc-non-private-member-variables-in-classes)
-  px_t const y;  // NOLINT(misc-non-private-member-variables-in-classes)
+  px_t x;  // NOLINT(misc-non-private-member-variables-in-classes)
+  px_t y;  // NOLINT(misc-non-private-member-variables-in-classes)
   explicit constexpr px2d(px_t xpos, px_t ypos) : x{xpos}, y{ypos} {}
+  explicit constexpr px2d(pxint_t xpos, pxint_t ypos) : x{xpos}, y{ypos} {}
   explicit operator std::string() const;
-  [[nodiscard]] auto r2() const -> pxrsq_t;
+  [[nodiscard]] auto r2() const -> px_t;
 };
 
-px2d::operator std::string() const {
-  return '(' + std::to_string(x) + "x, " + std::to_string(y) + "y)";
+auto
+operator+(std::string const& s, px2d const& p) -> std::string {
+  return s + static_cast<std::string>(p);
 }
 
+px2d::operator std::string() const { return std::string{'('} + x + "x, " + y + "y)"; }
+
 auto
-px2d::r2() const -> pxrsq_t {
-  return (static_cast<pxrsq_t>(x * x) + static_cast<pxrsq_t>(y * y));
+px2d::r2() const -> px_t {
+  return ((x * x) + (y * y));
 }
 
 //%%%%%%%%%%%%%%%% Physical distance
@@ -68,8 +88,8 @@ class ds2d {
   explicit constexpr ds2d(std::int16_t x_mm, std::int16_t y_mm);
   explicit operator std::string() const;
  private:
-  ds_t const x;
-  ds_t const y;
+  ds_t x;
+  ds_t y;
 };
 
 constexpr ds_t::ds_t(std::int16_t mm) : internal{static_cast<std::int16_t>(mm << lc)} {
@@ -99,4 +119,4 @@ operator<<(std::ostream& os, ds2d const& p) -> std::ostream& {
 }
 
 template <imsize_t w, imsize_t h>
-using Array = Eigen::Array<dtype, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
+using Array = Eigen::Array<std::uint8_t, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;

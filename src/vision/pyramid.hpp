@@ -2,12 +2,16 @@
 
 #include "rnd/xoshiro.hpp"
 
+#include "util/units.hpp"
+
 #include "eigen.hpp"
 
 #include <stdexcept>
 #include <type_traits>
 
 namespace vision {
+
+using dtype = std::uint8_t;
 
 template <typename T>
 inline __attribute__((always_inline)) auto
@@ -27,7 +31,7 @@ template <imsize_t w, imsize_t h>  //
 class Layer : public Array<w, h> {
  public:
   template <typename T> explicit Layer(Eigen::ArrayBase<T> const& src);
-  inline __attribute__((always_inline)) auto operator()(px_t x, px_t y) const -> dtype;
+  inline __attribute__((always_inline)) auto operator()(pxint_t x, pxint_t y) const -> dtype;
 };
 
 template <imsize_t w, imsize_t h> class Pyramid;
@@ -72,7 +76,7 @@ Pyramid<w, h>::Pyramid(Eigen::ArrayBase<T> const& src) :
 
 template <imsize_t w, imsize_t h>
 inline __attribute__((always_inline)) auto
-Layer<w, h>::operator()(px_t x, px_t y) const -> dtype {
+Layer<w, h>::operator()(pxint_t x, pxint_t y) const -> dtype {
   // TODO(wrsturgeon): if we go with center-0 indexing, adjust here
   return Array<w, h>::operator()(y, x);
 }
