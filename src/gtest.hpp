@@ -14,4 +14,4 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 // and let this run into the main file
-// TODO: is there a safer way to do this?
+// TODO (wrsturgeon): is there a safer way to do this?

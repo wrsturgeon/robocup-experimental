@@ -1,5 +1,6 @@
 #pragma once
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EIGEN_ARRAYBASE_PLUGIN "eigen-array-plugin.hpp"
 
 #pragma clang diagnostic push
