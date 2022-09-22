@@ -19,6 +19,7 @@ check:
 
 submodules:
 	git submodule update --init --recursive
+# Add a new submodule (e.g. foo) with `git submodule add -f --name foo https://... third-party/foo`
 
 build/Makefile: build
 	echo 'Syncing ./build/Makefile with ./build.mk...'

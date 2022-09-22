@@ -6,7 +6,7 @@ OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux;
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
 BITS := $(shell getconf LONG_BIT)
 
-CXX := clang++ # $(shell if [ $(OS) = linux ]; then echo clang++; else echo /usr/local/opt/llvm/bin/clang++; fi)
+CXX := clang++
 
 DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
@@ -14,10 +14,8 @@ TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCT := $(TST)/scripts
 
-ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*' | rev | cut -d/ -f1 | cut -d. -f2- | rev),test-$(dir))
-
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -iquote $(SRC) -iquote $(TPY)/eigen $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
+INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
@@ -25,7 +23,7 @@ COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WA
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -iquote $(TPY)/gtest/googletest/include -Wno-padded -Wno-weak-vtables
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -isystem $(TPY)/gtest/googletest/include -Wno-padded -Wno-weak-vtables
 
 
 
@@ -46,14 +44,8 @@ naoqi-sdk: $(TPY)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Compilation
 
-prereqs = $(foreach library,$(|),-iquote $(TPY)/$(library))
-compile = echo "Compiling $(@)..." && clang++ -o ./$(@) $(<) $(strip $(COMMON))
-compile-bin = $(compile) $(prereqs) $(strip $(RELEASE_FLAGS))
-compile-lib = $(compile-bin) -c
-TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(prereqs) $(strip $(TEST_FLAGS))
-compile-tst = echo "Tidying $(@)..." && \
-clang-tidy $(word 2,$(^)) $(word 3,$(^)) --quiet -- $(subst iquote,isystem,$(TEST_CLANG_ARGS)) && \
-echo '  All good; compiling...' && clang++ -o ./$(@) $(<) $(TEST_CLANG_ARGS) -include $(word 2,$(^))
+compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(strip $(COMMON))
+TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(strip $(TEST_FLAGS))
 
 deps = $(SRC)/$(1).hpp
 
@@ -62,27 +54,10 @@ deps = $(SRC)/$(1).hpp
 # Testing
 gtest.o:
 	echo 'Compiling GoogleTest libraries...'
-	clang++ -o ./gtest.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
+	$(CXX) -o ./gtest.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
 gmain.o:
 	echo 'Compiling GoogleTest main function...'
-	clang++ -o ./gmain.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
-
-test-distortion: $(TST)/distortion.cpp $(call deps,vision/distortion)
-	$(compile-tst)
-test-field-lines: $(TST)/field-lines.cpp $(call deps,measure/field-lines)
-	$(compile-tst)
-test-image-api: $(TST)/image-api.cpp $(call deps,vision/image-api)
-	$(compile-tst)
-test-pyramid: $(TST)/pyramid.cpp $(call deps,vision/pyramid)
-	$(compile-tst)
-test-rshift: $(TST)/rshift.cpp $(call deps,util/rshift)
-	$(compile-tst)
-test-scrambler: $(TST)/scrambler.cpp $(call deps,training/scrambler)
-	$(compile-tst)
-test-units: $(TST)/units.cpp $(call deps,measure/units)
-	$(compile-tst)
-test-xoshiro: $(TST)/xoshiro.cpp $(call deps,rnd/xoshiro)
-	$(compile-tst)
+	$(CXX) -o ./gmain.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
 
 check-leak-detection: ../test/leak.cpp
 	$(compile) $(strip $(TEST_FLAGS))
@@ -95,10 +70,8 @@ endif
 	rm ./check-leak-detection
 	echo '  Got it!'
 
-noextn = $(shell echo $(1) | rev | cut -d/ -f1 | cut -d. -f2- | rev)
-
-test: check-leak-detection gmain.o gtest.o $(ALL_TESTS)
-	$(SCT)/test.sh
+test: check-leak-detection gmain.o gtest.o
+	$(SCT)/test.sh $(TEST_CLANG_ARGS)
 
 
 

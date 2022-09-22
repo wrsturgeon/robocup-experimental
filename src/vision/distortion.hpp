@@ -30,6 +30,8 @@ class Lens {
   uintlens_t inv_lr{kDefaultInvLR};  // Inverse learning rate: increment over time
 };
 
+// TODO (wrsturgeon): see if we can take the below advice
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 Lens::Lens(std::int16_t radial, std::int16_t tangential_x, std::int16_t tangential_y) :
       rad{radial},
       tan_x{tangential_x},
