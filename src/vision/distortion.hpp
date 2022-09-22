@@ -19,6 +19,7 @@ class Lens {
   px_t tan_x;
   px_t tan_y;
  public:
+  // NOLINTNEXTLINE(hicpp-use-equals-default,modernize-use-equals-default)
   explicit Lens() : rad{0}, tan_x{0}, tan_y{0} {}
   auto undistort(px2d p) -> px2d;
   auto redistort(px2d p) -> px2d;

@@ -7,6 +7,7 @@
 #include "eigen.hpp"
 
 #include <bit>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 
@@ -79,7 +80,7 @@ class ds_t {
  public:
   // Purposefully no integer conversion ops: must intentionally take ds_t
   explicit constexpr ds_t(std::int16_t mm);
-  [[nodiscard]] auto mm() const -> float { return ldexpf(internal, -lc); }
+  [[nodiscard]] auto mm() const -> float { return std::ldexpf(internal, -lc); }
   [[nodiscard]] auto meters() const -> float { return mm() * kMM2M; }
   explicit operator std::string() const;
   friend auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream&;
