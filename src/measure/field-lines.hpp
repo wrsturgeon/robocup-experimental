@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rnd/xoshiro.hpp"
-#include "vision/pxpos.hpp"
 
 #include <cstdint>
 
@@ -64,8 +63,13 @@ static constexpr std::int16_t kTPen = -kVPen;
 static constexpr std::int16_t kBPen = kVPen;
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+// NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+// NOLINTBEGIN(clang-diagnostic-sign-conversion)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+
 auto
-sample_field_lines() -> Position {  // NOLINT(readability-function-cognitive-complexity)
+sample_field_lines() -> ds2d {  // NOLINT(readability-function-cognitive-complexity)
   static constexpr std::uint8_t rnd_uses = kSystemBits >> 4;
   static rnd::t rnd_state;
   static std::uint8_t rnd_uses_left;  // no need to be initialized, really
@@ -81,48 +85,52 @@ sample_field_lines() -> Position {  // NOLINT(readability-function-cognitive-com
     if (x < 30000) {
       if (x < 15000) {
         return (x < 6000)
-              ? Position{kLEdge, static_cast<std::int16_t>(x - 3000)}
-              : Position{static_cast<std::int16_t>(x - 10500), kBEdge};
+              ? ds2d{kLEdge, static_cast<std::int16_t>(x - 3000)}
+              : ds2d{static_cast<std::int16_t>(x - 10500), kBEdge};
       }
       return (x < 21000)
-            ? Position{kREdge, static_cast<std::int16_t>(x - 18000)}
-            : Position{static_cast<std::int16_t>(x - 25500), kTEdge};
+            ? ds2d{kREdge, static_cast<std::int16_t>(x - 18000)}
+            : ds2d{static_cast<std::int16_t>(x - 25500), kTEdge};
     }
     if (x < 48950) {
       if (x < 37650) {
         return (x < 36000)
-              ? Position{kCenter, static_cast<std::int16_t>(x - 33000)}
-              : Position{static_cast<std::int16_t>(x - 40500), kTPen};
+              ? ds2d{kCenter, static_cast<std::int16_t>(x - 33000)}
+              : ds2d{static_cast<std::int16_t>(x - 40500), kTPen};
       }
       if (x < 43300) {
         return (x < 41650)
-              ? Position{kLPen, static_cast<std::int16_t>(x - 39650)}
-              : Position{static_cast<std::int16_t>(x - 46150), kBPen};
+              ? ds2d{kLPen, static_cast<std::int16_t>(x - 39650)}
+              : ds2d{static_cast<std::int16_t>(x - 46150), kBPen};
       }
       return (x < 44950)
-            ? Position{static_cast<std::int16_t>(x - 40450), kTPen}
-            : Position{kRPen, static_cast<std::int16_t>(x - 46950)};
+            ? ds2d{static_cast<std::int16_t>(x - 40450), kTPen}
+            : ds2d{kRPen, static_cast<std::int16_t>(x - 46950)};
     }
     if (x < 54000) {
       if (x < 51200) {
         return (x < 50600)
-              ? Position{static_cast<std::int16_t>(x - 46100), kBPen}
-              : Position{static_cast<std::int16_t>(x - 55100), kTGoal};
+              ? ds2d{static_cast<std::int16_t>(x - 46100), kBPen}
+              : ds2d{static_cast<std::int16_t>(x - 55100), kTGoal};
       }
       return (x < 53400)
-            ? Position{kLGoal, static_cast<std::int16_t>(x - 52300)}
-            : Position{static_cast<std::int16_t>(x - 57900), kBGoal};
+            ? ds2d{kLGoal, static_cast<std::int16_t>(x - 52300)}
+            : ds2d{static_cast<std::int16_t>(x - 57900), kBGoal};
     }
     if (x < 56800) {
       return (x < 54600)
-            ? Position{static_cast<std::int16_t>(x - 50100), kTGoal}
-            : Position{kRGoal, static_cast<std::int16_t>(x - 55700)};
+            ? ds2d{static_cast<std::int16_t>(x - 50100), kTGoal}
+            : ds2d{kRGoal, static_cast<std::int16_t>(x - 55700)};
     }
-    if (x < 57400) { return Position{static_cast<std::int16_t>(x - 52900), kBGoal}; }
+    if (x < 57400) { return ds2d{static_cast<std::int16_t>(x - 52900), kBGoal}; }
     // If >= 57400, resample
+    // TODO(wrsturgeon): consider, instead of resampling, sampling green
   } while (true);
 }
 
+#pragma clang diagnostic pop
+// NOLINTEND(clang-diagnostic-sign-conversion)
+// NOLINTEND(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 }  // namespace measure

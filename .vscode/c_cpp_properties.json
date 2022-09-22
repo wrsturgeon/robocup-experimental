@@ -4,13 +4,12 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/src",
+                "${workspaceFolder}/src/util/**",
                 "${workspaceFolder}/third-party/eigen",
-                "${workspaceFolder}/third-party/gtest/googletest/include",
-                "${workspaceFolder}/third-party/vcl"
+                "${workspaceFolder}/third-party/gtest/googletest/include"
             ],
             "defines": [
-              "_DEBUG=1",
-              "_BITS=32",
+              "BITS=32",
               "EIGEN_INITIALIZE_MATRICES_BY_NAN=1"
             ],
             "macFrameworkPath": [

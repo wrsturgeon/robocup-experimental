@@ -4,6 +4,7 @@
 
 template <std::uint8_t bits> struct custom_int;
 
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define BLIND_UINT(bits) std::uint##bits##_t
 #define BLIND_INT(bits) std::int##bits##_t
 #define UINT(bits) BLIND_UINT(bits)
@@ -13,6 +14,7 @@ template <std::uint8_t bits> struct custom_int;
     using signed_t = INT(bits);         \
     using unsigned_t = UINT(bits);      \
   }
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 MAKE_INT(8);
 MAKE_INT(16);

@@ -3,9 +3,6 @@
 // Some edits to Blackman & Vigna's xoshiro PRNGs.
 // See the below 64b & 32b sections for links.
 
-#include "util/custom-ints.hpp"
-#include "util/ternary-bits.hpp"
-
 #include <array>
 #include <cstdint>
 

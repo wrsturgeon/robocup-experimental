@@ -18,6 +18,6 @@ then
   exit 1
 fi
 
-clang++ -g -o debug_x -D_BITS=$(getconf LONG_BIT) -include ./src/options.hpp -iquote ./src -O1 -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Werror ${@}
+clang++ -g -o debug_x -DBITS=$(getconf LONG_BIT) -include ./src/options.hpp -iquote ./src -O1 -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Werror ${@}
 lldb ./debug_x -b -o run --one-line-on-crash 'thread backtrace'
 rm debug_x
