@@ -1,6 +1,6 @@
 #pragma once
 
-// To force util include ordering
+// Force util include ordering
 #include "util/custom-ints.hpp"
 
 #include "eigen.hpp"
