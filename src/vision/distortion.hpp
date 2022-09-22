@@ -1,8 +1,5 @@
 #pragma once
 
-#include "util/custom-ints.hpp"
-#include "util/uninitialized.hpp"
-
 #include <bit>
 #include <cstdint>
 
@@ -24,8 +21,8 @@ static constexpr uintlens_t kDefaultInvLR = 128;
 class Lens {
  public:
   explicit Lens(intlens_t radial, intlens_t tangential_x, intlens_t tangential_y);
-  template <uextlens_t diag_sq> auto undistort(pxpos_t px) -> pxpos_t;
-  template <uextlens_t diag_sq> auto redistort(pxpos_t px) -> pxpos_t;
+  template <uextlens_t diag_sq> auto undistort(px2d p) -> px2d;
+  template <uextlens_t diag_sq> auto redistort(px2d p) -> px2d;
  private:
   intlens_t rad;  // 8 bits used; extra for smooth gradient descent
   intlens_t tan_x;
@@ -40,22 +37,22 @@ Lens::Lens(std::int16_t radial, std::int16_t tangential_x, std::int16_t tangenti
 
 template <std::uint32_t diag_sq>
 auto
-Lens::redistort(pxpos_t px) -> pxpos_t {
+Lens::redistort(px2d p) -> px2d {
   // Pack it to the brim while maintaining that the largest possible won't overflow
   static constexpr std::int8_t rs_amt = std::bit_width(diag_sq) - kLensBits;
   auto r2 = uninitialized<uintlens_t>();
   if constexpr (rs_amt < 0) {
-    r2 = uintlens_t{px.r2() << -rs_amt};
+    r2 = uintlens_t{p.r2() << -rs_amt};
   } else {
-    r2 = uintlens_t{px.r2() >> rs_amt};
+    r2 = uintlens_t{p.r2() >> rs_amt};
   }
   auto scaled = static_cast<intlens_t>(static_cast<extlens_t>(rad * r2) >> kLensBits);
-  return pxpos_t{
+  return px2d{
         static_cast<std::int16_t>(
-              ((px.x << kLensBits) + (px.y * tan_y)) /
+              ((p.x << kLensBits) + (p.y * tan_y)) /
               static_cast<std::int32_t>(kOneLS + scaled)),
         static_cast<std::int16_t>(
-              ((px.y << kLensBits) + (px.x * tan_x)) /
+              ((p.y << kLensBits) + (p.x * tan_x)) /
               static_cast<std::int32_t>(kOneLS + scaled))};
 }
 

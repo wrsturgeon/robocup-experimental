@@ -18,12 +18,12 @@ ALL_TESTS := $(foreach dir,$(shell find $(SRC) -type f -mindepth 2 ! -name READM
 
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
 INCLUDES := -iquote $(SRC) -iquote $(TPY)/eigen -iquote $(TPY)/gtest/googletest/include $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
-MACROS := -D_BITS=$(BITS) -D_OS=$(strip $(OS)) -D_CORES=$(CORES)
+MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN -D_DEBUG
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
 TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
 

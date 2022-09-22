@@ -29,12 +29,11 @@ TEST(Units, PosTStream) {
   ASSERT_NO_THROW(os << measure::pos_t{42});
 }
 
-TEST(Units, PositionString) {
-  ASSERT_EQ(
-        static_cast<std::string>(measure::Position{1000, 1000}), "(1.000000m x, 1.000000m y)");
+TEST(Units, ds2dString) {
+  ASSERT_EQ(static_cast<std::string>(measure::ds2d{1000, 1000}), "(1.000000m x, 1.000000m y)");
 }
 
-TEST(Units, PositionStream) {
+TEST(Units, ds2dStream) {
   std::ostream os{nullptr};
-  ASSERT_NO_THROW(os << (measure::Position{42, 42}));
+  ASSERT_NO_THROW(os << (measure::ds2d{42, 42}));
 }

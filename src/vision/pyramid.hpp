@@ -27,7 +27,7 @@ template <imsize_t w, imsize_t h>  //
 class Layer : public Array<w, h> {
  public:
   template <typename T> explicit Layer(Eigen::ArrayBase<T> const& src);
-  inline __attribute__((always_inline)) auto operator()(pxidx_t x, pxidx_t y) const -> dtype;
+  inline __attribute__((always_inline)) auto operator()(px_t x, px_t y) const -> dtype;
 };
 
 template <imsize_t w, imsize_t h> class Pyramid;
@@ -72,7 +72,7 @@ Pyramid<w, h>::Pyramid(Eigen::ArrayBase<T> const& src) :
 
 template <imsize_t w, imsize_t h>
 inline __attribute__((always_inline)) auto
-Layer<w, h>::operator()(pxidx_t x, pxidx_t y) const -> dtype {
+Layer<w, h>::operator()(px_t x, px_t y) const -> dtype {
   // TODO(wrsturgeon): if we go with center-0 indexing, adjust here
   return Array<w, h>::operator()(y, x);
 }

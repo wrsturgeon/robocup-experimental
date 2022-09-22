@@ -9,8 +9,7 @@
                 "${workspaceFolder}/third-party/vcl"
             ],
             "defines": [
-              "_DEBUG=1",
-              "_BITS=32",
+              "BITS=32",
               "EIGEN_INITIALIZE_MATRICES_BY_NAN=1"
             ],
             "macFrameworkPath": [

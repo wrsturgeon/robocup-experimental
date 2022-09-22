@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rnd/xoshiro.hpp"
-#include "util/uninitialized.hpp"
 
 #include <array>    // std::array
 #include <cstddef>  // std::size_t

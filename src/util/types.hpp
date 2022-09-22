@@ -1,36 +1,101 @@
 #pragma once
 
+// To force util include ordering
 #include "util/custom-ints.hpp"
 
 #include "eigen.hpp"
 
 #include <cstdint>
 
+//%%%%%%%%%%%%%%%% Pixel positions
+
 static constexpr std::uint8_t kImageAddressBits = 16;  // e.g. 16 ==> up to 2^16-width images
 
 using dtype = std::uint8_t;  // duh, but just in case
 
 using imsize_t = custom_int<kImageAddressBits>::unsigned_t;
-using pxidx_t = custom_int<kImageAddressBits>::signed_t;
-using pxr2_t = custom_int<(kImageAddressBits << 1)>::unsigned_t;
+using px_t = custom_int<kImageAddressBits>::signed_t;
+using pxrsq_t = custom_int<(kImageAddressBits << 1)>::unsigned_t;
 
 // (0, 0) is the center of the image; expand outward from there
-class pxpos_t {
+class px2d {
  public:
-  pxidx_t const x;  // NOLINT(misc-non-private-member-variables-in-classes)
-  pxidx_t const y;  // NOLINT(misc-non-private-member-variables-in-classes)
-  explicit pxpos_t(pxidx_t xpos, pxidx_t ypos) : x{xpos}, y{ypos} {}
+  px_t const x;  // NOLINT(misc-non-private-member-variables-in-classes)
+  px_t const y;  // NOLINT(misc-non-private-member-variables-in-classes)
+  explicit constexpr px2d(px_t xpos, px_t ypos) : x{xpos}, y{ypos} {}
   explicit operator std::string() const;
-  [[nodiscard]] auto r2() const -> pxr2_t;
+  [[nodiscard]] auto r2() const -> pxrsq_t;
 };
 
-pxpos_t::operator std::string() const {
+px2d::operator std::string() const {
   return '(' + std::to_string(x) + "x, " + std::to_string(y) + "y)";
 }
 
 auto
-pxpos_t::r2() const -> pxr2_t {
-  return (static_cast<pxr2_t>(x * x) + static_cast<pxr2_t>(y * y));
+px2d::r2() const -> pxrsq_t {
+  return (static_cast<pxrsq_t>(x * x) + static_cast<pxrsq_t>(y * y));
+}
+
+//%%%%%%%%%%%%%%%% Physical distance
+
+static constexpr auto kMM2M = 0.001F;
+
+/**
+ * Half-millimeters from the center of the field.
+ * Integral type, not float, so try not to add vanishingly small amounts.
+ * 1 meter := 2000 ds_t
+ * Corner-to-corner field of play ~= 10.8m ~= 21,634 ds_t.
+ * This type is just enough to represent negative-all-the-way-corner-to-corner,
+ * which is exactly what we need to compare any two positions on the field.
+ */
+class ds_t {
+ private:
+  static constexpr std::uint8_t lc = 1;  // lg(conversion to mm)
+  // TODO(wrsturgeon): verify compile-time that
+  // this fits within a SIGNED-size (std::int16_t) array
+  std::int16_t internal;
+ public:
+  // Purposefully no integer conversion ops: must intentionally take ds_t
+  explicit constexpr ds_t(std::int16_t mm);
+  [[nodiscard]] auto mm() const -> float { return ldexpf(internal, -lc); }
+  [[nodiscard]] auto meters() const -> float { return mm() * kMM2M; }
+  explicit operator std::string() const;
+  friend auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream&;
+};
+
+class ds2d {
+ public:
+  explicit constexpr ds2d(std::int16_t x_mm, std::int16_t y_mm);
+  explicit operator std::string() const;
+ private:
+  ds_t const x;
+  ds_t const y;
+};
+
+constexpr ds_t::ds_t(std::int16_t mm) : internal{static_cast<std::int16_t>(mm << lc)} {
+#ifndef NDEBUG
+  if ((internal >> lc) != mm) { throw std::overflow_error("ds_t overflow"); }
+#endif
+}
+
+ds_t::operator std::string() const {
+  return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm';
+}
+
+auto
+operator<<(std::ostream& os, ds_t const& p) -> std::ostream& {
+  return os << static_cast<std::string>(p);
+}
+
+constexpr ds2d::ds2d(std::int16_t x_mm, std::int16_t y_mm) : x{x_mm}, y{y_mm} {}
+
+ds2d::operator std::string() const {
+  return '(' + static_cast<std::string>(x) + " x, " + static_cast<std::string>(y) + " y)";
+}
+
+auto
+operator<<(std::ostream& os, ds2d const& p) -> std::ostream& {
+  return os << static_cast<std::string>(p);
 }
 
 template <imsize_t w, imsize_t h>
