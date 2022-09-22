@@ -21,6 +21,7 @@ static constexpr std::uint8_t kLgImageDiag = std::bit_width(kImageDiag);
 // We need to be able to represent the negative image diagonal to subtract any two points
 static constexpr std::uint8_t kPxTBits = kLgImageDiag + 1;
 static constexpr std::uint8_t kPxTPw2 = 1 << std::bit_width(kPxTBits);  // e.g. 11 -> 16
+static constexpr std::uint8_t kPxTPad = kPxTPw2 - kPxTBits;             // e.g. 11 -> 5
 
 using pxint_t = typename custom_int<kPxTPw2>::signed_t;
 
@@ -28,9 +29,10 @@ class px_t : public fp<kPxTPw2, kPxTPw2 - 1> {
  private:
   using Base = fp<kPxTPw2, kPxTPw2 - 1>;
  public:
-  explicit constexpr px_t(pxint_t x) : Base{static_cast<pxint_t>(x << (kPxTPw2 - kPxTBits))} {}
+  explicit constexpr px_t(pxint_t x) : Base{static_cast<pxint_t>(x << kPxTPad)} {}
   // NOLINTNEXTLINE(hicpp-explicit-conversions,google-explicit-constructor)
   constexpr px_t(Base const& x) : Base{x} {}
+  explicit operator pxint_t() const { return static_cast<pxint_t>(internal >> kPxTPad); }
 };
 
 // (0, 0) is the center of the image; expand outward from there

@@ -8,12 +8,12 @@
 template <std::uint8_t b, std::uint8_t f> class fp {
   static_assert((b & (b - 1)) == 0, "b must be a power of 2");
   static_assert(f < b, "Fractional bits must be < total bits (space for sign bit)");
- protected:
-  using T = typename custom_int<b>::signed_t;
  private:
   using u8 = std::uint8_t;  // for line-length constraints
-  T internal;
  protected:
+  using T = typename custom_int<b>::signed_t;
+  // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
+  T internal;  // NOLINT(misc-non-private-member-variables-in-classes)
   explicit constexpr fp(T x) : internal{x} {}
  public:
   explicit constexpr fp(float x) : internal{static_cast<T>(ldexpf(x, f))} {}
@@ -22,6 +22,8 @@ template <std::uint8_t b, std::uint8_t f> class fp {
   template <u8 b2, u8 f2> explicit operator fp<b2, f2>() const;
   template <u8 b2, u8 f2> auto operator*(fp<b2, f2> const& x) const -> fp<b, f>;
   auto operator+(fp<b, f> const& x) const -> fp<b, f>;
+  auto operator<<(u8 x) const -> fp<b, f> { return fp<b, f>{static_cast<T>(internal << x)}; }
+  auto operator>>(u8 x) const -> fp<b, f> { return fp<b, f>{static_cast<T>(internal >> x)}; }
 };
 
 template <std::uint8_t b, std::uint8_t f>
