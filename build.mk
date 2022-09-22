@@ -25,7 +25,7 @@ COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WA
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -Wno-padded -Wno-weak-vtables
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -iquote $(TPY)/gtest/googletest/include -Wno-padded -Wno-weak-vtables
 
 
 
