@@ -1,5 +1,7 @@
 Checks: '*,
+  -altera-struct-pack-align,
   -altera-unroll-loops,
+  -fuchsia-default-arguments-calls,
   -fuchsia-overloaded-operator,
   -fuchsia-trailing-return,
   -hicpp-signed-bitwise,
