@@ -12,7 +12,7 @@ find ${DIR}/src  -type f -name '*\.*pp' -maxdepth 2      | sed 's/^/#include "/'
 find ${DIR}/test -type f -name '*\.*pp' ! -name leak.cpp | sed 's/^/#include "/' | sed 's/$/"/' >> ./all.cpp
 echo '// NOLINTEND(bugprone-suspicious-include)' >> ./all.cpp
 
-clang-tidy ./all.cpp -- ${@}
+clang-tidy ./all.cpp --quiet -- ${@}
 
 for HPP in $(find ${DIR}/src -type f -mindepth 2 ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
 do
