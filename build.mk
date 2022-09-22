@@ -62,10 +62,10 @@ deps = $(SRC)/$(1).hpp
 # Testing
 gtest.o:
 	echo 'Compiling GoogleTest libraries...'
-	clang++ -o ./gtest.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
+	clang++ -o ./gtest.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
 gmain.o:
 	echo 'Compiling GoogleTest main function...'
-	clang++ -o ./gmain.o -c -w -O0 $(COMMON) -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
+	clang++ -o ./gmain.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
 
 test-distortion: $(TST)/distortion.cpp $(call deps,vision/distortion)
 	$(compile-tst)
