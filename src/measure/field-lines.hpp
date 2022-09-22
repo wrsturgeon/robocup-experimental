@@ -2,6 +2,8 @@
 
 #include "rnd/xoshiro.hpp"
 
+#include "util/units.hpp"
+
 #include <cstdint>
 
 namespace measure {

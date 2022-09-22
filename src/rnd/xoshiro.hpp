@@ -3,6 +3,9 @@
 // Some edits to Blackman & Vigna's xoshiro PRNGs.
 // See the below 64b & 32b sections for links.
 
+#include "util/custom-ints.hpp"
+#include "util/ternary-bits.hpp"
+
 #include <array>
 #include <cstdint>
 
@@ -10,7 +13,7 @@ namespace rnd {
 
 // 64b: https://prng.di.unimi.it/xoshiro256plusplus.c
 // 32b: https://prng.di.unimi.it/xoshiro128plusplus.c
-using t = custom_int<kSystemBits>::unsigned_t;  // rnd::t
+using t = typename custom_int<kSystemBits>::unsigned_t;  // rnd::t
 static constexpr t s1 = if32<0x7b1dcdaf, 0xe220a8397b1dcdaf>();
 static constexpr t s2 = if32<0xa1b965f4, 0x6e789e6aa1b965f4>();
 static constexpr t s3 = if32<0x8009454f, 0x06c45d188009454f>();
@@ -31,9 +34,9 @@ next() -> t {
 
   static auto s = std::array<t, 4>{s1, s2, s3, s4};
 
-  t const result = rotl<r1>(s[0] + s[3]) + s[0];
+  auto const result = t{rotl<r1>(s[0] + s[3]) + s[0]};
 
-  t const tmp = s[1] << l1;
+  auto const tmp = t{s[1] << l1};
 
   s[2] ^= s[0];
   s[3] ^= s[1];

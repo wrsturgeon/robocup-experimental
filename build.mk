@@ -15,7 +15,7 @@ TST := $(DIR)/test
 SCT := $(TST)/scripts
 
 FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
-INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen $(shell find $(SRC)/util -type f ! -name README.md | xargs -I{} echo '-include {}')
+INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen -include $(SRC)/options.hpp
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
