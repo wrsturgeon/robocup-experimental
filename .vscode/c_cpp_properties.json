@@ -4,9 +4,9 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/src",
+                "${workspaceFolder}/src/util/**",
                 "${workspaceFolder}/third-party/eigen",
-                "${workspaceFolder}/third-party/gtest/googletest/include",
-                "${workspaceFolder}/third-party/vcl"
+                "${workspaceFolder}/third-party/gtest/googletest/include"
             ],
             "defines": [
               "BITS=32",
