@@ -17,9 +17,9 @@ template <std::uint8_t b, std::uint8_t f> class fp {
   T internal;  // NOLINT(misc-non-private-member-variables-in-classes)
   explicit constexpr fp(T x) : internal{x} {}
  public:
-  explicit constexpr fp(float x) : internal{static_cast<T>(std::ldexpf(x, f))} {}
-  explicit constexpr fp(double x) : internal{static_cast<T>(std::ldexp(x, f))} {}
-  explicit operator std::string() const { return std::to_string(std::ldexp(internal, -f)); }
+  explicit constexpr fp(float x) : internal{static_cast<T>(ldexpf(x, f))} {}
+  explicit constexpr fp(double x) : internal{static_cast<T>(ldexp(x, f))} {}
+  explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
   template <u8 b2, u8 f2> explicit operator fp<b2, f2>() const;
   template <u8 b2, u8 f2> auto operator*(fp<b2, f2> const& x) const -> fp<b, f>;
   auto operator+(fp<b, f> const& x) const -> fp<b, f>;
