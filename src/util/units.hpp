@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/custom-ints.hpp"
+#include "util/custom-int.hpp"
 #include "util/fixed-point.hpp"
 #include "util/isqrt.hpp"
 
@@ -17,14 +17,14 @@ using imsize_t = std::uint16_t;
 
 static constexpr std::uint32_t kImageDiagSq = (kImageH * kImageH) + (kImageW * kImageW);
 static constexpr auto kImageDiag = isqrt<imsize_t>(kImageDiagSq);
-static constexpr std::uint8_t kLgImageDiag = std::bit_width(kImageDiag);
+static constexpr std::uint8_t kLgImageDiag = std::bit_width(std::bit_ceil(kImageDiag));
 
 // We need to be able to represent the negative image diagonal to subtract any two points
 static constexpr std::uint8_t kPxTBits = kLgImageDiag + 1;
-static constexpr std::uint8_t kPxTPw2 = 1 << std::bit_width(kPxTBits);  // e.g. 11 -> 16
-static constexpr std::uint8_t kPxTPad = kPxTPw2 - kPxTBits;             // e.g. 11 -> 5
+static constexpr std::uint8_t kPxTPw2 = std::bit_ceil(kPxTBits);  // e.g. 11 -> 16
+static constexpr std::uint8_t kPxTPad = kPxTPw2 - kPxTBits;       // e.g. 11 -> 5
 
-using pxint_t = typename custom_int<kPxTPw2>::signed_t;
+using pxint_t = typename custom_int<kPxTPw2, signed>::t;
 
 class px_t : public fp<kPxTPw2, kPxTPw2 - 1> {
  private:
@@ -83,7 +83,6 @@ class ds_t {
   [[nodiscard]] auto mm() const -> float { return ldexpf(internal, -lc); }
   [[nodiscard]] auto meters() const -> float { return mm() * kMM2M; }
   explicit operator std::string() const;
-  friend auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream&;
 };
 
 class ds2d {

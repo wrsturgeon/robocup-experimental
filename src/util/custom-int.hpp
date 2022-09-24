@@ -2,18 +2,16 @@
 
 #include <cstdint>
 
-template <std::uint8_t bits> struct custom_int;
+template <std::uint8_t bits, typename is_signed> struct custom_int;
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define BLIND_UINT(bits) std::uint##bits##_t
 #define BLIND_INT(bits) std::int##bits##_t
 #define UINT(bits) BLIND_UINT(bits)
 #define INT(bits) BLIND_INT(bits)
-#define MAKE_INT(bits)                  \
-  template <> struct custom_int<bits> { \
-    using signed_t = INT(bits);         \
-    using unsigned_t = UINT(bits);      \
-  }
+#define MAKE_INT(bits)                                                     \
+  template <> struct custom_int<bits, unsigned> { using t = UINT(bits); }; \
+  template <> struct custom_int<bits, signed> { using t = INT(bits); }
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 MAKE_INT(8);
