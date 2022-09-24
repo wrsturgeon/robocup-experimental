@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/custom-ints.hpp"
+#include "util/custom-int.hpp"
 #include "util/units.hpp"
 
 #include <bit>
@@ -11,7 +11,7 @@ namespace vision {
 /**
  * Class holding parameters representing the idiosyncrasies of any given camera.
  * Can be manually undone & redone to verify current view against internal estimate.
- * TODO: Make these compile-time when not `TRAINING`, configured then saved to disk
+ * TODO: Make these compile-time when not training, configured then saved to disk
  */
 class Lens {
  private:
@@ -28,7 +28,7 @@ class Lens {
 // auto
 // Lens::redistort(px2d p) -> px2d {
 //   // Pack it to the brim while maintaining that the largest possible won't overflow
-//   static constexpr std::int8_t rs_amt = std::bit_width(diag_sq) - kLensBits;
+//   static constexpr std::int8_t rs_amt = std::bit_ceil(diag_sq) - kLensBits;
 //   auto r2 = uninitialized<uintlens_t>();
 //   if constexpr (rs_amt < 0) {  // NOLINT(bugprone-branch-clone)
 //     r2 = static_cast<pxidx_t>(p.r2() << -rs_amt);

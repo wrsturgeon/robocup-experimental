@@ -3,7 +3,7 @@
 // Some edits to Blackman & Vigna's xoshiro PRNGs.
 // See the below 64b & 32b sections for links.
 
-#include "util/custom-ints.hpp"
+#include "util/custom-int.hpp"
 #include "util/ternary-bits.hpp"
 
 #include <array>
@@ -13,7 +13,7 @@ namespace rnd {
 
 // 64b: https://prng.di.unimi.it/xoshiro256plusplus.c
 // 32b: https://prng.di.unimi.it/xoshiro128plusplus.c
-using t = typename custom_int<kSystemBits>::unsigned_t;  // rnd::t
+using t = typename custom_int<kSystemBits, unsigned>::t;  // rnd::t
 static constexpr t s1 = if32<0x7b1dcdaf, 0xe220a8397b1dcdaf>();
 static constexpr t s2 = if32<0xa1b965f4, 0x6e789e6aa1b965f4>();
 static constexpr t s3 = if32<0x8009454f, 0x06c45d188009454f>();

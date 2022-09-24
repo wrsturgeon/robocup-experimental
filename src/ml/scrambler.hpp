@@ -9,13 +9,13 @@
 #include <memory>   // std::unique_ptr
 #include <utility>  // std::move, std::swap
 
-namespace training {
+namespace ml {
 
 static constexpr std::uint8_t kDefaultABits = 12;
 static constexpr std::uint8_t kMaxABits = 16;
 
 /**
- * Mechanism for randomizing access to training data to temper recency bias.
+ * Mechanism for randomizing access to ml data to temper recency bias.
  * WARNING: Not responsible for initializing, maintaining, or freeing data!
  */
 template <typename T, std::uint8_t abits = kDefaultABits> class Scrambler {
@@ -60,4 +60,4 @@ Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   return std::move(current);
 }
 
-}  // namespace training
+}  // namespace ml
