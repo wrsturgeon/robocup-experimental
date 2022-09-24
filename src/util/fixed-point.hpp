@@ -3,6 +3,7 @@
 #include "util/custom-int.hpp"
 #include "util/uninitialized.hpp"
 
+#include <bit>
 #include <cassert>
 #include <cmath>
 #include <string>
