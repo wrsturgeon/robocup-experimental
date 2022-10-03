@@ -76,7 +76,7 @@ check-leak-detection: ../cpp/leak.cpp
 	echo 'Checking leak detection...'
 	$(compile) $(strip $(DEBUG_FLAGS))
 ifdef VERBOSE
-	! $(SCT)/run-and-analyze ./check-leak-detection
+	! sh -x $(SCT)/run-and-analyze ./check-leak-detection
 else
 	! $(SCT)/run-and-analyze ./check-leak-detection >/dev/null 2>&1
 endif
@@ -85,7 +85,11 @@ endif
 debug: ../cpp/main.cpp
 	echo 'Running...'
 	$(compile) $(strip $(DEBUG_FLAGS))
+ifdef VERBOSE
+	sh -x $(SCT)/run-and-analyze ./debug
+else
 	$(SCT)/run-and-analyze ./debug
+endif
 	rm ./debug
 
 # TODO: use PGO (profiling-guided optimization)

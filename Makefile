@@ -21,6 +21,8 @@ check:
 	./sh/check
 
 submodules:
+	echo 'Initializing submodules...'
+	mkdir -p ./ext
 	git submodule update --init --recursive
 # Add a new submodule (e.g. foo) with `git submodule add -f --name foo https://... ext/foo`
 
