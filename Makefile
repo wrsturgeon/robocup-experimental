@@ -15,7 +15,7 @@ format:
 	$(FORMAT) -i
 
 check:
-	$(FORMAT) -n -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && exit 1)
+	$(FORMAT) -n -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && $(FORMAT) -n -Werror && exit 1)
 	./scripts/check.sh
 
 submodules:
