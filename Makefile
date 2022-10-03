@@ -5,7 +5,7 @@ ifndef VERBOSE
 endif
 
 .PHONY: check
-FORMAT := find ./src -type f -iname '*.*pp' | xargs clang-format --style=file
+FORMAT := find ./cpp -type f -iname '*.*pp' | xargs clang-format --style=file
 
 release tidy debug: submodules build/Makefile
 	cd ./build && make $(@)
@@ -18,11 +18,11 @@ format:
 
 check:
 	$(FORMAT) -n -Werror || (echo -e "Please run \`make format\` to fix formatting issues." && $(FORMAT) -n -Werror && exit 1)
-	./scripts/check.sh
+	./sh/check
 
 submodules:
 	git submodule update --init --recursive
-# Add a new submodule (e.g. foo) with `git submodule add -f --name foo https://... third-party/foo`
+# Add a new submodule (e.g. foo) with `git submodule add -f --name foo https://... ext/foo`
 
 build/Makefile: build
 	rm -f ./build/Makefile
