@@ -4,11 +4,13 @@ ifndef VERBOSE
 .SILENT: # This silences *every* Makefile here on down
 endif
 
-.PHONY: run check
+.PHONY: check
 FORMAT := find ./src -type f -iname '*.*pp' | xargs clang-format --style=file
 
 release tidy debug: submodules build/Makefile
 	cd ./build && make $(@)
+
+ci: check tidy debug
 
 format:
 	echo 'Formatting code...'
