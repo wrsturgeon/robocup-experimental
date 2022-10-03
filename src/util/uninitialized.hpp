@@ -4,10 +4,8 @@
 #include <utility>  // std::move
 
 template <typename T>
-inline __attribute__((always_inline)) auto
-uninitialized() -> T {
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
-  std::byte bytes[sizeof(T)];
+[[nodiscard]] INLINE auto uninitialized() -> T {
+  std::byte bytes[sizeof(T)];  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,clang-analyzer-core.uninitialized.UndefReturn)
-  return std::move(*reinterpret_cast<T*>(bytes));
+  return *reinterpret_cast<T*>(bytes);
 }

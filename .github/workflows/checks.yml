@@ -12,18 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: make test
+      - name: Ubuntu
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" > /dev/null 2>&1
           PATH=$(find -L /usr/lib -maxdepth 1 -type d -iname 'llvm*' | sort -r | head -n1)/bin:$PATH
           sudo apt-get update > /dev/null 2>&1
           export CLANG_VERSION=$(clang --version | head -n1 | cut -d. -f1 | rev | cut -d' ' -f1 | rev) && sudo apt-get install clang-format-${CLANG_VERSION} clang-tidy-${CLANG_VERSION} > /dev/null 2>&1
-          make test
+          make ci
   build-mac:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Successful compilation
+      - name: Mac
         run: |
           PATH=/usr/local/opt/llvm/bin:$PATH
-          make test
+          brew install llvm
+          make ci

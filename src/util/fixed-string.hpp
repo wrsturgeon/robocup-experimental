@@ -2,15 +2,17 @@
 
 // https://vector-of-bool.github.io/2021/10/22/string-templates.html
 
+#include <algorithm>
 #include <cstddef>
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
 // NOLINTBEGIN(modernize-avoid-c-arrays)
 
-template <std::size_t N> class FixedString {
+template <std::size_t N>
+class FixedString {
  public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-  explicit constexpr FixedString(char const lit[N]) { memcpy(data, lit, N); }
+  explicit constexpr FixedString(char const lit[N]) noexcept { std::copy(lit, lit + N, data); }
   explicit operator char const*() const { return data; }
  private:
   char data[N + 1];

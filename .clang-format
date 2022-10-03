@@ -5,18 +5,26 @@ AlignArrayOfStructures: Right
 # AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveBitFields: Consecutive
 # AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Right
 AlignOperands: DontAlign
-# AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: true
-AllowShortLoopsOnASingleLine: true
-AlwaysBreakAfterReturnType: TopLevelDefinitions
-AlwaysBreakTemplateDeclarations: MultiLine
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+# AlwaysBreakAfterReturnType: TopLevelDefinitions
+# AlwaysBreakTemplateDeclarations: MultiLine
 BinPackArguments: false
 BinPackParameters: false
 # BreakBeforeBraces: Stroustrup
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
-ColumnLimit: 95
+ColumnLimit: 127 # 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
 Cpp11BracedListStyle: true
@@ -25,9 +33,9 @@ EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Never
 FixNamespaceComments: true
 IncludeBlocks: Preserve
-# InsertBraces: true # Unsupported until v15
+InsertBraces: true # Unsupported until v15
 InsertTrailingCommas: Wrapped
-PackConstructorInitializers: CurrentLine
+PackConstructorInitializers: NextLine
 PenaltyBreakAssignment: 1000000
 PenaltyBreakTemplateDeclaration: 0
 PenaltyIndentedWhitespace: 100000
