@@ -6,11 +6,11 @@ echo 'Checking code style and safety...'
 
 EXIT_CODE=0
 
-# Assert only .hpp in ./src/
-INVALID_FILES=$(find ./src -type f ! -iname '*.hpp' ! -name README.md)
+# Assert only .hpp in ./cpp/
+INVALID_FILES=$(find ./cpp -type f ! -iname '*.hpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
 then
-  echo '  Please use only .hpp & README.md in ./src/'
+  echo '  Please use only .hpp & README.md in ./cpp/'
   echo "    "$(echo ${INVALID_FILES} | grep -v legacy)
   EXIT_CODE=1
 fi
@@ -18,7 +18,7 @@ fi
 # Assert no _, only - in filenames
 find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
 find . -name '*.icloud' | xargs -I{} rm {} # More dumb Mac shit
-INVALID_FILES=$(find ./src -name '*_*')
+INVALID_FILES=$(find ./cpp -name '*_*')
 if [ ! -z "${INVALID_FILES}" ]
 then
   echo '  Please use hyphens instead of underscores in filenames'
@@ -26,8 +26,8 @@ then
   EXIT_CODE=1
 fi
 
-# Assert for each directory in ./src/
-for dir in ./src/*/
+# Assert for each directory in ./cpp/
+for dir in ./cpp/*/
 do
   dirname=$(echo ${dir::${#dir}-1} | rev | cut -d/ -f1 | rev)
   DIRUPPER=$(echo ${dirname} | tr '[:lower:]' '[:upper:]')
@@ -42,8 +42,8 @@ do
   # Make sure the folder has its own README
   if [ ! -f ${dir}/README.md ] && [ ! -L ${dir}/README.md ]
   then
-    echo "  Symlinking README.md from ${PWD}/src/${dirname}/README.md to ${PWD}/${dir}README.md..."
-    ln -s ${PWD}/src/${dirname}/README.md ${PWD}/${dir:2}README.md
+    echo "  Symlinking README.md from ${PWD}/cpp/${dirname}/README.md to ${PWD}/${dir}README.md..."
+    ln -s ${PWD}/cpp/${dirname}/README.md ${PWD}/${dir:2}README.md
   fi
 
   for file in ${dir}*.hpp
@@ -52,7 +52,7 @@ do
     FILEUPPER=$(echo ${filename} | tr '[:lower:]' '[:upper:]' | tr './-' '_')
 
     # No #includes inside namespace
-    if [ ${dir} != './src/util/' ]
+    if [ ${dir} != './cpp/util/' ]
     then
       LAST_NAMESPACE=$(grep -n '^namespace' ${file} | tail -n1 | cut -d: -f1)
       if [ -z "${LAST_NAMESPACE}" ]
@@ -85,7 +85,7 @@ do
   done
 done
 
-for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
+for file in $(find ./cpp -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
   for occurrence in $(grep -n 'class .* {' ${file} | cut -d: -f1)

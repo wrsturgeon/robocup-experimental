@@ -1,13 +1,3 @@
-# Remove all extensionless executables
-# Step 1: Remove everything
-*
-# Step 2: Un-remove everything else
-!*.*
-!*/
-!.*
-!Makefile
-!compile
-
 # Prerequisites
 *.d
 
@@ -55,4 +45,4 @@
 !.vscode/c_cpp_properties.json
 
 build/
-third-party/
+ext/

@@ -9,12 +9,12 @@ BITS := 32 #$(shell getconf LONG_BIT)
 CXX := clang++
 
 DIR := $(shell cd .. && pwd)
-SRC := $(DIR)/src
-TPY := $(DIR)/third-party
-SCT := $(DIR)/scripts
+SRC := $(DIR)/cpp
+EXT := $(DIR)/ext
+SCT := $(DIR)/sh
 
 FLAGS := -std=gnu++20 -ftemplate-backtrace-limit=0
-INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen -include $(SRC)/options.hpp
+INCLUDES := -iquote $(SRC) -isystem $(EXT)/eigen -include $(SRC)/options.hpp
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
 WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-unused-function
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
@@ -53,7 +53,7 @@ tidy:
 	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
 	clang-tidy ./all.cpp --quiet -- $(strip $(COMMON)) $(strip $(DEBUG_FLAGS))
 
-naoqi-sdk: $(TPY)
+naoqi-sdk: $(EXT)
 	echo '  naoqi-sdk'
 	if [ ! -d $(<)/naoqi-sdk ]; then \
 		wget -q -O naoqi-sdk.tar.gz https://community-static.aldebaran.com/resources/2.1.4.13/sdk-c%2B%2B/naoqi-sdk-2.1.4.13-$(strip $(OS))$(BITS).tar.gz && \
@@ -72,20 +72,24 @@ deps = $(SRC)/$(1).hpp
 
 
 
-check-leak-detection: ../src/leak.cpp
+check-leak-detection: ../cpp/leak.cpp
 	echo 'Checking leak detection...'
 	$(compile) $(strip $(DEBUG_FLAGS))
 ifdef VERBOSE
-	! $(SCT)/run-and-analyze.sh ./check-leak-detection
+	! sh -x $(SCT)/run-and-analyze ./check-leak-detection
 else
-	! $(SCT)/run-and-analyze.sh ./check-leak-detection >/dev/null 2>&1
+	! $(SCT)/run-and-analyze ./check-leak-detection >/dev/null 2>&1
 endif
 	rm ./check-leak-detection
 
-debug: ../src/main.cpp
+debug: ../cpp/main.cpp
 	echo 'Running...'
 	$(compile) $(strip $(DEBUG_FLAGS))
-	$(SCT)/run-and-analyze.sh ./debug
+ifdef VERBOSE
+	sh -x $(SCT)/run-and-analyze ./debug
+else
+	$(SCT)/run-and-analyze ./debug
+endif
 	rm ./debug
 
 # TODO: use PGO (profiling-guided optimization)

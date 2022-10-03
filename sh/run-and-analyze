@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -eu
 
 if [ ${#} -lt 1 ]
 then
-  echo 'Usage: run-and-analyze.sh <executable>'
+  echo "Usage: ${0} <executable>"
   exit 1
 fi
 
