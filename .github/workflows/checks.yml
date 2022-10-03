@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: make test
+      - name: make test && make tidy
         run: |
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" > /dev/null 2>&1
           PATH=$(find -L /usr/lib -maxdepth 1 -type d -iname 'llvm*' | sort -r | head -n1)/bin:$PATH

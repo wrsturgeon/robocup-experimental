@@ -4,7 +4,7 @@
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
-BITS := $(shell getconf LONG_BIT)
+BITS := 32 #$(shell getconf LONG_BIT)
 
 CXX := clang++
 
@@ -14,22 +14,48 @@ TPY := $(DIR)/third-party
 TST := $(DIR)/test
 SCT := $(TST)/scripts
 
-FLAGS := -std=gnu++20 -ferror-limit=1 -ftemplate-backtrace-limit=0
+FLAGS := -std=gnu++20 -ftemplate-backtrace-limit=0
 INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen -include $(SRC)/options.hpp
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++20-compat -Wno-keyword-macro -Wno-poison-system-directories -Wno-missing-prototypes
+WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -flto -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
 COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -isystem $(TPY)/gtest/googletest/include -Wno-padded -Wno-weak-vtables
+TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -isystem $(TPY)/gtest/googletest/include
 
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
 release:
 	echo 'TODO'
+
+tidy:
+	echo 'Tidying the entire project...'
+	echo '#pragma clang diagnostic push' > ./all.cpp
+	echo '#pragma clang diagnostic ignored "-Wreserved-identifier"' >> ./all.cpp
+	echo '#pragma clang diagnostic ignored "-Wunused-function"' >> ./all.cpp
+	echo '// NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)' >> ./all.cpp
+	echo 'INLINE auto __asan_default_options() -> char const* {' >> ./all.cpp
+	echo '  return "allocator_frees_and_returns_null_on_realloc_zero=true"' >> ./all.cpp
+	echo '         "detect_stack_use_after_return=true:"' >> ./all.cpp
+	echo '         "detect_invalid_pointer_pairs=255:"' >> ./all.cpp
+	echo '         "check_initialization_order=true:"' >> ./all.cpp
+	echo '         "alloc_dealloc_mismatch=true:"' >> ./all.cpp
+	echo '         "detect_odr_violation=255:"' >> ./all.cpp
+	echo '         "strict_string_checks=true:"' >> ./all.cpp
+	echo '         "strict_init_order=true:"' >> ./all.cpp
+	echo '         "use_odr_indicator=true:"' >> ./all.cpp
+	echo '         "detect_leaks=1:"' >> ./all.cpp
+	echo '         "debug=true";' >> ./all.cpp
+	echo '}' >> ./all.cpp
+	echo '#pragma clang diagnostic pop' >> ./all.cpp
+	echo '// NOLINTBEGIN(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
+	find $(SRC) -type f -name '*\.*pp' -maxdepth 2      | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
+	find $(TST) -type f -name '*\.*pp' ! -name leak.cpp | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
+	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
+	clang-tidy ./all.cpp --quiet -- $(TEST_CLANG_ARGS)
 
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
@@ -44,7 +70,7 @@ naoqi-sdk: $(TPY)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Compilation
 
-compile = echo "Compiling $(@)..." && $(CXX) -o ./$(@) $(<) $(strip $(COMMON))
+compile = $(CXX) -o ./$(@) $(<) $(strip $(COMMON))
 TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(strip $(TEST_FLAGS))
 
 deps = $(SRC)/$(1).hpp
@@ -60,19 +86,16 @@ gmain.o:
 	$(CXX) -o ./gmain.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
 
 check-leak-detection: ../test/leak.cpp
+	echo 'Checking leak detection...'
 	$(compile) $(strip $(TEST_FLAGS))
-	echo '  Catching intentional leak...'
 ifdef VERBOSE
 	! $(SCT)/run-and-analyze.sh ./check-leak-detection
 else
 	! $(SCT)/run-and-analyze.sh ./check-leak-detection >/dev/null 2>&1
 endif
 	rm ./check-leak-detection
-	echo '  Got it!'
 
 test: check-leak-detection gmain.o gtest.o
 	$(SCT)/test.sh $(TEST_CLANG_ARGS)
-
-
 
 # TODO: use PGO (profiling-guided optimization)

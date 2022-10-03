@@ -2,4 +2,4 @@
 
 #include "gtest.hpp"
 
-TEST(Distortion, LensZeros) { ASSERT_NO_THROW((vision::Lens{})); }
+TEST(Distortion, LensZeros) { ASSERT_FALSE(vision::Lens{}.redistort(px2d::zero())); }

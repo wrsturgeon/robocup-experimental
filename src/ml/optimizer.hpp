@@ -1,49 +1,84 @@
 #pragma once
 
+#include "fp/fixed-point.hpp"
 #include "util/custom-int.hpp"
-#include "util/fixed-point.hpp"
 #include "util/units.hpp"
 
 namespace ml {
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+inline constexpr std::uint8_t kDecayTBits = 32;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
+using decay_t = fp::t<kDecayTBits, kDecayTBits, unsigned>;
+inline constexpr std::uint8_t kLgLRDefault = 10;  // Learning rate
+inline constexpr std::uint8_t kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
+inline constexpr std::uint8_t kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
+inline constexpr std::uint8_t kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
+inline constexpr std::uint8_t kLgEpDefault = 27;  // Epsilon: a small constant against division by zero
+
 template <
-      std::uint8_t lg_lr = 10,
-      std::uint8_t lg_ep = 27,
-      std::uint8_t lg_b1 = 3,
-      std::uint8_t lg_b2 = 10>
-// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+      typename T,
+      bool republican = false,
+      std::uint8_t lg_lr = kLgLRDefault,
+      std::uint8_t lg_b1 = kLgB1Default,
+      std::uint8_t lg_b2 = kLgB2Default,
+      std::uint8_t lg_wd = kLgWDDefault,
+      std::uint8_t lg_ep = kLgEpDefault>
 class Adam {
  private:
-  static constexpr std::uint8_t kHalfSysBits = kSystemBits >> 1;
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-  using decay_t = fp<32, 32, unsigned>;
-  // using decay_t = typename custom_int<kHalfSysBits, unsigned>::t;
-  static constexpr decay_t full = ~decay_t{/* 0 */};
-  static constexpr decay_t not_b1{full >> lg_b1}, not_b2{full >> lg_b2};
-  static constexpr decay_t b1{~not_b1}, b2{~not_b2};
-  static constexpr decay_t ep = full >> lg_ep;
-  decay_t t{}, m{}, v{};
-  decay_t decay1{b1}, decay2{b2};
+  using self_t = Adam<T, republican, lg_lr, lg_b1, lg_b2, lg_wd, lg_ep>;
+  static constexpr decay_t ep = decay_t::p2(-lg_ep);
+  decay_t decay1 = decay_t::p2(-lg_b1);
+  decay_t decay2 = decay_t::p2(-lg_b2);
+  T m = T::zero();
+  T v = T::zero();
+  [[nodiscard]] INLINE auto aug_m() const -> T;
  public:
-  auto step(decay_t grad) -> decay_t;
+  [[nodiscard]] auto step(T const& grad) -> T;
+  [[nodiscard]] INLINE auto step(T const& grad, T const& w) -> T;
 };
 
-template <std::uint8_t lg_lr, std::uint8_t lg_ep, std::uint8_t lg_b1, std::uint8_t lg_b2>
-auto
-Adam<lg_lr, lg_ep, lg_b1, lg_b2>::step(decay_t grad) -> decay_t {
-  m = b1 * m + not_b1 * grad;
-  v = b2 * v + not_b2 * (grad * grad);
-  if (decay2) {
-    v /= ~decay2;
-    decay2 *= b2;
-    if (decay1) {
-      m /= ~decay1;
-      decay1 *= b1;
+#define ADAM_TEMPLATE                                                                                                         \
+  template <                                                                                                                  \
+        typename T,                                                                                                           \
+        bool republican,                                                                                                      \
+        std::uint8_t lg_lr,                                                                                                   \
+        std::uint8_t lg_ep,                                                                                                   \
+        std::uint8_t lg_b1,                                                                                                   \
+        std::uint8_t lg_b2,                                                                                                   \
+        std::uint8_t lg_wd>
+
+ADAM_TEMPLATE
+auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
+  if constexpr (republican) {
+    return m * decay2;
+  }
+  return m;
+}
+
+ADAM_TEMPLATE
+auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T {
+  if constexpr (republican) {
+    if (!decay2) {
+      return T::zero();
     }
   }
-  return (m / (v.sqrt() + ep)) >> lg_lr;  // theoretically faster but < precise: (m >>
-                                          // lg_lr)
+  m += ((grad - m) >> lg_b1);
+  v += (((grad * grad) - v) >> lg_b2);
+  if (decay2) {
+    v /= ~decay2;
+    decay2 -= (decay2 >> lg_b2);
+    if (decay1) {
+      m /= ~decay1;
+      decay1 -= (decay1 >> lg_b1);
+    }
+  }
+  return (aug_m() >> lg_lr) / (v.sqrt() | 1);
 }
+
+ADAM_TEMPLATE
+auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
+  return step(grad) + (w >> lg_wd);
+}
+
+#undef ADAM_TEMPLATE
 
 }  // namespace ml

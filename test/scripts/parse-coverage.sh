@@ -1,27 +1,33 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
-if [ ${3} -ne 0 ]
+SHOW="llvm-cov show ./test-${1} --instr-profile=./${1}.profdata ${2} -Xdemangler c++filt -Xdemangler -n --verify-region-info --show-instantiation-summary" # --show-line-counts-or-regions --show-branches=percent --show-expansions"
+
+if [ ${7} -ne 0 ]
 then
-  echo "Missing ${3} region(s) in ${1} (${4} covered)"
+  echo "Missing ${7} function(s) in ${2} (${8} covered)"
+  ${SHOW} --line-coverage-lt=100
   exit 1
 fi
 
-if [ ${6} -ne 0 ]
+if [ ${10} -ne 0 ]
 then
-  echo "Missing ${6} function(s) in ${1} (${7} covered)"
+  echo "Missing ${10} line(s) in ${2} (${11} covered)"
+  ${SHOW} --line-coverage-lt=100
   exit 1
 fi
 
-if [ ${9} -ne 0 ]
-then
-  echo "Missing ${9} line(s) in ${1} (${10} covered)"
-  exit 1
-fi
+# if [ ${4} -ne 0 ]
+# then
+#   echo "Missing ${4} region(s) in ${2} (${5} covered)"
+#   ${SHOW} --region-coverage-lt=100
+#   exit 1
+# fi
 
-if [ ${12} -ne 0 ]
-then
-  echo "Missing ${12} branch(es) in ${1} (${13} covered)"
-  exit 1
-fi
+# if [ ${14} -ne 0 ]
+# then
+#   echo "Missing ${14} branch(es) in ${2} (${15} covered)"
+#   ${SHOW} --region-coverage-lt=100
+#   exit 1
+# fi

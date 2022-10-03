@@ -2,4 +2,4 @@
 
 #include "gtest.hpp"
 
-TEST(Infer3D, ProjectionLossNoThrow) { ASSERT_NO_THROW(vision::projection_loss()); }
+TEST(Infer3D, ProjectionLossNoThrow) { ASSERT_FALSE(vision::projection_loss()); }

@@ -142,11 +142,7 @@ do
       line_contents=$(sed ${occurrence}'q;d' ${file})
     done
   done
+  # TODO(wrsturgeon): check that all lines with `explicit` also contain `noexcept`
 done
-
-if [ ${EXIT_CODE} -eq 0 ]
-then
-  echo "  All good!"
-fi
 
 exit ${EXIT_CODE}

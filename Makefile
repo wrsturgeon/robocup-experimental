@@ -7,10 +7,11 @@ endif
 .PHONY: run check
 FORMAT := find ./src ./test -type f -iname '*.*pp' | xargs clang-format --style=file
 
-release test tidy: format check submodules build/Makefile
+release test tidy: check submodules build/Makefile
 	cd ./build && make $(@)
 
 format:
+	echo 'Formatting code...'
 	$(FORMAT) -i
 
 check:

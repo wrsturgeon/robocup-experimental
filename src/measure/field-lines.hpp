@@ -43,39 +43,36 @@ namespace measure {
  *  [17]   +3900 +4500      +1100       600   57400
  */
 
-static constexpr std::int16_t kCenter = 0;
-static constexpr std::int16_t kHEdge = 4500;
-static constexpr std::int16_t kVEdge = 3000;
-static constexpr std::int16_t kHGoal = 3900;
-static constexpr std::int16_t kVGoal = 1100;
-static constexpr std::int16_t kHPen = 2850;
-static constexpr std::int16_t kVPen = 2000;
+inline constexpr std::int16_t kCenter = 0;
+inline constexpr std::int16_t kHEdge = 4500;
+inline constexpr std::int16_t kVEdge = 3000;
+inline constexpr std::int16_t kHGoal = 3900;
+inline constexpr std::int16_t kVGoal = 1100;
+inline constexpr std::int16_t kHPen = 2850;
+inline constexpr std::int16_t kVPen = 2000;
 
-static constexpr std::int16_t kLEdge = -kHEdge;
-static constexpr std::int16_t kREdge = kHEdge;
-static constexpr std::int16_t kTEdge = -kVEdge;
-static constexpr std::int16_t kBEdge = kVEdge;
-static constexpr std::int16_t kLGoal = -kHGoal;
-static constexpr std::int16_t kRGoal = kHGoal;
-static constexpr std::int16_t kTGoal = -kVGoal;
-static constexpr std::int16_t kBGoal = kVGoal;
-static constexpr std::int16_t kLPen = -kHPen;
-static constexpr std::int16_t kRPen = kHPen;
-static constexpr std::int16_t kTPen = -kVPen;
-static constexpr std::int16_t kBPen = kVPen;
+inline constexpr std::int16_t kLEdge = -kHEdge;
+inline constexpr std::int16_t kREdge = kHEdge;
+inline constexpr std::int16_t kTEdge = -kVEdge;
+inline constexpr std::int16_t kBEdge = kVEdge;
+inline constexpr std::int16_t kLGoal = -kHGoal;
+inline constexpr std::int16_t kRGoal = kHGoal;
+inline constexpr std::int16_t kTGoal = -kVGoal;
+inline constexpr std::int16_t kBGoal = kVGoal;
+inline constexpr std::int16_t kLPen = -kHPen;
+inline constexpr std::int16_t kRPen = kHPen;
+inline constexpr std::int16_t kTPen = -kVPen;
+inline constexpr std::int16_t kBPen = kVPen;
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 // NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTBEGIN(clang-diagnostic-sign-conversion)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
 
-auto
-sample_field_lines() -> ds2d {  // NOLINT(readability-function-cognitive-complexity)
-  static constexpr std::uint8_t rnd_uses = kSystemBits >> 4;
+[[nodiscard]] static auto sample_field_lines() -> ds2d {
+  static constexpr std::uint8_t rnd_uses = (kSystemBits >> 4);
   static rnd::t rnd_state;
-  static std::uint8_t rnd_uses_left;  // no need to be initialized, really
-  do {
+  static std::uint8_t rnd_uses_left;
+  do {  // NOLINT(altera-unroll-loops)
     if (!rnd_uses_left) {
       rnd_uses_left = rnd_uses - 1;
       rnd_state = rnd::next();
@@ -124,13 +121,14 @@ sample_field_lines() -> ds2d {  // NOLINT(readability-function-cognitive-complex
             ? ds2d{static_cast<std::int16_t>(x - 50100), kTGoal}
             : ds2d{kRGoal, static_cast<std::int16_t>(x - 55700)};
     }
-    if (x < 57400) { return ds2d{static_cast<std::int16_t>(x - 52900), kBGoal}; }
+    if (x < 57400) {
+      return ds2d{static_cast<std::int16_t>(x - 52900), kBGoal};
+    }
     // If >= 57400, resample
     // TODO(wrsturgeon): consider, instead of resampling, sampling green
   } while (true);
 }
 
-#pragma clang diagnostic pop
 // NOLINTEND(clang-diagnostic-sign-conversion)
 // NOLINTEND(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
