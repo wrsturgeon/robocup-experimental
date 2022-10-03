@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen vcl highway naoqi-driver naoqi-sdk test check-leak-detection
+.PHONY: eigen check-leak-detection
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -11,19 +11,16 @@ CXX := clang++
 DIR := $(shell cd .. && pwd)
 SRC := $(DIR)/src
 TPY := $(DIR)/third-party
-TST := $(DIR)/test
-SCT := $(TST)/scripts
+SCT := $(DIR)/scripts
 
 FLAGS := -std=gnu++20 -ftemplate-backtrace-limit=0
 INCLUDES := -iquote $(SRC) -isystem $(TPY)/eigen -include $(SRC)/options.hpp
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
+WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-unused-function
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+DEBUG_FLAGS   := -O3 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
 RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
-COVERAGE := -fprofile-instr-generate -fcoverage-mapping
-TEST_FLAGS := $(strip $(DEBUG_FLAGS)) $(strip $(COVERAGE)) -isystem $(TPY)/gtest/googletest/include
 
 
 
@@ -32,7 +29,7 @@ release:
 	echo 'TODO'
 
 tidy:
-	echo 'Tidying the entire project...'
+	echo 'Running clang-tidy on the project (takes a minute)...'
 	echo '#pragma clang diagnostic push' > ./all.cpp
 	echo '#pragma clang diagnostic ignored "-Wreserved-identifier"' >> ./all.cpp
 	echo '#pragma clang diagnostic ignored "-Wunused-function"' >> ./all.cpp
@@ -52,10 +49,9 @@ tidy:
 	echo '}' >> ./all.cpp
 	echo '#pragma clang diagnostic pop' >> ./all.cpp
 	echo '// NOLINTBEGIN(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
-	find $(SRC) -type f -name '*\.*pp' -maxdepth 2      | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
-	find $(TST) -type f -name '*\.*pp' ! -name leak.cpp | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
+	find $(SRC) -type f -name '*\.*pp' -maxdepth 2 ! -name 'leak.cpp' | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
 	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
-	clang-tidy ./all.cpp --quiet -- $(TEST_CLANG_ARGS)
+	clang-tidy ./all.cpp --quiet -- $(strip $(COMMON)) $(strip $(DEBUG_FLAGS))
 
 naoqi-sdk: $(TPY)
 	echo '  naoqi-sdk'
@@ -71,23 +67,14 @@ naoqi-sdk: $(TPY)
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Compilation
 
 compile = $(CXX) -o ./$(@) $(<) $(strip $(COMMON))
-TEST_CLANG_ARGS = $(strip $(COMMON)) gmain.o gtest.o $(strip $(TEST_FLAGS))
 
 deps = $(SRC)/$(1).hpp
 
 
 
-# Testing
-gtest.o:
-	echo 'Compiling GoogleTest libraries...'
-	$(CXX) -o ./gtest.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest-all.cc
-gmain.o:
-	echo 'Compiling GoogleTest main function...'
-	$(CXX) -o ./gmain.o -c -w -O0 -iquote $(TPY)/gtest/googletest -iquote $(TPY)/gtest/googletest/include $(TPY)/gtest/googletest/src/gtest_main.cc
-
-check-leak-detection: ../test/leak.cpp
+check-leak-detection: ../src/leak.cpp
 	echo 'Checking leak detection...'
-	$(compile) $(strip $(TEST_FLAGS))
+	$(compile) $(strip $(DEBUG_FLAGS))
 ifdef VERBOSE
 	! $(SCT)/run-and-analyze.sh ./check-leak-detection
 else
@@ -95,7 +82,10 @@ else
 endif
 	rm ./check-leak-detection
 
-test: check-leak-detection gmain.o gtest.o
-	$(SCT)/test.sh $(TEST_CLANG_ARGS)
+debug: ../src/main.cpp
+	echo 'Running...'
+	$(compile) $(strip $(DEBUG_FLAGS))
+	$(SCT)/run-and-analyze.sh ./debug
+	rm ./debug
 
 # TODO: use PGO (profiling-guided optimization)

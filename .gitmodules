@@ -1,9 +1,6 @@
 [submodule "eigen"]
 	path = third-party/eigen
 	url = https://gitlab.com/libeigen/eigen.git
-[submodule "gtest"]
-	path = third-party/gtest
-	url = https://github.com/google/googletest.git
 [submodule "fpng"]
 	path = third-party/fpng
 	url = https://github.com/richgel999/fpng.git

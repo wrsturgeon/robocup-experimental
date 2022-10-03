@@ -6,16 +6,6 @@ echo 'Checking code style and safety...'
 
 EXIT_CODE=0
 
-# Assert only .cpp in ./test/
-INVALID_FILES=$(find ./test -type f ! -iname '*.cpp' ! -name README.md ! -path '*/scripts/*')
-# Unfortunately using grep -v legacy above causes the script to crash
-if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
-then
-  echo '  Please only use .cpp & README.md in ./test/'
-  echo "    $(${INVALID_FILES} | grep -v legacy)"
-  EXIT_CODE=1
-fi
-
 # Assert only .hpp in ./src/
 INVALID_FILES=$(find ./src -type f ! -iname '*.hpp' ! -name README.md)
 if [ ! -z "$(echo ${INVALID_FILES} | grep -v legacy)" ]
@@ -28,7 +18,7 @@ fi
 # Assert no _, only - in filenames
 find . -name .DS_Store | xargs -I{} rm {} # Mac folder info
 find . -name '*.icloud' | xargs -I{} rm {} # More dumb Mac shit
-INVALID_FILES=$(find ./src ./test ./src -name '*_*')
+INVALID_FILES=$(find ./src -name '*_*')
 if [ ! -z "${INVALID_FILES}" ]
 then
   echo '  Please use hyphens instead of underscores in filenames'
@@ -98,31 +88,6 @@ done
 for file in $(find ./src -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
-  TEST_FILE="./test/${FNAME}.cpp"
-  if [ ! -f ${TEST_FILE} ]
-  then
-    echo "  Please write ${TEST_FILE} to test ${file}"
-    EXIT_CODE=1
-  fi
-  if [ -f ${TEST_FILE} ]
-  then
-    if ! (head -n1 ${TEST_FILE} | grep -q '#include ".*'${FNAME}'.hpp"')
-    then
-      echo "  Please #include the original .hpp on the first line of ${TEST_FILE}"
-      EXIT_CODE=1
-    fi
-    if [ "$(sed '2q;d' ${TEST_FILE})" != '' ]
-    then
-      echo "  Please leave a blank line between your hpp and gtest in ${TEST_FILE}"
-      EXIT_CODE=1
-    else
-      if ! (sed '3q;d' ${TEST_FILE} | grep -q '#include "gtest.hpp"')
-      then
-        echo '  Please #include "gtest.hpp" on the third line of '${TEST_FILE}
-        EXIT_CODE=1
-      fi
-    fi
-  fi
   for occurrence in $(grep -n 'class .* {' ${file} | cut -d: -f1)
   do
     line_contents=$(sed ${occurrence}'q;d' ${file})
