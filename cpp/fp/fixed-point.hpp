@@ -83,7 +83,7 @@ class t {
   OTHERS INLINE auto operator*=(other_t const& x) -> self_t& { return *this = operator*(x); }
   OTHERS INLINE auto operator/=(other_t const& x) -> self_t& { return *this = operator/(x); }
   pure auto sqrt() const -> self_t;
-  pure auto abs() const -> t<b, f, unsigned> { return t<b, f, unsigned>{(internal < 0) ? -internal : internal}; }
+  pure auto abs() const -> t<b, f, unsigned> { return t<b, f, unsigned>{std::abs(internal)}; }
 #ifndef NDEBUG
   strpure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
   strpure static auto typestr() -> std::string;
@@ -146,7 +146,7 @@ constexpr auto t<b, f, u>::p2(i8 p) -> self_t {
     using u3 = std::conditional_t<std::is_signed_v<u1> || std::is_signed_v<u2>, signed, unsigned>;                            \
     using other_t = t<b2, f2, u2>;                                                                                            \
     constexpr u8 s3 = std::is_signed_v<u3>;                                                                                   \
-    constexpr u8 i3 = other_t::ibits > ibits ? other_t::ibits : ibits;                                                        \
+    constexpr u8 i3 = (other_t::ibits > ibits) ? other_t::ibits : ibits;                                                      \
     using t3 = t<std::bit_ceil<u8>(s3 + i3 + f1), f1, u3>;                                                                    \
     return (operator t3()).internal COMPARATOR static_cast<t3>(x).internal;                                                   \
   }
