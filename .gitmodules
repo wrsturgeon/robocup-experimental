@@ -1,3 +1,6 @@
 [submodule "eigen"]
 	path = ext/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "stb"]
+	path = ext/stb
+	url = https://github.com/nothings/stb.git

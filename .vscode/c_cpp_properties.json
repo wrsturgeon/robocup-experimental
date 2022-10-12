@@ -4,7 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/cpp",
-                "${workspaceFolder}/ext/eigen"
+                "${workspaceFolder}/ext/eigen",
+                "${workspaceFolder}/ext/stb"
             ],
             "defines": [
               "BITS=32",

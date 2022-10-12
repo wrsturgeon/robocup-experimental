@@ -21,16 +21,18 @@ inline constexpr std::uint8_t kSystemBits = BITS;
 #ifdef IMAGE_H
 inline constexpr std::uint16_t kImageH = IMAGE_H;
 #else
-inline constexpr std::uint16_t kImageH = 960;
+inline constexpr std::uint16_t kImageH = 330;
 #endif
 #undef IMAGE_H
 
 #ifdef IMAGE_W
 inline constexpr std::uint16_t kImageW = IMAGE_W;
 #else
-inline constexpr std::uint16_t kImageW = 1280;
+inline constexpr std::uint16_t kImageW = 750;
 #endif
 #undef IMAGE_W
+
+inline constexpr std::uint32_t kImageArea = kImageH * kImageW;
 
 #ifdef NAO_HEIGHT_MM
 inline constexpr std::uint16_t kNaoHeightMM = NAO_HEIGHT_MM;
@@ -39,7 +41,8 @@ inline constexpr std::uint16_t kNaoHeightMM = 500;  // TODO(wrsturgeon): ROUGH E
 #endif  // ifdef NAO_HEIGHT_MM
 #undef NAO_HEIGHT_MM
 
-#define INLINE [[gnu::always_inline]] inline
+#define INLINE [[gnu::always_inline]] inline constexpr
+#define pure [[nodiscard]] INLINE
 
 #ifdef NDEBUG
 #define NOX noexcept

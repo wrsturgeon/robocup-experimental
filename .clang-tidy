@@ -1,15 +1,20 @@
 Checks: '*,
+  -altera-unroll-loops,
+  -cppcoreguidelines-init-variables,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
   -fuchsia-*,
   -hicpp-signed-bitwise,
   -llvmlibc-*,
   -llvm-header-guard,
   -misc-definitions-in-headers,
+  -misc-no-recursion,
   -readability-function-cognitive-complexity,
   -readability-identifier-length,
-  -readability-implicit-bool-conversion'
+  -readability-implicit-bool-conversion,
+  -readability-isolate-declaration'
 CheckOptions:
   - key: readability-magic-numbers.IgnoredIntegerValues
-    value: '0;1;2;3;16;32;64'
+    value: '0;1;2;3;4;8;16;32;64;128;256;512;1024'
 FormatStyle: file
 HeaderFilterRegex: '.*'
 WarningsAsErrors: '*,-bugprone-easily-swappable-parameters'

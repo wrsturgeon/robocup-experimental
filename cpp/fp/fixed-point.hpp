@@ -40,7 +40,7 @@ class t;
 template <std::size_t N, typename T>
 class a;
 
-#define OTHERS  template <std::uint8_t b2, std::uint8_t f2, typename u2>
+#define OTHERS template <std::uint8_t b2, std::uint8_t f2, typename u2>
 #define other_t t<b2, f2, u2>
 
 template <std::uint8_t b, std::uint8_t f = (b >> 1), typename u = signed>
@@ -61,33 +61,33 @@ class t {
   using array = a<N, self_t>;
   template <std::uint8_t b2, std::uint8_t f2, typename u2>
   friend class t;
-  [[nodiscard]] INLINE static constexpr auto zero() -> self_t { return self_t{0}; }
-  [[nodiscard]] INLINE static constexpr auto p2(std::int8_t p) -> self_t;
-  [[nodiscard]] INLINE static constexpr auto unit() -> self_t { return p2(0); }
+  [[nodiscard]] pure static auto zero() -> self_t { return self_t{0}; }
+  [[nodiscard]] pure static auto p2(std::int8_t p) -> self_t;
+  [[nodiscard]] pure static auto unit() -> self_t { return p2(0); }
   [[nodiscard]] explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
-  [[nodiscard]] INLINE static auto typestr() -> std::string;
-  [[nodiscard]] INLINE constexpr explicit operator bool() const { return static_cast<bool>(internal); }
-  OTHERS [[nodiscard]] INLINE constexpr explicit operator t<b2, f2, u2>() const;
-  OTHERS [[nodiscard]] INLINE constexpr auto operator==(t<b2, f2, u2> const& x) const -> bool;
-  OTHERS [[nodiscard]] INLINE constexpr auto operator!=(t<b2, f2, u2> const& x) const -> bool;
-  OTHERS [[nodiscard]] INLINE constexpr auto operator<=>(t<b2, f2, u2> const& x) const -> std::strong_ordering;
-  [[nodiscard]] INLINE constexpr auto operator-() const -> signed_t;
-  [[nodiscard]] INLINE constexpr auto operator~() const -> self_t { return self_t{~internal}; }
-  [[nodiscard]] INLINE constexpr auto operator|(T x) const -> self_t { return self_t{static_cast<T>(internal | x)}; }
-  [[nodiscard]] INLINE constexpr auto operator<<(std::uint8_t const& x) const -> self_t;
-  [[nodiscard]] INLINE constexpr auto operator>>(std::uint8_t const& x) const -> self_t;
-  INLINE constexpr auto operator<<=(std::uint8_t const& x) -> self_t& { return *this = operator<<(x); }
-  INLINE constexpr auto operator>>=(std::uint8_t const& x) -> self_t& { return *this = operator>>(x); }
-  OTHERS [[nodiscard]] INLINE constexpr auto operator+(other_t const& x) const -> self_t;  // NOLINT(misc-no-recursion)
-  OTHERS [[nodiscard]] INLINE constexpr auto operator-(other_t const& x) const -> self_t;  // NOLINT(misc-no-recursion)
-  OTHERS [[nodiscard]] INLINE constexpr auto operator*(other_t const& x) const -> self_t;
-  OTHERS [[nodiscard]] INLINE constexpr auto operator/(other_t const& x) const -> self_t;
-  OTHERS INLINE constexpr auto operator+=(other_t const& x) -> self_t& { return *this = operator+(x); }
-  OTHERS INLINE constexpr auto operator-=(other_t const& x) -> self_t& { return *this = operator-(x); }
-  OTHERS INLINE constexpr auto operator*=(other_t const& x) -> self_t& { return *this = operator*(x); }
-  OTHERS INLINE constexpr auto operator/=(other_t const& x) -> self_t& { return *this = operator/(x); }
-  [[nodiscard]] INLINE constexpr auto sqrt() const -> self_t;
-  [[nodiscard]] INLINE constexpr auto abs() const -> self_t { return self_t{std::abs(internal)}; }
+  [[nodiscard]] pure static auto typestr() -> std::string;
+  [[nodiscard]] pure explicit operator bool() const { return static_cast<bool>(internal); }
+  OTHERS [[nodiscard]] pure explicit operator t<b2, f2, u2>() const;
+  OTHERS [[nodiscard]] pure auto operator==(t<b2, f2, u2> const& x) const -> bool;
+  OTHERS [[nodiscard]] pure auto operator!=(t<b2, f2, u2> const& x) const -> bool;
+  OTHERS [[nodiscard]] pure auto operator<=>(t<b2, f2, u2> const& x) const -> std::strong_ordering;
+  [[nodiscard]] pure auto operator-() const -> signed_t;
+  [[nodiscard]] pure auto operator~() const -> self_t { return self_t{~internal}; }
+  [[nodiscard]] pure auto operator|(T x) const -> self_t { return self_t{static_cast<T>(internal | x)}; }
+  [[nodiscard]] pure auto operator<<(std::uint8_t const& x) const -> self_t;
+  [[nodiscard]] pure auto operator>>(std::uint8_t const& x) const -> self_t;
+  INLINE auto operator<<=(std::uint8_t const& x) -> self_t& { return *this = operator<<(x); }
+  INLINE auto operator>>=(std::uint8_t const& x) -> self_t& { return *this = operator>>(x); }
+  OTHERS [[nodiscard]] pure auto operator+(other_t const& x) const -> self_t;
+  OTHERS [[nodiscard]] pure auto operator-(other_t const& x) const -> self_t;
+  OTHERS [[nodiscard]] pure auto operator*(other_t const& x) const -> self_t;
+  OTHERS [[nodiscard]] pure auto operator/(other_t const& x) const -> self_t;
+  OTHERS INLINE auto operator+=(other_t const& x) -> self_t& { return *this = operator+(x); }
+  OTHERS INLINE auto operator-=(other_t const& x) -> self_t& { return *this = operator-(x); }
+  OTHERS INLINE auto operator*=(other_t const& x) -> self_t& { return *this = operator*(x); }
+  OTHERS INLINE auto operator/=(other_t const& x) -> self_t& { return *this = operator/(x); }
+  [[nodiscard]] pure auto sqrt() const -> self_t;
+  [[nodiscard]] pure auto abs() const -> self_t { return self_t{std::abs(internal)}; }
   [[nodiscard]] auto expose() const -> std::string;
 };
 
@@ -139,12 +139,12 @@ constexpr auto t<b, f, u>::p2(std::int8_t p) -> self_t {
 }
 
 template <std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] INLINE auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
+[[nodiscard]] pure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
   return s + static_cast<std::string>(x);
 }
 
 template <std::uint8_t b, std::uint8_t f, typename u>
-auto fp::t<b, f, u>::typestr() -> std::string {
+pure auto fp::t<b, f, u>::typestr() -> std::string {
   return "fp::t<" + std::to_string(b) + ", " + std::to_string(f) + ", " + (std::is_signed_v<u> ? "signed" : "unsigned") + '>';
 }
 
@@ -275,7 +275,7 @@ constexpr auto t<b, f, u>::sqrt() const -> self_t {
   }
   self_t x = *this;
   constexpr std::uint8_t N = std::bit_width<std::uint8_t>(b);
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::uint8_t i = 0; i < N; ++i) {
     x = ((x + ((*this) / x)) >> 1);
   }
@@ -288,9 +288,9 @@ auto t<b, f, u>::expose() const -> std::string {
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] INLINE constexpr auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
+[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = func(x[i]);
   }
@@ -298,9 +298,9 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] INLINE constexpr auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
+[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = func(x[i], y[i]);
   }
@@ -308,9 +308,9 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] INLINE constexpr auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
+[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = func(x[i], y);
   }
@@ -318,9 +318,9 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] INLINE constexpr auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
+[[nodiscard]] pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = func(x, y[i]);
   }
@@ -329,9 +329,9 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 
 // clang-format off
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
-#define  UNARY_OP(...) [[nodiscard]] INLINE constexpr auto operator __VA_ARGS__(               ) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this   ); }
-#define BINARY_OP(...) [[nodiscard]] INLINE constexpr auto operator __VA_ARGS__(self_t const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); } \
-                       [[nodiscard]] INLINE constexpr auto operator __VA_ARGS__(fp_t   const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); }
+#define  UNARY_OP(...) [[nodiscard]] pure auto operator __VA_ARGS__(               ) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this   ); }
+#define BINARY_OP(...) [[nodiscard]] pure auto operator __VA_ARGS__(self_t const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); } \
+                       [[nodiscard]] pure auto operator __VA_ARGS__(fp_t   const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); }
 #define OTHER_TEMPLATE template <std::uint8_t b2, std::uint8_t f2, typename u2>
 // NOLINTEND(cppcoreguidelines-macro-usage)
 // clang-format on
@@ -345,19 +345,19 @@ class a<N, t<b, f, u>> {
   arr_t internal;
  public:
   constexpr a(std::initializer_list<fp_t>&& li) NOX;
-  OTHER_TEMPLATE [[nodiscard]] INLINE constexpr explicit operator a<N, t<b2, f2, u2>>() const;
-  [[nodiscard]] INLINE constexpr auto begin() noexcept -> fp_t* { return internal.begin(); }
-  [[nodiscard]] INLINE constexpr auto end() noexcept -> fp_t* { return internal.end(); }
-  [[nodiscard]] INLINE constexpr auto begin() const noexcept -> fp_t const* { return internal.begin(); }
-  [[nodiscard]] INLINE constexpr auto end() const noexcept -> fp_t const* { return internal.end(); }
-  [[nodiscard]] INLINE constexpr auto operator[](std::size_t i) -> fp_t&;
-  [[nodiscard]] INLINE static constexpr auto zero() -> self_t;
+  OTHER_TEMPLATE [[nodiscard]] pure explicit operator a<N, t<b2, f2, u2>>() const;
+  [[nodiscard]] pure auto begin() noexcept -> fp_t* { return internal.begin(); }
+  [[nodiscard]] pure auto end() noexcept -> fp_t* { return internal.end(); }
+  [[nodiscard]] pure auto begin() const noexcept -> fp_t const* { return internal.begin(); }
+  [[nodiscard]] pure auto end() const noexcept -> fp_t const* { return internal.end(); }
+  [[nodiscard]] pure auto operator[](std::size_t i) -> fp_t&;
+  [[nodiscard]] pure static auto zero() -> self_t;
   template <std::size_t i>
-  [[nodiscard]] INLINE static constexpr auto unit() -> self_t;
-  [[nodiscard]] INLINE constexpr explicit operator bool() const;
-  [[nodiscard]] INLINE constexpr auto r2() const -> fp_t;
-  [[nodiscard]] INLINE constexpr auto r() const -> fp_t { return r2().sqrt(); }
-  [[nodiscard]] INLINE constexpr auto sqrt() const -> self_t;
+  [[nodiscard]] pure static auto unit() -> self_t;
+  [[nodiscard]] pure explicit operator bool() const;
+  [[nodiscard]] pure auto r2() const -> fp_t;
+  [[nodiscard]] pure auto r() const -> fp_t { return r2().sqrt(); }
+  [[nodiscard]] pure auto sqrt() const -> self_t;
   UNARY_OP(-)
   UNARY_OP(~)  //
   BINARY_OP(+) BINARY_OP(-) BINARY_OP(*) BINARY_OP(/) BINARY_OP(<<) BINARY_OP(>>)
@@ -406,7 +406,7 @@ template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
 template <std::uint8_t b2, std::uint8_t f2, typename u2>
 constexpr a<N, t<b, f, u>>::operator a<N, t<b2, f2, u2>>() const {
   auto r = uninitialized<a<N, t<b2, f2, u2>>>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = static_cast<t<b2, f2, u2>>((*this)[i]);
   }
@@ -426,7 +426,7 @@ constexpr auto a<N, t<b, f, u>>::r2() const -> fp_t {
 template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
 constexpr auto a<N, t<b, f, u>>::sqrt() const -> self_t {
   auto r = uninitialized<self_t>();
-#pragma unroll  // NOLINTNEXTLINE(altera-unroll-loops)
+#pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
     r[i] = (*this)[i].sqrt();
   }

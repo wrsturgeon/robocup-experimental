@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: eigen check-leak-detection
+.PHONY: check-leak-detection all.cpp
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -14,9 +14,9 @@ EXT := $(DIR)/ext
 SCT := $(DIR)/sh
 
 FLAGS := -std=gnu++20 -ftemplate-backtrace-limit=0
-INCLUDES := -iquote $(SRC) -isystem $(EXT)/eigen -include $(SRC)/options.hpp
-MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES)
-WARNINGS := -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-unused-function
+INCLUDES := -iquote $(SRC) -isystem $(EXT)/eigen -isystem $(EXT)/stb -include $(SRC)/options.hpp
+MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES) -DEIGEN_STACK_ALLOCATION_LIMIT=0
+WARNINGS := -Wall -Wextra -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O3 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
@@ -28,13 +28,12 @@ RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm 
 release:
 	echo 'TODO'
 
-tidy:
-	echo 'Running clang-tidy on the project (takes a minute)...'
+all.cpp:
 	echo '#pragma clang diagnostic push' > ./all.cpp
 	echo '#pragma clang diagnostic ignored "-Wreserved-identifier"' >> ./all.cpp
 	echo '#pragma clang diagnostic ignored "-Wunused-function"' >> ./all.cpp
 	echo '// NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)' >> ./all.cpp
-	echo 'INLINE auto __asan_default_options() -> char const* {' >> ./all.cpp
+	echo 'pure auto __asan_default_options() -> char const* {' >> ./all.cpp
 	echo '  return "allocator_frees_and_returns_null_on_realloc_zero=true"' >> ./all.cpp
 	echo '         "detect_stack_use_after_return=true:"' >> ./all.cpp
 	echo '         "detect_invalid_pointer_pairs=255:"' >> ./all.cpp
@@ -51,6 +50,9 @@ tidy:
 	echo '// NOLINTBEGIN(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
 	find $(SRC) -type f -name '*\.*pp' -maxdepth 2 ! -name 'leak.cpp' | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
 	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
+
+tidy: all.cpp
+	echo 'Running clang-tidy on the project (takes a minute)...'
 	clang-tidy ./all.cpp --quiet -- $(strip $(COMMON)) $(strip $(DEBUG_FLAGS))
 
 naoqi-sdk: $(EXT)
@@ -82,9 +84,10 @@ else
 endif
 	rm ./check-leak-detection
 
-debug: ../cpp/main.cpp
-	echo 'Running...'
+debug: all.cpp
+	echo 'Compiling...'
 	$(compile) $(strip $(DEBUG_FLAGS))
+	echo 'Running...'
 ifdef VERBOSE
 	sh -x $(SCT)/run-and-analyze ./debug
 else
