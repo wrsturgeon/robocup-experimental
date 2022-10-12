@@ -96,8 +96,12 @@ endif
 	rm ./debug
 
 profile-compilation: all.cpp
-	echo 'Compiling...'
-	$(compile) $(strip $(DEBUG_FLAGS)) -ftime-trace -c
+	echo 'Compiling all.cpp...'
+	time $(compile) $(strip $(DEBUG_FLAGS)) -ftime-trace -c
+	for path in $(shell find $(SRC) -type f -name '*\.*pp' -maxdepth 2); do \
+		echo; \
+		echo $$path | rev | cut -d. -f2- | cut -d/ -f1 | rev | xargs -Iname (echo name && time $(CXX) -o ./name $$path $(strip $(COMMON)) $(strip $(DEBUG_FLAGS)) -ftime-trace -c);
+	done
 	echo "Go to chrome://tracing and load $(PWD)/all.json"
 
 # TODO: use PGO (profiling-guided optimization)
