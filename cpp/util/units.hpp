@@ -11,6 +11,11 @@
 #include <cstddef>
 #include <cstdint>
 
+#ifndef NDEBUG
+#include <iostream>
+#include <string>
+#endif  // NDEBUG
+
 //%%%%%%%%%%%%%%%% Pixel positions
 
 using imsize_t = std::uint16_t;
@@ -50,7 +55,9 @@ class ds_t {
   explicit constexpr ds_t(std::int16_t mm) noexcept;
   pure auto mm() const -> float { return ldexpf(internal, -lc); }
   pure auto meters() const -> float { return mm() * kMM2M; }
-  pure explicit operator std::string() const;
+#ifndef NDEBUG
+  strpure explicit operator std::string() const;
+#endif  // NDEBUG
 };
 
 class ds2d {
@@ -59,24 +66,33 @@ class ds2d {
   ds_t y;
  public:
   explicit constexpr ds2d(std::int16_t x_mm, std::int16_t y_mm) noexcept : x{x_mm}, y{y_mm} {}
-  pure explicit operator std::string() const;
+#ifndef NDEBUG
+  strpure explicit operator std::string() const;
+#endif  // NDEBUG
 };
 
 constexpr ds_t::ds_t(std::int16_t mm) noexcept : internal{static_cast<std::int16_t>(mm << lc)} {
   assert((internal >> lc) == mm);
 }
 
-pure ds_t::operator std::string() const { return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm'; }
+#ifndef NDEBUG
 
-static auto operator+(std::string const& s, ds_t const& p) -> std::string { return s + static_cast<std::string>(p); }
+strpure ds_t::operator std::string() const { return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm'; }
 
-// static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p); }
+strpure static auto operator+(std::string const& s, ds_t const& p) -> std::string { return s + static_cast<std::string>(p); }
 
-pure ds2d::operator std::string() const { return std::string{'('} + x + " x, " + y + " y)"; }
+// strpure static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p);
+// }
 
-// static auto operator+(std::string const& s, ds2d const& p) -> std::string { return s + static_cast<std::string>(p); }
+strpure ds2d::operator std::string() const { return std::string{'('} + x + " x, " + y + " y)"; }
 
-// static auto operator<<(std::ostream& os, ds2d const& p) -> std::ostream& { return os << static_cast<std::string>(p); }
+// strpure static auto operator+(std::string const& s, ds2d const& p) -> std::string { return s + static_cast<std::string>(p);
+// }
+
+// strpure static auto operator<<(std::ostream& os, ds2d const& p) -> std::ostream& { return os << static_cast<std::string>(p);
+// }
+
+#endif  // NDEBUG
 
 template <imsize_t w, imsize_t h>
 using Array = Eigen::Array<std::uint8_t, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
