@@ -13,11 +13,17 @@ struct cint_s {
 };
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
-#define BLIND_UINT(bits) std::uint##bits##_t
-#define BLIND_INT(bits) std::int##bits##_t
+#define BLIND_UINT_T(bits) std::uint##bits##_t
+#define BLIND_INT_T(bits) std::int##bits##_t
+#define BLIND_UINT(bits) u##bits
+#define BLIND_INT(bits) i##bits
+#define UINT_T(bits) BLIND_UINT_T(bits)
+#define INT_T(bits) BLIND_INT_T(bits)
 #define UINT(bits) BLIND_UINT(bits)
 #define INT(bits) BLIND_INT(bits)
 #define MAKE_INT(bits)                                                                                                        \
+  using INT(bits) = INT_T(bits);                                                                                              \
+  using UINT(bits) = UINT_T(bits);                                                                                            \
   template <>                                                                                                                 \
   struct cint_s<bits, unsigned> {                                                                                             \
     static constexpr bool valid = true;                                                                                       \

@@ -2,6 +2,7 @@
 
 #include "rnd/xoshiro.hpp"
 
+#include "util/ints.hpp"
 #include "util/units.hpp"
 
 #include <cstdint>
@@ -43,35 +44,35 @@ namespace measure {
  *  [17]   +3900 +4500      +1100       600   57400
  */
 
-inline constexpr std::int16_t kCenter = 0;
-inline constexpr std::int16_t kHEdge = 4500;
-inline constexpr std::int16_t kVEdge = 3000;
-inline constexpr std::int16_t kHGoal = 3900;
-inline constexpr std::int16_t kVGoal = 1100;
-inline constexpr std::int16_t kHPen = 2850;
-inline constexpr std::int16_t kVPen = 2000;
+inline constexpr i16 kCenter = 0;
+inline constexpr i16 kHEdge = 4500;
+inline constexpr i16 kVEdge = 3000;
+inline constexpr i16 kHGoal = 3900;
+inline constexpr i16 kVGoal = 1100;
+inline constexpr i16 kHPen = 2850;
+inline constexpr i16 kVPen = 2000;
 
-inline constexpr std::int16_t kLEdge = -kHEdge;
-inline constexpr std::int16_t kREdge = kHEdge;
-inline constexpr std::int16_t kTEdge = -kVEdge;
-inline constexpr std::int16_t kBEdge = kVEdge;
-inline constexpr std::int16_t kLGoal = -kHGoal;
-inline constexpr std::int16_t kRGoal = kHGoal;
-inline constexpr std::int16_t kTGoal = -kVGoal;
-inline constexpr std::int16_t kBGoal = kVGoal;
-inline constexpr std::int16_t kLPen = -kHPen;
-inline constexpr std::int16_t kRPen = kHPen;
-inline constexpr std::int16_t kTPen = -kVPen;
-inline constexpr std::int16_t kBPen = kVPen;
+inline constexpr i16 kLEdge = -kHEdge;
+inline constexpr i16 kREdge = kHEdge;
+inline constexpr i16 kTEdge = -kVEdge;
+inline constexpr i16 kBEdge = kVEdge;
+inline constexpr i16 kLGoal = -kHGoal;
+inline constexpr i16 kRGoal = kHGoal;
+inline constexpr i16 kTGoal = -kVGoal;
+inline constexpr i16 kBGoal = kVGoal;
+inline constexpr i16 kLPen = -kHPen;
+inline constexpr i16 kRPen = kHPen;
+inline constexpr i16 kTPen = -kVPen;
+inline constexpr i16 kBPen = kVPen;
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 // NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTBEGIN(clang-diagnostic-sign-conversion)
 
 // [[nodiscard]] static auto sample_field_lines() -> ds2d {
-//   static constexpr std::uint8_t rnd_uses = (kSystemBits >> 4);
+//   static constexpr u8 rnd_uses = (kSystemBits >> 4);
 //   static rnd::t rnd_state;
-//   static std::uint8_t rnd_uses_left;
+//   static u8 rnd_uses_left;
 //   do {
 //     if (!rnd_uses_left) {
 //       rnd_uses_left = rnd_uses - 1;
@@ -79,50 +80,50 @@ inline constexpr std::int16_t kBPen = kVPen;
 //     } else {
 //       --rnd_uses_left;
 //     }
-//     auto x = static_cast<std::uint16_t>(rnd_state);
+//     auto x = static_cast<u16>(rnd_state);
 //     rnd_state >>= 16;
 //     if (x < 30000) {
 //       if (x < 15000) {
 //         return (x < 6000)
-//               ? ds2d{kLEdge, static_cast<std::int16_t>(x - 3000)}
-//               : ds2d{static_cast<std::int16_t>(x - 10500), kBEdge};
+//               ? ds2d{kLEdge, static_cast<i16>(x - 3000)}
+//               : ds2d{static_cast<i16>(x - 10500), kBEdge};
 //       }
 //       return (x < 21000)
-//             ? ds2d{kREdge, static_cast<std::int16_t>(x - 18000)}
-//             : ds2d{static_cast<std::int16_t>(x - 25500), kTEdge};
+//             ? ds2d{kREdge, static_cast<i16>(x - 18000)}
+//             : ds2d{static_cast<i16>(x - 25500), kTEdge};
 //     }
 //     if (x < 48950) {
 //       if (x < 37650) {
 //         return (x < 36000)
-//               ? ds2d{kCenter, static_cast<std::int16_t>(x - 33000)}
-//               : ds2d{static_cast<std::int16_t>(x - 40500), kTPen};
+//               ? ds2d{kCenter, static_cast<i16>(x - 33000)}
+//               : ds2d{static_cast<i16>(x - 40500), kTPen};
 //       }
 //       if (x < 43300) {
 //         return (x < 41650)
-//               ? ds2d{kLPen, static_cast<std::int16_t>(x - 39650)}
-//               : ds2d{static_cast<std::int16_t>(x - 46150), kBPen};
+//               ? ds2d{kLPen, static_cast<i16>(x - 39650)}
+//               : ds2d{static_cast<i16>(x - 46150), kBPen};
 //       }
 //       return (x < 44950)
-//             ? ds2d{static_cast<std::int16_t>(x - 40450), kTPen}
-//             : ds2d{kRPen, static_cast<std::int16_t>(x - 46950)};
+//             ? ds2d{static_cast<i16>(x - 40450), kTPen}
+//             : ds2d{kRPen, static_cast<i16>(x - 46950)};
 //     }
 //     if (x < 54000) {
 //       if (x < 51200) {
 //         return (x < 50600)
-//               ? ds2d{static_cast<std::int16_t>(x - 46100), kBPen}
-//               : ds2d{static_cast<std::int16_t>(x - 55100), kTGoal};
+//               ? ds2d{static_cast<i16>(x - 46100), kBPen}
+//               : ds2d{static_cast<i16>(x - 55100), kTGoal};
 //       }
 //       return (x < 53400)
-//             ? ds2d{kLGoal, static_cast<std::int16_t>(x - 52300)}
-//             : ds2d{static_cast<std::int16_t>(x - 57900), kBGoal};
+//             ? ds2d{kLGoal, static_cast<i16>(x - 52300)}
+//             : ds2d{static_cast<i16>(x - 57900), kBGoal};
 //     }
 //     if (x < 56800) {
 //       return (x < 54600)
-//             ? ds2d{static_cast<std::int16_t>(x - 50100), kTGoal}
-//             : ds2d{kRGoal, static_cast<std::int16_t>(x - 55700)};
+//             ? ds2d{static_cast<i16>(x - 50100), kTGoal}
+//             : ds2d{kRGoal, static_cast<i16>(x - 55700)};
 //     }
 //     if (x < 57400) {
-//       return ds2d{static_cast<std::int16_t>(x - 52900), kBGoal};
+//       return ds2d{static_cast<i16>(x - 52900), kBGoal};
 //     }
 //     // If >= 57400, resample
 //     // TODO(wrsturgeon): consider, instead of resampling, sampling green

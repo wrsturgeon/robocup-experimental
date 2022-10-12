@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/custom-int.hpp"
+#include "util/ints.hpp"
 #include "util/isqrt.hpp"
 
 #include "eigen.hpp"
@@ -18,14 +18,14 @@
 
 //%%%%%%%%%%%%%%%% Pixel positions
 
-using imsize_t = std::uint16_t;
+using imsize_t = u16;
 
 inline constexpr auto kImageDiag = isqrt<imsize_t>((kImageH * kImageH) + (kImageW * kImageW));
-inline constexpr auto kLgImageDiag = static_cast<std::uint8_t>(std::bit_width(std::bit_ceil(kImageDiag)));
+inline constexpr auto kLgImageDiag = static_cast<u8>(std::bit_width(std::bit_ceil(kImageDiag)));
 
 // We need to be able to represent the negative image diagonal to subtract any two points
-inline constexpr std::uint8_t kPxTBits = kLgImageDiag + 1;
-inline constexpr std::uint8_t kPxTPw2 = std::bit_ceil(kPxTBits);  // e.g. 11 -> 16
+inline constexpr u8 kPxTBits = kLgImageDiag + 1;
+inline constexpr u8 kPxTPw2 = std::bit_ceil(kPxTBits);  // e.g. 11 -> 16
 
 using pxint_t = cint<kPxTPw2, signed>;
 using px_t = fp::t<kPxTPw2, kPxTBits, signed>;  // wiggle room for severe distortion
@@ -46,13 +46,13 @@ inline constexpr auto kMM2M = 0.001F;
  */
 class ds_t {
  private:
-  static constexpr std::uint8_t lc = 1;  // lg(conversion to mm)
+  static constexpr u8 lc = 1;  // lg(conversion to mm)
   // TODO(wrsturgeon): verify compile-time that
-  // this fits within a SIGNED-size (std::int16_t) array
-  std::int16_t internal;
+  // this fits within a SIGNED-size (i16) array
+  i16 internal;
  public:
   // Purposefully no integer conversion ops: must intentionally take ds_t
-  explicit constexpr ds_t(std::int16_t mm) noexcept;
+  explicit constexpr ds_t(i16 mm) noexcept;
   pure auto mm() const -> float { return ldexpf(internal, -lc); }
   pure auto meters() const -> float { return mm() * kMM2M; }
 #ifndef NDEBUG
@@ -65,15 +65,13 @@ class ds2d {
   ds_t x;
   ds_t y;
  public:
-  explicit constexpr ds2d(std::int16_t x_mm, std::int16_t y_mm) noexcept : x{x_mm}, y{y_mm} {}
+  explicit constexpr ds2d(i16 x_mm, i16 y_mm) noexcept : x{x_mm}, y{y_mm} {}
 #ifndef NDEBUG
   strpure explicit operator std::string() const;
 #endif  // NDEBUG
 };
 
-constexpr ds_t::ds_t(std::int16_t mm) noexcept : internal{static_cast<std::int16_t>(mm << lc)} {
-  assert((internal >> lc) == mm);
-}
+constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} { assert((internal >> lc) == mm); }
 
 #ifndef NDEBUG
 
@@ -95,6 +93,6 @@ strpure ds2d::operator std::string() const { return std::string{'('} + x + " x, 
 #endif  // NDEBUG
 
 template <imsize_t w, imsize_t h>
-using Array = Eigen::Array<std::uint8_t, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
+using Array = Eigen::Array<u8, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
 using ImageArray = Array<kImageW, kImageH>;
 using ImageMap = Eigen::Map<ImageArray>;

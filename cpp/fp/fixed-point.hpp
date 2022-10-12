@@ -1,17 +1,14 @@
 #pragma once
 
-#include "util/custom-int.hpp"
+#include "util/ints.hpp"
 #include "util/ternary.hpp"
 #include "util/uninitialized.hpp"
 
-#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
-#include <cmath>
 #include <compare>
 #include <cstddef>
-#include <cstdint>
 #include <limits>
 #include <numeric>
 #include <stdexcept>
@@ -35,15 +32,15 @@ namespace fp {
 // http://eigen.tuxfamily.org/dox/TopicCustomizing_CustomScalar.html
 
 // Forward declarations
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 class t;
 template <std::size_t N, typename T>
 class a;
 
-#define OTHERS template <std::uint8_t b2, std::uint8_t f2, typename u2>
+#define OTHERS template <u8 b2, u8 f2, typename u2>
 #define other_t t<b2, f2, u2>
 
-template <std::uint8_t b, std::uint8_t f = (b >> 1), typename u = signed>
+template <u8 b, u8 f = (b >> 1), typename u = signed>
 class t {
   static_assert((b & (b - 1)) == 0, "b must be a power of 2");
   // static_assert(f <= b - std::is_signed_v<u>, "Fractional bits > total - ?sign bit"); // this is actually okay
@@ -55,14 +52,14 @@ class t {
   explicit constexpr t(T x) noexcept : internal{x} {}
  public:
   static constexpr auto fbits = f;
-  static constexpr auto sbits = static_cast<std::uint8_t>(std::is_signed_v<u>);
+  static constexpr auto sbits = static_cast<u8>(std::is_signed_v<u>);
   static constexpr auto ibits = b - f - sbits;
   template <std::size_t N>
   using array = a<N, self_t>;
-  template <std::uint8_t b2, std::uint8_t f2, typename u2>
+  template <u8 b2, u8 f2, typename u2>
   friend class t;
   pure static auto zero() -> self_t { return self_t{0}; }
-  pure static auto p2(std::int8_t p) -> self_t;
+  pure static auto p2(i8 p) -> self_t;
   pure static auto unit() -> self_t { return p2(0); }
   pure explicit operator bool() const { return static_cast<bool>(internal); }
   OTHERS pure explicit operator t<b2, f2, u2>() const;
@@ -72,10 +69,10 @@ class t {
   pure auto operator-() const -> signed_t;
   pure auto operator~() const -> self_t { return self_t{~internal}; }
   pure auto operator|(T x) const -> self_t { return self_t{static_cast<T>(internal | x)}; }
-  pure auto operator<<(std::uint8_t const& x) const -> self_t;
-  pure auto operator>>(std::uint8_t const& x) const -> self_t;
-  INLINE auto operator<<=(std::uint8_t const& x) -> self_t& { return *this = operator<<(x); }
-  INLINE auto operator>>=(std::uint8_t const& x) -> self_t& { return *this = operator>>(x); }
+  pure auto operator<<(u8 const& x) const -> self_t;
+  pure auto operator>>(u8 const& x) const -> self_t;
+  INLINE auto operator<<=(u8 const& x) -> self_t& { return *this = operator<<(x); }
+  INLINE auto operator>>=(u8 const& x) -> self_t& { return *this = operator>>(x); }
   OTHERS pure auto operator+(other_t const& x) const -> self_t;
   OTHERS pure auto operator-(other_t const& x) const -> self_t;
   OTHERS pure auto operator*(other_t const& x) const -> self_t;
@@ -85,7 +82,7 @@ class t {
   OTHERS INLINE auto operator*=(other_t const& x) -> self_t& { return *this = operator*(x); }
   OTHERS INLINE auto operator/=(other_t const& x) -> self_t& { return *this = operator/(x); }
   pure auto sqrt() const -> self_t;
-  pure auto abs() const -> self_t { return self_t{std::abs(internal)}; }
+  pure auto abs() const -> t<b, f, unsigned> { return t<b, f, unsigned>{(internal < 0) ? -internal : internal}; }
 #ifndef NDEBUG
   strpure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
   strpure static auto typestr() -> std::string;
@@ -96,8 +93,8 @@ class t {
 #undef other_t
 #undef OTHERS
 
-template <std::uint8_t b1, std::uint8_t f1, typename u1>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <u8 b1, u8 f1, typename u1>
+template <u8 b2, u8 f2, typename u2>
 constexpr t<b1, f1, u1>::operator t<b2, f2, u2>() const {
   using rtn_t = t<b2, f2, u2>;
 #ifndef NDEBUG
@@ -106,8 +103,8 @@ constexpr t<b1, f1, u1>::operator t<b2, f2, u2>() const {
       throw std::out_of_range{"Can't convert (negative) " + expose() + " to (unsigned) " + rtn_t::typestr()};
     }
   }
-  constexpr std::int8_t df = f2 - f1;
-  constexpr std::int8_t ibit_loss = self_t::ibits - rtn_t::ibits;
+  constexpr i8 df = f2 - f1;
+  constexpr i8 ibit_loss = self_t::ibits - rtn_t::ibits;
   if constexpr (ibit_loss > 0) {
     if (((internal < 0) ? ~internal : internal) >> (b1 - ibit_loss)) {
       throw std::out_of_range{"Can't convert " + expose() + " to " + rtn_t::typestr() + ": overflow"};
@@ -121,8 +118,8 @@ constexpr t<b1, f1, u1>::operator t<b2, f2, u2>() const {
   }
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
-constexpr auto t<b, f, u>::p2(std::int8_t p) -> self_t {
+template <u8 b, u8 f, typename u>
+constexpr auto t<b, f, u>::p2(i8 p) -> self_t {
 #ifndef NDEBUG
   if (b - f - std::is_signed_v<u> <= p) {
     throw std::out_of_range{"Can't store 2^p: overflow"};
@@ -142,14 +139,14 @@ constexpr auto t<b, f, u>::p2(std::int8_t p) -> self_t {
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define ADDCOMP(COMPARATOR, return_t)                                                                                         \
-  template <std::uint8_t b1, std::uint8_t f1, typename u1>                                                                    \
-  template <std::uint8_t b2, std::uint8_t f2, typename u2>                                                                    \
+  template <u8 b1, u8 f1, typename u1>                                                                                        \
+  template <u8 b2, u8 f2, typename u2>                                                                                        \
   constexpr auto t<b1, f1, u1>::operator COMPARATOR(t<b2, f2, u2> const& x) const->return_t {                                 \
     using u3 = std::conditional_t<std::is_signed_v<u1> || std::is_signed_v<u2>, signed, unsigned>;                            \
     using other_t = t<b2, f2, u2>;                                                                                            \
-    constexpr std::uint8_t s3 = std::is_signed_v<u3>;                                                                         \
-    constexpr std::uint8_t i3 = other_t::ibits > ibits ? other_t::ibits : ibits;                                              \
-    using t3 = t<std::bit_ceil<std::uint8_t>(s3 + i3 + f1), f1, u3>;                                                          \
+    constexpr u8 s3 = std::is_signed_v<u3>;                                                                                   \
+    constexpr u8 i3 = other_t::ibits > ibits ? other_t::ibits : ibits;                                                        \
+    using t3 = t<std::bit_ceil<u8>(s3 + i3 + f1), f1, u3>;                                                                    \
     return (operator t3()).internal COMPARATOR static_cast<t3>(x).internal;                                                   \
   }
 ADDCOMP(==, bool)
@@ -157,7 +154,7 @@ ADDCOMP(!=, bool)
 ADDCOMP(<=>, std::strong_ordering)
 #undef ADDCOMP
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 constexpr auto t<b, f, u>::operator-() const -> signed_t {
 #ifndef NDEBUG
   if constexpr (std::is_unsigned_v<u>) {
@@ -173,8 +170,8 @@ constexpr auto t<b, f, u>::operator-() const -> signed_t {
   return signed_t{static_cast<std::make_signed_t<T>>(-internal)};
 }
 
-template <std::uint8_t b1, std::uint8_t f1, typename u1>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <u8 b1, u8 f1, typename u1>
+template <u8 b2, u8 f2, typename u2>
 constexpr auto t<b1, f1, u1>::operator+(t<b2, f2, u2> const& x) const -> self_t {
   auto const y = static_cast<self_t>(x);
 #ifndef NDEBUG
@@ -192,8 +189,8 @@ constexpr auto t<b1, f1, u1>::operator+(t<b2, f2, u2> const& x) const -> self_t 
   return self_t{static_cast<T>(internal + y.internal)};
 }
 
-template <std::uint8_t b1, std::uint8_t f1, typename u1>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <u8 b1, u8 f1, typename u1>
+template <u8 b2, u8 f2, typename u2>
 constexpr auto t<b1, f1, u1>::operator-(t<b2, f2, u2> const& x) const -> self_t {
   auto const y = static_cast<self_t>(x);
 #ifndef NDEBUG
@@ -211,16 +208,16 @@ constexpr auto t<b1, f1, u1>::operator-(t<b2, f2, u2> const& x) const -> self_t 
   return self_t{static_cast<T>(internal - y.internal)};
 }
 
-template <std::uint8_t b1, std::uint8_t f1, typename u1>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <u8 b1, u8 f1, typename u1>
+template <u8 b2, u8 f2, typename u2>
 constexpr auto t<b1, f1, u1>::operator*(t<b2, f2, u2> const& x) const -> self_t {
   // TODO(wrsturgeon)
   // assert(
   //       static_cast<T>((static_cast<ext_t>(internal) * static_cast<ext_t>(x.internal)) >> f) ==
   //       static_cast<ext_t>((static_cast<ext_t>(internal) * static_cast<ext_t>(x.internal)) >> f));
   // auto y = static_cast<self_t>(x);
-  // if constexpr (cint_exists<std::bit_ceil<std::uint8_t>(b1 + f1)>) {
-  //   using ext_t = cint<std::bit_ceil<std::uint8_t>(b1 + f1), u1>;
+  // if constexpr (cint_exists<std::bit_ceil<u8>(b1 + f1)>) {
+  //   using ext_t = cint<std::bit_ceil<u8>(b1 + f1), u1>;
   //   return self_t{static_cast<T>((static_cast<ext_t>(internal) * static_cast<ext_t>(y.internal)) >> f1)};
   // } else {
   //   assert(false);  // TODO(wrsturgeon)
@@ -228,8 +225,8 @@ constexpr auto t<b1, f1, u1>::operator*(t<b2, f2, u2> const& x) const -> self_t 
   return static_cast<self_t>(x);
 }
 
-template <std::uint8_t b1, std::uint8_t f1, typename u1>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <u8 b1, u8 f1, typename u1>
+template <u8 b2, u8 f2, typename u2>
 constexpr auto t<b1, f1, u1>::operator/(t<b2, f2, u2> const& x) const -> self_t {
 #ifndef NDEBUG
   if (!x) {
@@ -244,26 +241,26 @@ constexpr auto t<b1, f1, u1>::operator/(t<b2, f2, u2> const& x) const -> self_t 
   return static_cast<self_t>(x);
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
-constexpr auto t<b, f, u>::operator<<(std::uint8_t const& x) const -> self_t {
+template <u8 b, u8 f, typename u>
+constexpr auto t<b, f, u>::operator<<(u8 const& x) const -> self_t {
   return self_t{static_cast<T>(internal << x)};
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
-constexpr auto t<b, f, u>::operator>>(std::uint8_t const& x) const -> self_t {
+template <u8 b, u8 f, typename u>
+constexpr auto t<b, f, u>::operator>>(u8 const& x) const -> self_t {
   return self_t{static_cast<T>(internal >> x)};
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 constexpr auto t<b, f, u>::sqrt() const -> self_t {
   // Babylonian method
   if (!*this) {
     return self_t::zero();
   }
   self_t x = *this;
-  constexpr std::uint8_t N = std::bit_width<std::uint8_t>(b);
+  constexpr u8 N = std::bit_width<u8>(b);
 #pragma unroll
-  for (std::uint8_t i = 0; i < N; ++i) {
+  for (u8 i = 0; i < N; ++i) {
     x = ((x + ((*this) / x)) >> 1);
   }
   return x;
@@ -271,29 +268,29 @@ constexpr auto t<b, f, u>::sqrt() const -> self_t {
 
 #ifndef NDEBUG
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 strpure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
   return s + static_cast<std::string>(x);
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 strpure auto fp::t<b, f, u>::typestr() -> std::string {
   return "fp::t<" + std::to_string(b) + ", " + std::to_string(f) + ", " + (std::is_signed_v<u> ? "signed" : "unsigned") + '>';
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 strpure auto operator<<(std::ostream& os, t<b, f, u> const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
-template <std::uint8_t b, std::uint8_t f, typename u>
+template <u8 b, u8 f, typename u>
 strpure auto t<b, f, u>::expose() const -> std::string {
   return operator std::string() + " [" + std::to_string(b) + 'b' + std::to_string(f) + "f:" + std::to_string(internal) + "]";
 }
 
 #endif  // NDEBUG
 
-template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
@@ -303,7 +300,7 @@ pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
   return r;
 }
 
-template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
@@ -313,7 +310,7 @@ pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N,
   return r;
 }
 
-template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
@@ -323,7 +320,7 @@ pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, 
   return r;
 }
 
-template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
@@ -338,11 +335,11 @@ pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, 
 #define  UNARY_OP(...) pure auto operator __VA_ARGS__(               ) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this   ); }
 #define BINARY_OP(...) pure auto operator __VA_ARGS__(self_t const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); } \
                        pure auto operator __VA_ARGS__(fp_t   const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); }
-#define OTHER_TEMPLATE template <std::uint8_t b2, std::uint8_t f2, typename u2>
+#define OTHER_TEMPLATE template <u8 b2, u8 f2, typename u2>
 // NOLINTEND(cppcoreguidelines-macro-usage)
 // clang-format on
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 class a<N, t<b, f, u>> {
  private:
   using fp_t = t<b, f, u>;
@@ -373,7 +370,7 @@ class a<N, t<b, f, u>> {
 #undef BINARY_OP
 #undef UNARY_OP
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr a<N, t<b, f, u>>::a(std::initializer_list<fp_t>&& li) NOX : internal{uninitialized<arr_t>()} {
 #ifndef NDEBUG
   if (li.size() != N) {
@@ -383,7 +380,7 @@ constexpr a<N, t<b, f, u>>::a(std::initializer_list<fp_t>&& li) NOX : internal{u
   std::copy(li.begin(), li.end(), this->begin());
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr auto a<N, t<b, f, u>>::operator[](std::size_t i) -> fp_t& {
 #ifndef NDEBUG
   if (i < N) {
@@ -393,14 +390,14 @@ constexpr auto a<N, t<b, f, u>>::operator[](std::size_t i) -> fp_t& {
   return internal[i];
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr auto a<N, t<b, f, u>>::zero() -> self_t {
   auto r = uninitialized<self_t>();
   r.internal.fill(fp_t::zero());
   return r;
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 template <std::size_t i>
 constexpr auto a<N, t<b, f, u>>::unit() -> self_t {
   auto r = self_t::zero();
@@ -408,8 +405,8 @@ constexpr auto a<N, t<b, f, u>>::unit() -> self_t {
   return r;
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-template <std::uint8_t b2, std::uint8_t f2, typename u2>
+template <std::size_t N, u8 b, u8 f, typename u>
+template <u8 b2, u8 f2, typename u2>
 constexpr a<N, t<b, f, u>>::operator a<N, t<b2, f2, u2>>() const {
   auto r = uninitialized<a<N, t<b2, f2, u2>>>();
 #pragma unroll
@@ -419,17 +416,17 @@ constexpr a<N, t<b, f, u>>::operator a<N, t<b2, f2, u2>>() const {
   return r;
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr a<N, t<b, f, u>>::operator bool() const {
   return std::any_of(this->begin(), this->end(), [](auto const& x) { return static_cast<bool>(x); });
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr auto a<N, t<b, f, u>>::r2() const -> fp_t {
   return std::accumulate(this->begin(), this->end(), fp_t::zero(), [](auto const& x, auto const& y) { return x + y * y; });
 }
 
-template <std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
+template <std::size_t N, u8 b, u8 f, typename u>
 constexpr auto a<N, t<b, f, u>>::sqrt() const -> self_t {
   auto r = uninitialized<self_t>();
 #pragma unroll

@@ -11,7 +11,7 @@
 
 namespace vision {
 
-using dtype = std::uint8_t;
+using dtype = u8;
 
 template <typename T>
 constexpr auto max_pool(Eigen::ArrayBase<T> const& arr) -> Array<(T::ColsAtCompileTime >> 1), (T::RowsAtCompileTime >> 1)> {

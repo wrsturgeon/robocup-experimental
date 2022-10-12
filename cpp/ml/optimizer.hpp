@@ -1,27 +1,27 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/custom-int.hpp"
+#include "util/ints.hpp"
 #include "util/units.hpp"
 
 namespace ml {
 
-inline constexpr std::uint8_t kDecayTBits = 32;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
+inline constexpr u8 kDecayTBits = 32;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
 using decay_t = fp::t<kDecayTBits, kDecayTBits, unsigned>;
-inline constexpr std::uint8_t kLgLRDefault = 10;  // Learning rate
-inline constexpr std::uint8_t kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
-inline constexpr std::uint8_t kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
-inline constexpr std::uint8_t kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
-inline constexpr std::uint8_t kLgEpDefault = 27;  // Epsilon: a small constant against division by zero
+inline constexpr u8 kLgLRDefault = 10;  // Learning rate
+inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
+inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
+inline constexpr u8 kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
+inline constexpr u8 kLgEpDefault = 27;  // Epsilon: a small constant against division by zero
 
 template <
       typename T,
       bool republican = false,
-      std::uint8_t lg_lr = kLgLRDefault,
-      std::uint8_t lg_b1 = kLgB1Default,
-      std::uint8_t lg_b2 = kLgB2Default,
-      std::uint8_t lg_wd = kLgWDDefault,
-      std::uint8_t lg_ep = kLgEpDefault>
+      u8 lg_lr = kLgLRDefault,
+      u8 lg_b1 = kLgB1Default,
+      u8 lg_b2 = kLgB2Default,
+      u8 lg_wd = kLgWDDefault,
+      u8 lg_ep = kLgEpDefault>
 class Adam {
  private:
   using self_t = Adam<T, republican, lg_lr, lg_b1, lg_b2, lg_wd, lg_ep>;
@@ -36,15 +36,7 @@ class Adam {
   pure auto step(T const& grad, T const& w) -> T;
 };
 
-#define ADAM_TEMPLATE                                                                                                         \
-  template <                                                                                                                  \
-        typename T,                                                                                                           \
-        bool republican,                                                                                                      \
-        std::uint8_t lg_lr,                                                                                                   \
-        std::uint8_t lg_ep,                                                                                                   \
-        std::uint8_t lg_b1,                                                                                                   \
-        std::uint8_t lg_b2,                                                                                                   \
-        std::uint8_t lg_wd>
+#define ADAM_TEMPLATE template <typename T, bool republican, u8 lg_lr, u8 lg_ep, u8 lg_b1, u8 lg_b2, u8 lg_wd>
 
 ADAM_TEMPLATE
 pure auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
