@@ -1,6 +1,6 @@
 # Automatically hard-linked into ./build/ in the main Makefile and called from inside.
 
-.PHONY: check-leak-detection all.cpp
+.PHONY: check-leak-detection all.cpp profile-compilation
 
 OS := $(shell if [ $(shell uname -s) = Darwin ]; then echo mac; else echo linux; fi) # fuck Windows 💪🤝🚫🪟
 CORES := $(shell if [ $(OS) = linux ]; then nproc --all; else sysctl -n hw.ncpu; fi)
@@ -94,5 +94,10 @@ else
 	$(SCT)/run-and-analyze ./debug
 endif
 	rm ./debug
+
+profile-compilation: all.cpp
+	echo 'Compiling...'
+	$(compile) $(strip $(DEBUG_FLAGS)) -ftime-trace -c
+	echo "Go to chrome://tracing and load $(PWD)/all.json"
 
 # TODO: use PGO (profiling-guided optimization)

@@ -30,10 +30,10 @@ class Adam {
   decay_t decay2 = decay_t::p2(-lg_b2);
   T m = T::zero();
   T v = T::zero();
-  [[nodiscard]] pure auto aug_m() const -> T;
+  pure auto aug_m() const -> T;
  public:
   [[nodiscard]] auto step(T const& grad) -> T;
-  [[nodiscard]] pure auto step(T const& grad, T const& w) -> T;
+  pure auto step(T const& grad, T const& w) -> T;
 };
 
 #define ADAM_TEMPLATE                                                                                                         \

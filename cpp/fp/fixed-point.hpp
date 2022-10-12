@@ -15,11 +15,11 @@
 #include <limits>
 #include <numeric>
 #include <stdexcept>
-#include <string>
 #include <type_traits>
 
 #ifndef NDEBUG
 #include <iostream>
+#include <string>
 #endif
 
 namespace fp {
@@ -61,34 +61,36 @@ class t {
   using array = a<N, self_t>;
   template <std::uint8_t b2, std::uint8_t f2, typename u2>
   friend class t;
-  [[nodiscard]] pure static auto zero() -> self_t { return self_t{0}; }
-  [[nodiscard]] pure static auto p2(std::int8_t p) -> self_t;
-  [[nodiscard]] pure static auto unit() -> self_t { return p2(0); }
-  [[nodiscard]] explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
-  [[nodiscard]] pure static auto typestr() -> std::string;
-  [[nodiscard]] pure explicit operator bool() const { return static_cast<bool>(internal); }
-  OTHERS [[nodiscard]] pure explicit operator t<b2, f2, u2>() const;
-  OTHERS [[nodiscard]] pure auto operator==(t<b2, f2, u2> const& x) const -> bool;
-  OTHERS [[nodiscard]] pure auto operator!=(t<b2, f2, u2> const& x) const -> bool;
-  OTHERS [[nodiscard]] pure auto operator<=>(t<b2, f2, u2> const& x) const -> std::strong_ordering;
-  [[nodiscard]] pure auto operator-() const -> signed_t;
-  [[nodiscard]] pure auto operator~() const -> self_t { return self_t{~internal}; }
-  [[nodiscard]] pure auto operator|(T x) const -> self_t { return self_t{static_cast<T>(internal | x)}; }
-  [[nodiscard]] pure auto operator<<(std::uint8_t const& x) const -> self_t;
-  [[nodiscard]] pure auto operator>>(std::uint8_t const& x) const -> self_t;
+  pure static auto zero() -> self_t { return self_t{0}; }
+  pure static auto p2(std::int8_t p) -> self_t;
+  pure static auto unit() -> self_t { return p2(0); }
+  pure explicit operator bool() const { return static_cast<bool>(internal); }
+  OTHERS pure explicit operator t<b2, f2, u2>() const;
+  OTHERS pure auto operator==(t<b2, f2, u2> const& x) const -> bool;
+  OTHERS pure auto operator!=(t<b2, f2, u2> const& x) const -> bool;
+  OTHERS pure auto operator<=>(t<b2, f2, u2> const& x) const -> std::strong_ordering;
+  pure auto operator-() const -> signed_t;
+  pure auto operator~() const -> self_t { return self_t{~internal}; }
+  pure auto operator|(T x) const -> self_t { return self_t{static_cast<T>(internal | x)}; }
+  pure auto operator<<(std::uint8_t const& x) const -> self_t;
+  pure auto operator>>(std::uint8_t const& x) const -> self_t;
   INLINE auto operator<<=(std::uint8_t const& x) -> self_t& { return *this = operator<<(x); }
   INLINE auto operator>>=(std::uint8_t const& x) -> self_t& { return *this = operator>>(x); }
-  OTHERS [[nodiscard]] pure auto operator+(other_t const& x) const -> self_t;
-  OTHERS [[nodiscard]] pure auto operator-(other_t const& x) const -> self_t;
-  OTHERS [[nodiscard]] pure auto operator*(other_t const& x) const -> self_t;
-  OTHERS [[nodiscard]] pure auto operator/(other_t const& x) const -> self_t;
+  OTHERS pure auto operator+(other_t const& x) const -> self_t;
+  OTHERS pure auto operator-(other_t const& x) const -> self_t;
+  OTHERS pure auto operator*(other_t const& x) const -> self_t;
+  OTHERS pure auto operator/(other_t const& x) const -> self_t;
   OTHERS INLINE auto operator+=(other_t const& x) -> self_t& { return *this = operator+(x); }
   OTHERS INLINE auto operator-=(other_t const& x) -> self_t& { return *this = operator-(x); }
   OTHERS INLINE auto operator*=(other_t const& x) -> self_t& { return *this = operator*(x); }
   OTHERS INLINE auto operator/=(other_t const& x) -> self_t& { return *this = operator/(x); }
-  [[nodiscard]] pure auto sqrt() const -> self_t;
-  [[nodiscard]] pure auto abs() const -> self_t { return self_t{std::abs(internal)}; }
+  pure auto sqrt() const -> self_t;
+  pure auto abs() const -> self_t { return self_t{std::abs(internal)}; }
+#ifndef NDEBUG
+  [[nodiscard]] explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
+  pure static auto typestr() -> std::string;
   [[nodiscard]] auto expose() const -> std::string;
+#endif  // NDEBUG
 };
 
 #undef other_t
@@ -136,16 +138,6 @@ constexpr auto t<b, f, u>::p2(std::int8_t p) -> self_t {
   }
   return self_t{static_cast<T>(1 << dp)};
   // NOLINTEND(clang-diagnostic-shift-count-*)
-}
-
-template <std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] pure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
-  return s + static_cast<std::string>(x);
-}
-
-template <std::uint8_t b, std::uint8_t f, typename u>
-pure auto fp::t<b, f, u>::typestr() -> std::string {
-  return "fp::t<" + std::to_string(b) + ", " + std::to_string(f) + ", " + (std::is_signed_v<u> ? "signed" : "unsigned") + '>';
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
@@ -263,11 +255,6 @@ constexpr auto t<b, f, u>::operator>>(std::uint8_t const& x) const -> self_t {
 }
 
 template <std::uint8_t b, std::uint8_t f, typename u>
-auto operator<<(std::ostream& os, t<b, f, u> const& p) -> std::ostream& {
-  return os << static_cast<std::string>(p);
-}
-
-template <std::uint8_t b, std::uint8_t f, typename u>
 constexpr auto t<b, f, u>::sqrt() const -> self_t {
   // Babylonian method
   if (!*this) {
@@ -282,13 +269,32 @@ constexpr auto t<b, f, u>::sqrt() const -> self_t {
   return x;
 }
 
+#ifndef NDEBUG
+
+template <std::uint8_t b, std::uint8_t f, typename u>
+pure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
+  return s + static_cast<std::string>(x);
+}
+
+template <std::uint8_t b, std::uint8_t f, typename u>
+pure auto fp::t<b, f, u>::typestr() -> std::string {
+  return "fp::t<" + std::to_string(b) + ", " + std::to_string(f) + ", " + (std::is_signed_v<u> ? "signed" : "unsigned") + '>';
+}
+
+template <std::uint8_t b, std::uint8_t f, typename u>
+auto operator<<(std::ostream& os, t<b, f, u> const& p) -> std::ostream& {
+  return os << static_cast<std::string>(p);
+}
+
 template <std::uint8_t b, std::uint8_t f, typename u>
 auto t<b, f, u>::expose() const -> std::string {
   return operator std::string() + " [" + std::to_string(b) + 'b' + std::to_string(f) + "f:" + std::to_string(internal) + "]";
 }
 
+#endif  // NDEBUG
+
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
+pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
@@ -298,7 +304,7 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
+pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
@@ -308,7 +314,7 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
+pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
@@ -318,7 +324,7 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 }
 
 template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename u>
-[[nodiscard]] pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
+pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
   for (std::size_t i = 0; i < N; ++i) {
@@ -329,9 +335,9 @@ template <typename func, std::size_t N, std::uint8_t b, std::uint8_t f, typename
 
 // clang-format off
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
-#define  UNARY_OP(...) [[nodiscard]] pure auto operator __VA_ARGS__(               ) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this   ); }
-#define BINARY_OP(...) [[nodiscard]] pure auto operator __VA_ARGS__(self_t const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); } \
-                       [[nodiscard]] pure auto operator __VA_ARGS__(fp_t   const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); }
+#define  UNARY_OP(...) pure auto operator __VA_ARGS__(               ) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this   ); }
+#define BINARY_OP(...) pure auto operator __VA_ARGS__(self_t const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); } \
+                       pure auto operator __VA_ARGS__(fp_t   const& x) const -> self_t { return foreach<fp_t::operator __VA_ARGS__>(*this, x); }
 #define OTHER_TEMPLATE template <std::uint8_t b2, std::uint8_t f2, typename u2>
 // NOLINTEND(cppcoreguidelines-macro-usage)
 // clang-format on
@@ -345,19 +351,19 @@ class a<N, t<b, f, u>> {
   arr_t internal;
  public:
   constexpr a(std::initializer_list<fp_t>&& li) NOX;
-  OTHER_TEMPLATE [[nodiscard]] pure explicit operator a<N, t<b2, f2, u2>>() const;
-  [[nodiscard]] pure auto begin() noexcept -> fp_t* { return internal.begin(); }
-  [[nodiscard]] pure auto end() noexcept -> fp_t* { return internal.end(); }
-  [[nodiscard]] pure auto begin() const noexcept -> fp_t const* { return internal.begin(); }
-  [[nodiscard]] pure auto end() const noexcept -> fp_t const* { return internal.end(); }
-  [[nodiscard]] pure auto operator[](std::size_t i) -> fp_t&;
-  [[nodiscard]] pure static auto zero() -> self_t;
+  OTHER_TEMPLATE pure explicit operator a<N, t<b2, f2, u2>>() const;
+  pure auto begin() noexcept -> fp_t* { return internal.begin(); }
+  pure auto end() noexcept -> fp_t* { return internal.end(); }
+  pure auto begin() const noexcept -> fp_t const* { return internal.begin(); }
+  pure auto end() const noexcept -> fp_t const* { return internal.end(); }
+  pure auto operator[](std::size_t i) -> fp_t&;
+  pure static auto zero() -> self_t;
   template <std::size_t i>
-  [[nodiscard]] pure static auto unit() -> self_t;
-  [[nodiscard]] pure explicit operator bool() const;
-  [[nodiscard]] pure auto r2() const -> fp_t;
-  [[nodiscard]] pure auto r() const -> fp_t { return r2().sqrt(); }
-  [[nodiscard]] pure auto sqrt() const -> self_t;
+  pure static auto unit() -> self_t;
+  pure explicit operator bool() const;
+  pure auto r2() const -> fp_t;
+  pure auto r() const -> fp_t { return r2().sqrt(); }
+  pure auto sqrt() const -> self_t;
   UNARY_OP(-)
   UNARY_OP(~)  //
   BINARY_OP(+) BINARY_OP(-) BINARY_OP(*) BINARY_OP(/) BINARY_OP(<<) BINARY_OP(>>)

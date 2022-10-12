@@ -48,9 +48,9 @@ class ds_t {
  public:
   // Purposefully no integer conversion ops: must intentionally take ds_t
   explicit constexpr ds_t(std::int16_t mm) noexcept;
-  [[nodiscard]] pure auto mm() const -> float { return ldexpf(internal, -lc); }
-  [[nodiscard]] pure auto meters() const -> float { return mm() * kMM2M; }
-  [[nodiscard]] pure explicit operator std::string() const;
+  pure auto mm() const -> float { return ldexpf(internal, -lc); }
+  pure auto meters() const -> float { return mm() * kMM2M; }
+  pure explicit operator std::string() const;
 };
 
 class ds2d {
@@ -59,7 +59,7 @@ class ds2d {
   ds_t y;
  public:
   explicit constexpr ds2d(std::int16_t x_mm, std::int16_t y_mm) noexcept : x{x_mm}, y{y_mm} {}
-  [[nodiscard]] pure explicit operator std::string() const;
+  pure explicit operator std::string() const;
 };
 
 constexpr ds_t::ds_t(std::int16_t mm) noexcept : internal{static_cast<std::int16_t>(mm << lc)} {
