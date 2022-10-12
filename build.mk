@@ -48,7 +48,7 @@ all.cpp:
 	echo '}' >> ./all.cpp
 	echo '#pragma clang diagnostic pop' >> ./all.cpp
 	echo '// NOLINTBEGIN(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
-	find $(SRC) -type f -name '*\.*pp' -maxdepth 2 ! -name 'leak.cpp' | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
+	find $(SRC) -type f -name '*\.*pp' ! -name 'leak.cpp' | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
 	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
 
 tidy: all.cpp
@@ -98,10 +98,10 @@ endif
 profile-compilation: all.cpp
 	echo 'Compiling all.cpp...'
 	time $(compile) $(strip $(DEBUG_FLAGS)) -ftime-trace -c
-	for path in $(shell find $(SRC) -type f -name '*\.*pp' -maxdepth 2); do \
+	for path in $(shell find $(SRC) -type f -name '*\.*pp' -mindepth 2); do \
 		echo; \
-		echo $$path | rev | cut -d. -f2- | cut -d/ -f1 | rev | xargs -Iname (echo name && time $(CXX) -o ./name $$path $(strip $(COMMON)) $(strip $(DEBUG_FLAGS)) -ftime-trace -c);
+		echo $$path | rev | cut -d. -f2- | cut -d/ -f1 | rev | xargs -Iname echo -n name && time $(CXX) -o ./name $$path $(strip $(COMMON)) $(strip $(DEBUG_FLAGS)) -ftime-trace -c || exit 1; \
 	done
-	echo "Go to chrome://tracing and load $(PWD)/all.json"
+	echo "Go to chrome://tracing and load $(PWD)/[file of your choice].json"
 
 # TODO: use PGO (profiling-guided optimization)
