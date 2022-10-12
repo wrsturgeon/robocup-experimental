@@ -7,6 +7,7 @@
 #include <array>
 #include <bit>
 #include <cassert>
+#include <cmath>
 #include <compare>
 #include <cstddef>
 #include <limits>
