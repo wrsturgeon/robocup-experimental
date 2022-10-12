@@ -14,9 +14,9 @@ struct cint_s {
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define BLIND_UINT(bits) std::uint##bits##_t
-#define BLIND_INT(bits)  std::int##bits##_t
-#define UINT(bits)       BLIND_UINT(bits)
-#define INT(bits)        BLIND_INT(bits)
+#define BLIND_INT(bits) std::int##bits##_t
+#define UINT(bits) BLIND_UINT(bits)
+#define INT(bits) BLIND_INT(bits)
 #define MAKE_INT(bits)                                                                                                        \
   template <>                                                                                                                 \
   struct cint_s<bits, unsigned> {                                                                                             \

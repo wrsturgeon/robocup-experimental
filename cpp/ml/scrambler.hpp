@@ -32,8 +32,8 @@ class Scrambler {
   static_assert(n, "Scrambler abits is too big for this OS");
   static constexpr std::uint8_t n_renew = kSystemBits / abits;  // # of uses per xoshiro result
   static constexpr rnd::t bitmask = n - 1;
-  rnd::t rnd_state = uninitialized<rnd::t>();
-  std::uint8_t rnd_uses_left = 0;
+  std::uint8_t rnd_uses_left = n_renew - 1;
+  rnd::t rnd_state = rnd::next();
   std::array<T, n> data = uninitialized<std::array<T, n>>();
   cint<std::bit_ceil(abits), unsigned> counter = 0;
 #ifndef NDEBUG
@@ -42,8 +42,8 @@ class Scrambler {
 };
 
 template <typename T, std::uint8_t abits>
-void Scrambler<T, abits>::prefill(T&& current) {
-  data[counter++] = std::move(current);            // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+INLINE void Scrambler<T, abits>::prefill(T&& current) {
+  data[counter++] = std::move(current);
   assert(std::bit_width(n_prefilled++) <= abits);  // WHY THE FUCK DOES THIS STOP COVERAGE WHEN IT COMES FIRST
 }
 
@@ -58,7 +58,7 @@ auto Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   }
   rnd::t const rndidx = rnd_state & bitmask;
   rnd_state >>= abits;
-  std::swap(data[rndidx], current);  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+  std::swap(data[rndidx], current);
   return std::move(current);
 }
 

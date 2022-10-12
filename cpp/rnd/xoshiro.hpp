@@ -23,11 +23,11 @@ inline constexpr std::uint8_t l1 = if32(9, 17);
 inline constexpr std::uint8_t r2 = if32(11, 45);
 
 template <std::uint8_t k>
-[[nodiscard]] INLINE static constexpr auto rotl(const t x) -> t {
+pure static auto rotl(const t x) -> t {
   return (x << k) | (x >> (kSystemBits - k));
 }
 
-[[nodiscard]] static auto next() -> t {
+[[nodiscard]] static inline auto next() -> t {
   // NOLINTBEGIN(readability-magic-numbers)
 
   static auto s = std::array<t, 4>{s1, s2, s3, s4};
@@ -50,18 +50,18 @@ template <std::uint8_t k>
   // NOLINTEND(readability-magic-numbers)
 }
 
-[[nodiscard]] static auto bit() -> bool {
-  static t state;
-  static std::uint8_t uses;
-  if (!uses) {
-    uses = kSystemBits - 1;
-    state = next();
-  } else {
-    --uses;
-  }
-  auto const rtn = static_cast<bool>(state & 1);
-  state >>= 1;
-  return rtn;
-}
+// [[nodiscard]] static auto bit() -> bool {
+//   static t state;
+//   static std::uint8_t uses;
+//   if (!uses) {
+//     uses = kSystemBits - 1;
+//     state = next();
+//   } else {
+//     --uses;
+//   }
+//   auto const rtn = static_cast<bool>(state & 1);
+//   state >>= 1;
+//   return rtn;
+// }
 
 }  // namespace rnd

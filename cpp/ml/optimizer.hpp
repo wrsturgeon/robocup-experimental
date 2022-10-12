@@ -30,10 +30,10 @@ class Adam {
   decay_t decay2 = decay_t::p2(-lg_b2);
   T m = T::zero();
   T v = T::zero();
-  [[nodiscard]] INLINE auto aug_m() const -> T;
+  pure auto aug_m() const -> T;
  public:
   [[nodiscard]] auto step(T const& grad) -> T;
-  [[nodiscard]] INLINE auto step(T const& grad, T const& w) -> T;
+  pure auto step(T const& grad, T const& w) -> T;
 };
 
 #define ADAM_TEMPLATE                                                                                                         \
@@ -47,7 +47,7 @@ class Adam {
         std::uint8_t lg_wd>
 
 ADAM_TEMPLATE
-auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
+pure auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
   if constexpr (republican) {
     return m * decay2;
   }
@@ -75,7 +75,7 @@ auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad)
 }
 
 ADAM_TEMPLATE
-auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
+pure auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
   return step(grad) + (w >> lg_wd);
 }
 
