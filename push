@@ -7,6 +7,6 @@ rm -rf ./build
 make format
 make ci
 git add --all > /dev/null 2>&1 || git add --all
-git commit -m ${MESSAGE} > /dev/null 2>&1 || git commit -m 'Updated with `./push`'
+git commit -m "${MESSAGE}" > /dev/null 2>&1 || git commit -m "${MESSAGE}"
 git push -u origin $(git branch --show-current) > /dev/null 2>&1 || git push -u origin $(git branch --show-current)
 echo 'Pushed to GitHub! Make a pull request to merge it into the codebase.'

@@ -18,8 +18,8 @@ namespace vision {
 class Lens {
  private:
   static constexpr std::size_t kNWeights = 4;
-  static constexpr std::uint8_t kWBits = 32;
-  static constexpr std::uint8_t kWFrac = kWBits + px_t::fbits - px_t::ibits;
+  static constexpr u8 kWBits = 32;
+  static constexpr u8 kWFrac = kWBits + px_t::fbits - px_t::ibits;
   using w_t = fp::t<kWBits, kWFrac, signed>;
   using warray_t = w_t::array<kNWeights>;
   warray_t w = warray_t::zero();
