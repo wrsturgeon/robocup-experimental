@@ -56,7 +56,7 @@ class ds_t {
   pure auto mm() const -> float { return ldexpf(internal, -lc); }
   pure auto meters() const -> float { return mm() * kMM2M; }
 #ifndef NDEBUG
-  strpure explicit operator std::string() const;
+  impure explicit operator std::string() const;
 #endif  // NDEBUG
 };
 
@@ -67,27 +67,35 @@ class ds2d {
  public:
   explicit constexpr ds2d(i16 x_mm, i16 y_mm) noexcept : x{x_mm}, y{y_mm} {}
 #ifndef NDEBUG
-  strpure explicit operator std::string() const;
+  impure explicit operator std::string() const;
 #endif  // NDEBUG
 };
 
-constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} { assert((internal >> lc) == mm); }
+constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} {
+  assert((internal >> lc) == mm);
+}
 
 #ifndef NDEBUG
 
-strpure ds_t::operator std::string() const { return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm'; }
+impure ds_t::operator std::string() const {
+  return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm';
+}
 
-strpure static auto operator+(std::string const& s, ds_t const& p) -> std::string { return s + static_cast<std::string>(p); }
+impure static auto operator+(std::string const& s, ds_t const& p) -> std::string {
+  return s + static_cast<std::string>(p);
+}
 
-// strpure static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p);
+// impure static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p);
 // }
 
-strpure ds2d::operator std::string() const { return std::string{'('} + x + " x, " + y + " y)"; }
+impure ds2d::operator std::string() const {
+  return std::string{'('} + x + " x, " + y + " y)";
+}
 
-// strpure static auto operator+(std::string const& s, ds2d const& p) -> std::string { return s + static_cast<std::string>(p);
+// impure static auto operator+(std::string const& s, ds2d const& p) -> std::string { return s + static_cast<std::string>(p);
 // }
 
-// strpure static auto operator<<(std::ostream& os, ds2d const& p) -> std::ostream& { return os << static_cast<std::string>(p);
+// impure static auto operator<<(std::ostream& os, ds2d const& p) -> std::ostream& { return os << static_cast<std::string>(p);
 // }
 
 #endif  // NDEBUG

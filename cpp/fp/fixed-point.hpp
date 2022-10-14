@@ -85,9 +85,9 @@ class t {
   pure auto sqrt() const -> self_t;
   pure auto abs() const -> t<b, f, unsigned> { return t<b, f, unsigned>{std::abs(internal)}; }
 #ifndef NDEBUG
-  strpure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
-  strpure static auto typestr() -> std::string;
-  strpure auto expose() const -> std::string;
+  impure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
+  impure static auto typestr() -> std::string;
+  impure auto expose() const -> std::string;
 #endif  // NDEBUG
 };
 
@@ -270,22 +270,22 @@ constexpr auto t<b, f, u>::sqrt() const -> self_t {
 #ifndef NDEBUG
 
 template <u8 b, u8 f, typename u>
-strpure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
+impure auto operator+(std::string const& s, fp::t<b, f, u> const& x) -> std::string {
   return s + static_cast<std::string>(x);
 }
 
 template <u8 b, u8 f, typename u>
-strpure auto fp::t<b, f, u>::typestr() -> std::string {
+impure auto fp::t<b, f, u>::typestr() -> std::string {
   return "fp::t<" + std::to_string(b) + ", " + std::to_string(f) + ", " + (std::is_signed_v<u> ? "signed" : "unsigned") + '>';
 }
 
 template <u8 b, u8 f, typename u>
-strpure auto operator<<(std::ostream& os, t<b, f, u> const& p) -> std::ostream& {
+impure auto operator<<(std::ostream& os, t<b, f, u> const& p) -> std::ostream& {
   return os << static_cast<std::string>(p);
 }
 
 template <u8 b, u8 f, typename u>
-strpure auto t<b, f, u>::expose() const -> std::string {
+impure auto t<b, f, u>::expose() const -> std::string {
   return operator std::string() + " [" + std::to_string(b) + 'b' + std::to_string(f) + "f:" + std::to_string(internal) + "]";
 }
 

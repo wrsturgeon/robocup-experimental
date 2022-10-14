@@ -9,6 +9,8 @@
 
 namespace vision {
 
-[[nodiscard]] constexpr auto projection_loss() -> px2d { return px2d::zero(); }
+[[nodiscard]] constexpr auto projection_loss() -> px2d {
+  return px2d::zero();
+}
 
 }  // namespace vision

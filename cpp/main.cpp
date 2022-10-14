@@ -1,3 +1,4 @@
+#include "img/io.hpp"
 #include "util/ints.hpp"
 #include "util/units.hpp"
 #include "vision/pyramid.hpp"
@@ -16,18 +17,29 @@ auto main() -> int {
   assert((vision::Pyramid<1, 1>{~Array<1, 1>::Constant(42)} >> 1)(0, 0) == 106);
   assert((~vision::Pyramid<2, 2>{~Array<2, 2>::Zero()}.dn)(0, 0) == 0);
   assert((~vision::Pyramid<2, 2>{~Array<2, 2>::Constant(255)}.dn)(0, 0) == 255);
-  int x, y, n;
-  u8* im = stbi_load("../img/blurred.png", &x, &y, &n, 3);
-  if (!im) {
-    std::cerr << stbi_failure_reason() << std::endl;
+  // int x, y, n;
+  // u8* im = stbi_load("../img/blurred.png", &x, &y, &n, 3);
+  // if (!im) {
+  //   std::cerr << stbi_failure_reason() << std::endl;
+  //   return 1;
+  // }
+  // assert(n == 3);
+  // assert(x == kImageW);
+  // assert(y == kImageH);
+  // // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  // auto d = (((ChannelMap{im} >> 1) + (ChannelMap{im + 2} >> 1)) >> 1) + (ChannelMap{im + 1} >> 1);
+  // std::cout << d << std::endl;
+  // stbi_image_free(im);
+#ifndef NDEBUG
+  try {
+#endif  // NDEBUG
+    auto im = img::t<3>{"../img/blurred.png"};
+    std::cout << ((((im[0] >> 1) + (im[2] >> 1)) >> 1) + (im[1] >> 1)) << std::endl;
+#ifndef NDEBUG
+  } catch (std::runtime_error const& e) {
+    std::cerr << e.what() << std::endl;
     return 1;
   }
-  assert(n == 3);
-  assert(x == kImageW);
-  assert(y == kImageH);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  auto d = (((ChannelMap{im} >> 1) + (ChannelMap{im + 2} >> 1)) >> 1) + (ChannelMap{im + 1} >> 1);
-  std::cout << d << std::endl;
-  stbi_image_free(im);
+#endif  // NDEBUG
   return 0;
 }

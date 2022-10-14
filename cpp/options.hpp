@@ -43,7 +43,7 @@ inline constexpr std::uint16_t kNaoHeightMM = 500;  // TODO(wrsturgeon): ROUGH E
 
 #define INLINE [[gnu::always_inline]] inline constexpr
 #define pure [[nodiscard]] INLINE
-#define strpure [[nodiscard]] [[gnu::always_inline]] inline  // not constexpr since std::string for whatever reason isn't
+#define impure [[nodiscard]] [[gnu::always_inline]] inline  // not constexpr since std::string for whatever reason isn't
 
 #ifdef NDEBUG
 #define NOX noexcept

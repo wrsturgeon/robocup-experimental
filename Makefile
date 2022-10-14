@@ -10,7 +10,7 @@ FORMAT := find ./cpp -type f -iname '*.*pp' | xargs clang-format --style=file
 release tidy debug profile-compilation: | check submodules build/Makefile
 	cd ./build && make $(@)
 
-ci: check debug tidy profile-compilation
+ci: check debug tidy profile-compilation release
 
 format:
 	echo 'Formatting code...'

@@ -47,4 +47,6 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE RShiftReturnType const operator>>(Scalar c
 
 using BitInvReturnType = CwiseUnaryOp<scalar_bitinv_op<Scalar>, Derived const>;
 
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE BitInvReturnType const operator~() const { return BitInvReturnType(derived()); }
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE BitInvReturnType const operator~() const {
+  return BitInvReturnType(derived());
+}
