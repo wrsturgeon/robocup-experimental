@@ -26,7 +26,7 @@ auto main() -> int {
   assert(x == kImageW);
   assert(y == kImageH);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  auto d = (((ChannelMap{im} >> 1) + (ChannelMap{im + (kImageArea << 1)} >> 1)) >> 1) + (ChannelMap{im + kImageArea} >> 1);
+  auto d = (((ChannelMap{im} >> 1) + (ChannelMap{im + 2} >> 1)) >> 1) + (ChannelMap{im + 1} >> 1);
   std::cout << d << std::endl;
   stbi_image_free(im);
   return 0;

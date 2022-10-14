@@ -95,7 +95,7 @@ strpure ds2d::operator std::string() const { return std::string{'('} + x + " x, 
 template <imsize_t W, imsize_t H>
 using Array = Eigen::Array<u8, H, W, ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
 using ChannelArray = Array<kImageW, kImageH>;
-using ChannelMap = Eigen::Map<ChannelArray>;
+using ChannelMap = Eigen::Map<ChannelArray, 0, Eigen::InnerStride<3>>;
 
 template <imsize_t W, imsize_t H, imsize_t C>
 using Tensor = Eigen::TensorFixedSize<u8, Eigen::Sizes<C, H, W>, Eigen::RowMajor>;
