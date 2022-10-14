@@ -92,7 +92,14 @@ strpure ds2d::operator std::string() const { return std::string{'('} + x + " x, 
 
 #endif  // NDEBUG
 
-template <imsize_t w, imsize_t h>
-using Array = Eigen::Array<u8, h, w, ((w == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
-using ImageArray = Array<kImageW, kImageH>;
-using ImageMap = Eigen::Map<ImageArray>;
+template <imsize_t W, imsize_t H>
+using Array = Eigen::Array<u8, H, W, ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
+using ChannelArray = Array<kImageW, kImageH>;
+using ChannelMap = Eigen::Map<ChannelArray>;
+
+template <imsize_t W, imsize_t H, imsize_t C>
+using Tensor = Eigen::TensorFixedSize<u8, Eigen::Sizes<C, H, W>, Eigen::RowMajor>;
+template <imsize_t C>
+using ImageTensor = Tensor<kImageW, kImageH, C>;
+template <imsize_t C>
+using ImageMap = Eigen::TensorMap<ImageTensor<C>>;

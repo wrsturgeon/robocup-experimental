@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <type_traits>
 
+// TODO(wrsturgeon): implement pyramid constructor from image filepath, collapse to one channel and bit-invert
+
 namespace vision {
 
 using dtype = u8;
