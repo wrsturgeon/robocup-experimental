@@ -98,13 +98,13 @@ template <u8 b1, u8 f1, typename u1>
 template <u8 b2, u8 f2, typename u2>
 constexpr t<b1, f1, u1>::operator t<b2, f2, u2>() const {
   using rtn_t = t<b2, f2, u2>;
+  constexpr i8 df = f2 - f1;
 #ifndef NDEBUG
   if constexpr (std::is_signed_v<u1> && std::is_unsigned_v<u2>) {
     if (internal < 0) {
       throw std::out_of_range{"Can't convert (negative) " + expose() + " to (unsigned) " + rtn_t::typestr()};
     }
   }
-  constexpr i8 df = f2 - f1;
   constexpr i8 ibit_loss = self_t::ibits - rtn_t::ibits;
   if constexpr (ibit_loss > 0) {
     if (((internal < 0) ? ~internal : internal) >> (b1 - ibit_loss)) {
@@ -122,18 +122,12 @@ constexpr t<b1, f1, u1>::operator t<b2, f2, u2>() const {
 template <u8 b, u8 f, typename u>
 constexpr auto t<b, f, u>::p2(i8 p) -> self_t {
 #ifndef NDEBUG
-  if (b - f - std::is_signed_v<u> <= p) {
-    throw std::out_of_range{"Can't store 2^p: overflow"};
-  }
-  if (p < -f) {
-    throw std::out_of_range{"Initializing an t<...> with a (literally) vanishingly small power of 2"};
-  }
+  if (b - f - std::is_signed_v<u> <= p) { throw std::out_of_range{"Can't store 2^p: overflow"}; }
+  if (p < -f) { throw std::out_of_range{"Initializing an t<...> with a (literally) vanishingly small power of 2"}; }
 #endif  // NDEBUG
   auto dp = p + f;
   // NOLINTBEGIN(clang-diagnostic-shift-count-*)
-  if (dp < 0) {
-    return self_t{static_cast<T>(1 >> -dp)};
-  }
+  if (dp < 0) { return self_t{static_cast<T>(1 >> -dp)}; }
   return self_t{static_cast<T>(1 << dp)};
   // NOLINTEND(clang-diagnostic-shift-count-*)
 }
@@ -163,9 +157,7 @@ constexpr auto t<b, f, u>::operator-() const -> signed_t {
       throw std::out_of_range{"Can't negate " + expose() + ": overflow"};
     }
   } else {
-    if (internal == std::numeric_limits<T>::min()) {
-      throw std::out_of_range{"Can't negate " + expose() + ": overflow"};
-    }
+    if (internal == std::numeric_limits<T>::min()) { throw std::out_of_range{"Can't negate " + expose() + ": overflow"}; }
   }
 #endif  // NDEBUG
   return signed_t{static_cast<std::make_signed_t<T>>(-internal)};
@@ -178,11 +170,9 @@ constexpr auto t<b1, f1, u1>::operator+(t<b2, f2, u2> const& x) const -> self_t 
 #ifndef NDEBUG
   using uT = std::make_unsigned_t<T>;
   // inrange: e.g. for 8b signed ints, it's [-128, 127] + 128 -> [0, 255]
-  uT const inrange = ifc<
-        std::is_unsigned_v<u1>>(static_cast<uT>(internal), static_cast<uT>(internal ^ static_cast<T>(1U << (b1 - 1))));
-  if (x.internal < 0) {
-    return operator-(-x);
-  }  // should be optimized away if y is unsigned
+  uT const inrange = ifc<std::is_unsigned_v<u1>>(
+        static_cast<uT>(internal), static_cast<uT>(internal ^ static_cast<T>(1U << (b1 - 1))));
+  if (x.internal < 0) { return operator-(-x); }  // should be optimized away if y is unsigned
   if (static_cast<uT>(y.internal) > static_cast<uT>(~inrange)) {
     throw std::out_of_range{"Evaluating (" + expose() + " + " + y.expose() + ") into an " + typestr() + " will overflow"};
   }
@@ -197,11 +187,9 @@ constexpr auto t<b1, f1, u1>::operator-(t<b2, f2, u2> const& x) const -> self_t 
 #ifndef NDEBUG
   using uT = std::make_unsigned_t<T>;
   // inrange: e.g. for 8b signed ints, it's [-128, 127] + 128 -> [0, 255]
-  auto const inrange = ifc<
-        std::is_unsigned_v<u1>>(static_cast<uT>(internal), static_cast<uT>(internal ^ static_cast<T>(1U << (b1 - 1))));
-  if (x.internal < 0) {
-    return operator+(-x);
-  }  // should be optimized away if y is unsigned
+  auto const inrange = ifc<std::is_unsigned_v<u1>>(
+        static_cast<uT>(internal), static_cast<uT>(internal ^ static_cast<T>(1U << (b1 - 1))));
+  if (x.internal < 0) { return operator+(-x); }  // should be optimized away if y is unsigned
   if (static_cast<uT>(y.internal) > inrange) {
     throw std::out_of_range{"Evaluating (" + expose() + " - " + y.expose() + ") into an " + typestr() + " will overflow"};
   }
@@ -230,9 +218,7 @@ template <u8 b1, u8 f1, typename u1>
 template <u8 b2, u8 f2, typename u2>
 constexpr auto t<b1, f1, u1>::operator/(t<b2, f2, u2> const& x) const -> self_t {
 #ifndef NDEBUG
-  if (!x) {
-    throw std::out_of_range{"Division by zero"};
-  }
+  if (!x) { throw std::out_of_range{"Division by zero"}; }
   // TODO(wrsturgeon)
   // assert(
   //       static_cast<T>((static_cast<full_t>(internal) << f) / x.internal) ==
@@ -255,15 +241,11 @@ constexpr auto t<b, f, u>::operator>>(u8 const& x) const -> self_t {
 template <u8 b, u8 f, typename u>
 constexpr auto t<b, f, u>::sqrt() const -> self_t {
   // Babylonian method
-  if (!*this) {
-    return self_t::zero();
-  }
+  if (!*this) { return self_t::zero(); }
   self_t x = *this;
   constexpr u8 N = std::bit_width<u8>(b);
 #pragma unroll
-  for (u8 i = 0; i < N; ++i) {
-    x = ((x + ((*this) / x)) >> 1);
-  }
+  for (u8 i = 0; i < N; ++i) { x = ((x + ((*this) / x)) >> 1); }
   return x;
 }
 
@@ -295,9 +277,7 @@ template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = func(x[i]);
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = func(x[i]); }
   return r;
 }
 
@@ -305,9 +285,7 @@ template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = func(x[i], y[i]);
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = func(x[i], y[i]); }
   return r;
 }
 
@@ -315,9 +293,7 @@ template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (a<N, t<b, f, u>> const& x, t<b, f, u> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = func(x[i], y);
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = func(x[i], y); }
   return r;
 }
 
@@ -325,9 +301,7 @@ template <typename func, std::size_t N, u8 b, u8 f, typename u>
 pure auto foreach (t<b, f, u> const& x, a<N, t<b, f, u>> const& y) -> a<N, t<b, f, u>> {
   auto r = uninitialized<a<N, t<b, f, u>>>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = func(x, y[i]);
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = func(x, y[i]); }
   return r;
 }
 
@@ -374,9 +348,7 @@ class a<N, t<b, f, u>> {
 template <std::size_t N, u8 b, u8 f, typename u>
 constexpr a<N, t<b, f, u>>::a(std::initializer_list<fp_t>&& li) NOX : internal{uninitialized<arr_t>()} {
 #ifndef NDEBUG
-  if (li.size() != N) {
-    throw std::invalid_argument("Initializer list size does not match array size");
-  }
+  if (li.size() != N) { throw std::invalid_argument("Initializer list size does not match array size"); }
 #endif
   std::copy(li.begin(), li.end(), this->begin());
 }
@@ -411,9 +383,7 @@ template <u8 b2, u8 f2, typename u2>
 constexpr a<N, t<b, f, u>>::operator a<N, t<b2, f2, u2>>() const {
   auto r = uninitialized<a<N, t<b2, f2, u2>>>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = static_cast<t<b2, f2, u2>>((*this)[i]);
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = static_cast<t<b2, f2, u2>>((*this)[i]); }
   return r;
 }
 
@@ -431,9 +401,7 @@ template <std::size_t N, u8 b, u8 f, typename u>
 constexpr auto a<N, t<b, f, u>>::sqrt() const -> self_t {
   auto r = uninitialized<self_t>();
 #pragma unroll
-  for (std::size_t i = 0; i < N; ++i) {
-    r[i] = (*this)[i].sqrt();
-  }
+  for (std::size_t i = 0; i < N; ++i) { r[i] = (*this)[i].sqrt(); }
   return r;
 }
 

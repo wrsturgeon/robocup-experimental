@@ -71,26 +71,18 @@ class ds2d {
 #endif  // NDEBUG
 };
 
-constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} {
-  assert((internal >> lc) == mm);
-}
+constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} { assert((internal >> lc) == mm); }
 
 #ifndef NDEBUG
 
-impure ds_t::operator std::string() const {
-  return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm';
-}
+impure ds_t::operator std::string() const { return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm'; }
 
-impure static auto operator+(std::string const& s, ds_t const& p) -> std::string {
-  return s + static_cast<std::string>(p);
-}
+impure static auto operator+(std::string const& s, ds_t const& p) -> std::string { return s + static_cast<std::string>(p); }
 
 // impure static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p);
 // }
 
-impure ds2d::operator std::string() const {
-  return std::string{'('} + x + " x, " + y + " y)";
-}
+impure ds2d::operator std::string() const { return std::string{'('} + x + " x, " + y + " y)"; }
 
 // impure static auto operator+(std::string const& s, ds2d const& p) -> std::string { return s + static_cast<std::string>(p);
 // }

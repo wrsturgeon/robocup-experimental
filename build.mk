@@ -20,13 +20,13 @@ WARNINGS := -Wall -Wextra -Weverything -Werror -pedantic-errors -Wno-c++98-compa
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
 DEBUG_FLAGS   := -O3 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -Rpass-analysis=loop-vectorize -DNDEBUG
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG
 
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
 release:
-	echo 'TODO'
+	$(CXX) -o ./run $(SRC)/main.cpp $(strip $(COMMON)) $(strip $(RELEASE_FLAGS))
 
 all.cpp:
 	echo '#pragma clang diagnostic push' > ./all.cpp
@@ -97,7 +97,7 @@ endif
 
 profile-compilation: all.cpp
 	echo 'Compiling all.cpp...'
-	time $(CXX) -o ./all ./all.cpp $(strip $(COMMON)) $(strip $(DEBUG_FLAGS)) -ftime-trace -c || exit 1
+	time $(CXX) -o ./all ./all.cpp $(strip $(COMMON)) $(strip $(RELEASE_FLAGS)) -ftime-trace -c -DPROFILING_COMPILATION || exit 1
 	for path in $(shell find $(SRC) -type f -name '*\.*pp' -mindepth 2); do \
 		echo; \
 		echo $$path | rev | cut -d. -f2- | cut -d/ -f1 | rev; \

@@ -32,9 +32,7 @@ t<C>::t(char const* const fpath) NOX {
   int w, h, c;
   data = stbi_load(fpath, &w, &h, &c, C);
 #ifndef NDEBUG
-  if (!data) {
-    throw std::runtime_error{stbi_failure_reason()};
-  }
+  if (!data) { throw std::runtime_error{stbi_failure_reason()}; }
   if ((w != static_cast<int>(kImageW)) || (h != static_cast<int>(kImageH))) {
     throw std::runtime_error{
           "Image size mismatch: supposed to be " +  //
