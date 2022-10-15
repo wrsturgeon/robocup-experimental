@@ -2,8 +2,7 @@
 
 #include <cstdint>
 
-template <std::uint8_t bits, typename is_signed>
-struct cint_s {
+template <std::uint8_t bits, typename is_signed> struct cint_s {
   static constexpr bool valid = false;
   using t = void;
   // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
@@ -24,13 +23,11 @@ struct cint_s {
 #define MAKE_INT(bits)                                                                                                        \
   using INT(bits) = INT_T(bits);                                                                                              \
   using UINT(bits) = UINT_T(bits);                                                                                            \
-  template <>                                                                                                                 \
-  struct cint_s<bits, unsigned> {                                                                                             \
+  template <> struct cint_s<bits, unsigned> {                                                                                 \
     static constexpr bool valid = true;                                                                                       \
     using t = UINT(bits);                                                                                                     \
   };                                                                                                                          \
-  template <>                                                                                                                 \
-  struct cint_s<bits, signed> {                                                                                               \
+  template <> struct cint_s<bits, signed> {                                                                                   \
     static constexpr bool valid = true;                                                                                       \
     using t = INT(bits);                                                                                                      \
   }
@@ -49,7 +46,5 @@ MAKE_INT(64);
 #undef BLIND_INT
 #undef BLIND_UINT
 
-template <std::uint8_t bits, typename is_signed = unsigned>
-using cint = typename cint_s<bits, is_signed>::t;
-template <std::uint8_t bits>
-using cint_exists = typename cint_s<bits, unsigned>::valid;
+template <std::uint8_t bits, typename is_signed = unsigned> using cint = typename cint_s<bits, is_signed>::t;
+template <std::uint8_t bits> using cint_exists = typename cint_s<bits, unsigned>::valid;

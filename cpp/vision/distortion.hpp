@@ -29,7 +29,8 @@ class Lens {
   [[nodiscard]] auto redistort(px2d p) -> px2d;
 };
 
-auto Lens::redistort(px2d p) -> px2d {
+auto
+Lens::redistort(px2d p) -> px2d {
   auto r2 = p.r2();
   auto r4 = r2 * r2;
   // return (p + p[1, 0] * w[0, 1]) / (px_t::unit() + r2 * w[2] * r4 * w[3]);

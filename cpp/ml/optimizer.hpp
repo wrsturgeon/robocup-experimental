@@ -39,13 +39,15 @@ class Adam {
 #define ADAM_TEMPLATE template <typename T, bool republican, u8 lg_lr, u8 lg_ep, u8 lg_b1, u8 lg_b2, u8 lg_wd>
 
 ADAM_TEMPLATE
-pure auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
+pure auto
+Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
   if constexpr (republican) { return m * decay2; }
   return m;
 }
 
 ADAM_TEMPLATE
-auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T {
+auto
+Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T {
   if constexpr (republican) {
     if (!decay2) { return T::zero(); }
   }
@@ -63,7 +65,8 @@ auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad)
 }
 
 ADAM_TEMPLATE
-pure auto Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
+pure auto
+Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
   return step(grad) + (w >> lg_wd);
 }
 

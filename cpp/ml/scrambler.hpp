@@ -20,8 +20,7 @@ inline constexpr u8 kMaxABits = 16;
  * Mechanism for randomizing access to ml data to temper recency bias.
  * WARNING: Not responsible for initializing, maintaining, or freeing data!
  */
-template <typename T, u8 abits = kDefaultABits>
-class Scrambler {
+template <typename T, u8 abits = kDefaultABits> class Scrambler {
  public:
   INLINE void prefill(T&& current);                       // Call EXACTLY 1<<abits times, then use store_and_recall
   [[nodiscard]] auto store_and_recall(T&& current) -> T;  // Call store_only 1<<abits times before this
@@ -41,14 +40,14 @@ class Scrambler {
 #endif
 };
 
-template <typename T, u8 abits>
-INLINE void Scrambler<T, abits>::prefill(T&& current) {
+template <typename T, u8 abits> INLINE void
+Scrambler<T, abits>::prefill(T&& current) {
   data[counter++] = std::move(current);
   assert(std::bit_width(n_prefilled++) <= abits);  // WHY THE FUCK DOES THIS STOP COVERAGE WHEN IT COMES FIRST
 }
 
-template <typename T, u8 abits>
-auto Scrambler<T, abits>::store_and_recall(T&& current) -> T {
+template <typename T, u8 abits> auto
+Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   assert(n_prefilled == n);
   if (!rnd_uses_left) {
     rnd_uses_left = n_renew - 1;

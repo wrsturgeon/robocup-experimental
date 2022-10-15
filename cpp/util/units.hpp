@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -77,7 +78,10 @@ constexpr ds_t::ds_t(i16 mm) noexcept : internal{static_cast<i16>(mm << lc)} { a
 
 impure ds_t::operator std::string() const { return std::to_string(static_cast<float>(internal >> lc) * kMM2M) + 'm'; }
 
-impure static auto operator+(std::string const& s, ds_t const& p) -> std::string { return s + static_cast<std::string>(p); }
+impure static auto
+operator+(std::string const& s, ds_t const& p) -> std::string {
+  return s + static_cast<std::string>(p);
+}
 
 // impure static auto operator<<(std::ostream& os, ds_t const& p) -> std::ostream& { return os << static_cast<std::string>(p);
 // }
@@ -92,14 +96,17 @@ impure ds2d::operator std::string() const { return std::string{'('} + x + " x, "
 
 #endif  // NDEBUG
 
-template <imsize_t W, imsize_t H>
+template <imsize_t W, imsize_t H> requires ((W > 0) and (H > 0))
 using Array = Eigen::Array<u8, H, W, ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor)>;
 using ChannelArray = Array<kImageW, kImageH>;
 using ChannelMap = Eigen::Map<ChannelArray, 0, Eigen::InnerStride<3>>;
 
 template <imsize_t W, imsize_t H, imsize_t C>
 using Tensor = Eigen::TensorFixedSize<u8, Eigen::Sizes<C, H, W>, Eigen::RowMajor>;
-template <imsize_t C>
-using ImageTensor = Tensor<kImageW, kImageH, C>;
-template <imsize_t C>
-using ImageMap = Eigen::TensorMap<ImageTensor<C>>;
+template <imsize_t C> using ImageTensor = Tensor<kImageW, kImageH, C>;
+template <imsize_t C> using ImageMap = Eigen::TensorMap<ImageTensor<C>>;
+
+template <typename T> concept EigenExpression = std::is_base_of_v<Eigen::EigenBase<T>, T> ||
+      std::is_base_of_v<Eigen::EigenBase<typename T::Derived>, typename T::Derived>;
+template <typename T, imsize_t w, imsize_t h>
+concept ArrayExpression = EigenExpression<T> && std::is_convertible_v<T, Array<w, h>>;

@@ -17,11 +17,12 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
-# AlwaysBreakAfterReturnType: TopLevelDefinitions
-# AlwaysBreakTemplateDeclarations: MultiLine
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+AlwaysBreakTemplateDeclarations: No
 BinPackArguments: false
 BinPackParameters: false
 # BreakBeforeBraces: Stroustrup
+BreakBeforeConceptDeclarations: false
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 ColumnLimit: 127 # 95
@@ -41,6 +42,12 @@ PenaltyBreakTemplateDeclaration: 0
 PenaltyIndentedWhitespace: 100000
 PenaltyReturnTypeOnItsOwnLine: 1000000
 PointerAlignment: Left
+RequiresClausePosition: WithPreceding
 QualifierAlignment: Right
 ReferenceAlignment: Pointer
 # SeparateDefinitionBlocks: Always
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: true

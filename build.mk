@@ -13,14 +13,14 @@ SRC := $(DIR)/cpp
 EXT := $(DIR)/ext
 SCT := $(DIR)/sh
 
-FLAGS := -std=gnu++20 -ftemplate-backtrace-limit=0
+FLAGS := -std=gnu++2b -ftemplate-backtrace-limit=0
 INCLUDES := -iquote $(SRC) -isystem $(EXT)/eigen -isystem $(EXT)/stb -include $(SRC)/options.hpp
 MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES) -DEIGEN_STACK_ALLOCATION_LIMIT=0
 WARNINGS := -Wall -Wextra -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O3 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -fsanitize=address -fno-common -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always -DEIGEN_INITIALIZE_MATRICES_BY_NAN
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG -DEIGEN_NO_ASSERTION_CHECKING
 
 
 

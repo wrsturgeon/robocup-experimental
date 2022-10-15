@@ -11,7 +11,8 @@
 #include <iostream>
 #include <stdexcept>
 
-auto main() -> int {
+auto
+main() -> int {
   // All these `assert`s will disappear when we compile the release code with -DNDEBUG
   assert((vision::Pyramid<1, 1>{Array<1, 1>::Constant(42)}(0, 0) == 42));
   assert((vision::Pyramid<1, 1>{Array<1, 1>::Constant(42)} >> 1)(0, 0) == 21);
@@ -34,8 +35,9 @@ auto main() -> int {
   // std::cout << d << std::endl;
   // stbi_image_free(im);
   try {
-    auto im = img::t<3>{"../img/blurred.png"};
-    std::cout << ((((im[0] >> 1) + (im[2] >> 1)) >> 1) + (im[1] >> 1)) << std::endl;
+    // auto im = img::t<3>{"../img/blurred.png"};
+    // std::cout << ((((im[0] >> 1) + (im[2] >> 1)) >> 1) + (im[1] >> 1)) << std::endl;
+    auto p = vision::Pyramid<kImageW, kImageH>{"../img/blurred.png"};
   } catch (std::runtime_error const& e) {
     std::cerr << e.what() << std::endl;
     return 1;
