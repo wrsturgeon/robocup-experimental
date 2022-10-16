@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 
 template <typename T> pure auto
 uninitialized() -> std::remove_const_t<T> {

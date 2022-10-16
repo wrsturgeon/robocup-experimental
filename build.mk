@@ -49,7 +49,7 @@ all.cpp:
 	echo '#pragma clang diagnostic pop' >> ./all.cpp
 	echo '// NOLINTBEGIN(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
 	find $(SRC) -type f -name '*\.*pp' -mindepth 2 | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
-	echo "#include "'"'"$(SRC)/main.cpp"'"' >> ./all.cpp
+	find $(SRC) -type f -name '*\.*pp' -maxdepth 1 ! -name 'leak.cpp' | sed 's/^/#include "/' | sed 's/$$/"/' >> ./all.cpp
 	echo '// NOLINTEND(bugprone-suspicious-include,llvm-include-order)' >> ./all.cpp
 
 tidy: all.cpp
