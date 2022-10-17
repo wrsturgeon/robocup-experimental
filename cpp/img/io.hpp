@@ -1,61 +1,95 @@
 #pragma once
 
 #include "util/ints.hpp"
-#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 #include "stb-image.hpp"
 
 #include <array>
 #include <cassert>
+#include <filesystem>
+#include <iostream>
 #include <stdexcept>
+#include <string>
 
 namespace img {
 
-template <u8 C> class t {
+// Best possible (but still awkward) solution for STB-Image in initializer lists
+inline int STBI_W, STBI_H, STBI_C;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+template <int H, int W, u8 C> void
+save(u8 const* const data, std::filesystem::path const& fpath) {
+  assert(fpath.extension() == ".png");
+  std::filesystem::path p = fpath;
+  if (p.is_relative()) { p = std::filesystem::current_path() / p; }
+  std::cout << "Saving " << p << "..." << std::endl;
+  stbi_write_png(p.c_str(), W, H, C, data, W * C);
+  assert(std::filesystem::exists(p));
+}
+
+template <int H, int W, u8 C, TensorExpressible<H, W, C> T> void
+save(T x, std::filesystem::path const& fpath) {
+  save<H, W, C>(x.eval().data(), fpath);
+}  // calls the above
+
+template <int H, int W, ArrayExpressible<H, W> T> void
+save(T x, std::filesystem::path const& fpath) {
+  save<H, W, 1>(x, fpath);
+}  // calls the above
+
+template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3> class t {
  private:
-  u8* data = uninitialized<u8* const>();
-  std::array<ChannelMap, C> map = uninitialized<std::array<ChannelMap, C>>();
+  u8* data;
+  using map_t = ImageMap<H, W, C>;
+  map_t map;
  public:
-  explicit t(char const* fpath);
-  t(t<C> const&) = delete;
-  auto operator=(t<C> const&) -> t<C>& = delete;
-  t(t<C>&&) = delete;
-  auto operator=(t<C>&&) -> t<C>& = delete;
+  explicit t(std::filesystem::path const& fpath);
+  t(t<H, W, C> const&) = delete;
+  auto operator=(t<H, W, C> const&) -> t<H, W, C>& = delete;
+  t(t<H, W, C>&&) = delete;
+  auto operator=(t<H, W, C>&&) -> t<H, W, C>& = delete;
   ~t() noexcept { stbi_image_free(data); }
-  pure auto operator[](u8 i) const -> ChannelMap const&;
-  pure auto collapse() const -> decltype(auto);
+  pure auto operator[](u8 i) const -> map_t const&;
+  pure auto collapse() const -> decltype(auto) requires (C == 3);
 };
 
-template <u8 C> t<C>::t(char const* const fpath) {
-  int w, h, c;
-  data = stbi_load(fpath, &w, &h, &c, C);
+template <imsize_t H, imsize_t W, u8 C>
+t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str(), &STBI_W, &STBI_H, &STBI_C, C)}, map{data} {
   if (!data) { throw std::runtime_error{stbi_failure_reason()}; }
-  if ((w != static_cast<int>(kImageW)) || (h != static_cast<int>(kImageH))) {
+  if ((STBI_W != static_cast<int>(W)) || (STBI_H != static_cast<int>(H))) {
     throw std::runtime_error{
-          "Image size mismatch: supposed to be " +  //
-          std::to_string(kImageW) + "x" + std::to_string(kImageH) + " but actually " + std::to_string(w) + "x" +
-          std::to_string(h)};
+          "Image size mismatch: supposed to be " +                          //
+          std::to_string(W) + "x" + std::to_string(H) + " but actually " +  //
+          std::to_string(STBI_W) + "x" + std::to_string(STBI_H)};
   }
-  if (c != static_cast<int>(C)) {
+  if (STBI_C != static_cast<int>(C)) {
     throw std::runtime_error{
-          "Image channel mismatch: supposed to have " + std::to_string(C) + " channels but actually has " + std::to_string(c)};
-  }
-  for (u8 i = 0; i < C; ++i) {
-    new (&map[i]) ChannelMap{data + i};  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          "Image channel mismatch: supposed to have " + std::to_string(C) + " channels but actually has " +
+          std::to_string(STBI_C)};
   }
 }
 
-template <u8 C> pure auto
-t<C>::operator[](u8 i) const -> ChannelMap const& {
+template <imsize_t H, imsize_t W, u8 C> pure auto
+t<H, W, C>::operator[](u8 i) const -> map_t const& {
   assert(i < C);
   return map[i];
 }
 
-template <u8 C> pure auto
-t<C>::collapse() const -> decltype(auto) {
-  // Return type would take up ~20 lines
-  return ~((((map[0] >> 1) + (map[2] >> 1)) >> 1) + (map[1] >> 1));
+template <imsize_t H, imsize_t W, u8 C> pure auto
+t<H, W, C>::collapse() const -> decltype(auto) requires (C == 3)
+{
+  // Writing out the return type would take ~20 lines
+  // Alternative is to force evaluation which defeats the point of using Eigen
+  // So decltype(auto) it is
+  //
+  // TODO(wrsturgeon): Should we prioritize green or penalize it?
+  using Eigen::placeholders::all;
+#define COLLAPSE_OP ~((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
+  using PreReshape = decltype(COLLAPSE_OP);
+  img::save<H, W, C>(data, std::filesystem::current_path() / "PRECOLLAPSE.png");
+  img::save<H, W>(
+        Eigen::Reshaped<PreReshape, H, W, Eigen::RowMajor>(COLLAPSE_OP), std::filesystem::current_path() / "POSTCOLLAPSE.png");
+  return Eigen::Reshaped<PreReshape, H, W, Eigen::RowMajor>(COLLAPSE_OP);
 }
 
 }  // namespace img
