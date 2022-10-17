@@ -24,9 +24,9 @@ pure auto min_pool(T const& arr) -> decltype(auto) {
   using Eigen::placeholders::all;
   static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
   static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
-  auto tmp = arr(all, seqN(1, hw, 2)).min(arr(all, seqN(1, hw, 2)));
+  auto tmp = arr(all, seqN(0, hw, 2)).min(arr(all, seqN(1, hw, 2)));
   // TODO(wrsturgeon): why isn't this actually taking the minimum???
-  return tmp(seqN(1, hh, 2), all).min(tmp(seqN(1, hh, 2), all));
+  return tmp(seqN(0, hh, 2), all).min(tmp(seqN(1, hh, 2), all));
 }
 
 #define LAYER_BASE Array<h, w>
