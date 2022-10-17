@@ -8,6 +8,7 @@
 #include "util/units.hpp"
 
 #include <cassert>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
@@ -35,10 +36,11 @@ main() -> int {
   // std::cout << d << std::endl;
   // stbi_image_free(im);
   try {
-    // auto im = img::t<3>{"../img/blurred.png"};
+    // auto im = img::t{"../img/blurred.png"};
     // std::cout << ((((im[0] >> 1) + (im[2] >> 1)) >> 1) + (im[1] >> 1)) << std::endl;
-    auto p = vision::Pyramid<kImageW, kImageH>{"../img/blurred.png"};
-  } catch (std::runtime_error const& e) {
+    auto p = vision::Pyramid<kImageH, kImageW>{"../img/blurred.png"};
+    p.save(std::filesystem::current_path() / "_PYRAMID");  // WHAT THE FUCK THIS OPERATOR/ IS SO COOL WHAT
+  } catch (std::exception const& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }

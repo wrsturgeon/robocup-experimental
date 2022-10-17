@@ -9,70 +9,83 @@
 
 #include "eigen.hpp"
 
+#include <filesystem>
 #include <stdexcept>
 #include <type_traits>
-
-// TODO(wrsturgeon): implement pyramid constructor from image filepath, collapse to one channel and bit-invert
 
 namespace vision {
 
 using dtype = u8;
 
-template <EigenExpression T> requires ((T::RowsAtCompileTime > 1) and (T::ColsAtCompileTime > 1))
-pure auto max_pool(T const& arr) -> decltype(auto) {
+template <EigenExpressible T> requires ((T::RowsAtCompileTime > 1) and (T::ColsAtCompileTime > 1))
+pure auto min_pool(T const& arr) -> decltype(auto) {
   // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
   using Eigen::seqN;
   using Eigen::placeholders::all;
-  static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
   static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
-  auto tmp = arr(all, seqN(1, hw, 2)).max(arr(all, seqN(1, hw, 2)));
-  return tmp(seqN(1, hh, 2), all).max(tmp(seqN(1, hh, 2), all));
+  static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
+  auto tmp = arr(all, seqN(1, hw, 2)).min(arr(all, seqN(1, hw, 2)));
+  // TODO(wrsturgeon): why isn't this actually taking the minimum???
+  return tmp(seqN(1, hh, 2), all).min(tmp(seqN(1, hh, 2), all));
 }
 
-template <imsize_t w, imsize_t h>  //
-class Layer : public Array<w, h> {
+#define LAYER_BASE Array<h, w>
+template <imsize_t h, imsize_t w>  //
+class Layer : public LAYER_BASE {
  public:
-  using Derived = Array<w, h>;
-  template <ArrayExpression<w, h> T> constexpr explicit Layer(T const& src) noexcept : Derived{src} {}
+  using Derived = LAYER_BASE;
+#undef LAYER_BASE
+  using self_t = Layer<h, w>;
+  template <ArrayExpressible<h, w> T> constexpr explicit Layer(T const& src) noexcept : Derived{src} {}
 #ifndef NDEBUG
-  constexpr explicit Layer(char const* fpath) requires (w == kImageW && h == kImageH);
+  explicit Layer(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
 #endif
-  // pure auto operator()(pxint_t x, pxint_t y) const -> decltype(auto);
-  // TODO(wrsturgeon): consider using (fractional) px_t / px2d above
 };
 
 struct bullshit {};
 
-template <imsize_t w, imsize_t h> class Pyramid : public Layer<w, h> {
+template <imsize_t h, imsize_t w> class Pyramid : public Layer<h, w> {
  private:
-  static constexpr imsize_t hw = (w >> 1);
   static constexpr imsize_t hh = (h >> 1);
+  static constexpr imsize_t hw = (w >> 1);
  public:
   // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
-  using typename Layer<w, h>::Derived;
-  template <EigenExpression T> requires ((hw > 0) and (hh > 0))
-  constexpr explicit Pyramid(T const& src) noexcept : Layer<w, h>{src}, dn{max_pool(*this)} {}
-  template <EigenExpression T> constexpr explicit Pyramid(T const& src) noexcept : Layer<w, h>{src} {}
+  using typename Layer<h, w>::Derived;
+  template <EigenExpressible T> requires ((hh > 0) and (hw > 0))
+  constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src}, dn{min_pool(*this)} {}
+  template <EigenExpressible T> constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src} {}
 #ifndef NDEBUG
-  constexpr explicit Pyramid(char const* fpath) requires (w == kImageW and h == kImageH);
+  explicit Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
+  template <bool first = true> void save(std::filesystem::path const& fpath) const;
 #endif
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  std::conditional_t<hw and hh, Pyramid<hw, hh>, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
+  std::conditional_t<hh and hw, Pyramid<hh, hw>, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
 };
 
 #ifndef NDEBUG
-template <imsize_t w, imsize_t h>
-constexpr Layer<w, h>::Layer(char const* const fpath) requires (w == kImageW and h == kImageH)
-      : Array<w, h>{img::t<3>{fpath}.collapse()} {}
-template <imsize_t w, imsize_t h>
-constexpr Pyramid<w, h>::Pyramid(char const* const fpath) requires (w == kImageW and h == kImageH)
-      : Layer<w, h>{fpath}, dn{max_pool(*this)} {}
+template <imsize_t h, imsize_t w>
+Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
+      : self_t{img::t<h, w, 3>{fpath}.collapse()} {
+  // For some reason the data in the self_t constructor is getting swapped to column-major
+  // So the image looks like it was meant to have been written to WxH but it got written to HxW
+  // TODO(wrsturgeon): so theoretically if we interpret it as column-major it would be correct
+  img::save<h, w>(*this, std::filesystem::current_path() / ("LAYER_" + std::to_string(w) + 'x' + std::to_string(h) + ".png"));
+}
+template <imsize_t h, imsize_t w>
+Pyramid<h, w>::Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
+      : Layer<h, w>{fpath}, dn{min_pool(*this)} {}
+template <imsize_t h, imsize_t w> template <bool first> void
+Pyramid<h, w>::save(std::filesystem::path const& fpath) const {
+  if constexpr (first) { std::filesystem::create_directories(fpath); }
+  img::save<h, w>(*this, fpath / (std::to_string(w) + 'x' + std::to_string(h) + ".png"));
+  if constexpr (hw and hh) { dn.template save<false>(fpath); }
+}
 #endif  // NDEBUG
 
-// template <imsize_t w, imsize_t h> constexpr auto
-// Layer<w, h>::operator()(pxint_t x, pxint_t y) const -> decltype(auto) {
+// template <imsize_t h, imsize_t w> constexpr auto
+// Layer<h, w>::operator()(pxint_t x, pxint_t y) const -> decltype(auto) {
 //   // TODO(wrsturgeon): if we go with center-0 indexing, adjust here
-//   return Array<w, h>::operator()(y, x);
+//   return Derived::operator()(y, x);
 // }
 
 }  // namespace vision

@@ -3,8 +3,7 @@
 set -eu
 
 MESSAGE="${@:-"Updated with \`./push\`"}"
-git submodule update --init --recursive --remote
-rm -rf ./build
+# git submodule update --init --recursive --remote
 make format
 make ci
 git add --all > /dev/null 2>&1 || git add --all
