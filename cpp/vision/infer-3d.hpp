@@ -3,15 +3,15 @@
 #include "vision/distortion.hpp"
 #include "vision/pyramid.hpp"
 
-#include "rnd/xoshiro.hpp"
+#include "img/types.hpp"
 
-#include "util/units.hpp"
+#include "rnd/xoshiro.hpp"
 
 namespace vision {
 
 [[nodiscard]] constexpr auto
-projection_loss() -> px2d {
-  return px2d::zero();
+projection_loss() -> img::px2d {
+  return img::px2d::zero();
 }
 
 }  // namespace vision

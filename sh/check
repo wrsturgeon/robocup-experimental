@@ -88,7 +88,7 @@ done
 for file in $(find ./cpp -mindepth 2 -type f ! -name README.md ! -path '*/legacy/*' ! -path '*/util/*')
 do
   FNAME=$(echo ${file} | rev | cut -d/ -f1 | cut -d. -f2- | rev)
-  for occurrence in $(grep -n 'class .* {' ${file} | cut -d: -f1)
+  for occurrence in $(grep -n '^class .* {' ${file} | cut -d: -f1)
   do
     line_contents=$(sed ${occurrence}'q;d' ${file})
     while ! (grep -q '};' <<< ${line_contents})

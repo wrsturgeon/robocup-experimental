@@ -2,13 +2,11 @@
 
 #include <cstdint>
 
-template <std::uint8_t bits, typename is_signed> struct cint_s {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+template <std::uint8_t bits, typename is_signed> requires (bits >= 8 and bits <= BITS)
+struct cint_s {
   static constexpr bool valid = false;
   using t = void;
-  // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-  static_assert(bits >= 8, "<8b ints unsupported");
-  static_assert(bits < BITS, ">=64b ints unsupported");
-  // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 };
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)

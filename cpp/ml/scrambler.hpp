@@ -1,7 +1,7 @@
 #pragma once
 
 #include "rnd/xoshiro.hpp"
-
+#include "util/byte-ceil.hpp"
 #include "util/uninitialized.hpp"
 
 #include <array>    // std::array
@@ -34,7 +34,7 @@ template <typename T, u8 abits = kDefaultABits> class Scrambler {
   u8 rnd_uses_left = n_renew - 1;
   rnd::t rnd_state = rnd::next();
   std::array<T, n> data = uninitialized<std::array<T, n>>();
-  cint<std::bit_ceil(abits), unsigned> counter = 0;
+  cint<byte_ceil(abits), unsigned> counter = 0;
 #ifndef NDEBUG
   std::size_t n_prefilled = 0;  // NOLINT(clang-diagnostic-padded)
 #endif
