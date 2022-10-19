@@ -7,7 +7,7 @@
 namespace ml {
 
 inline constexpr u8 kDecayTBits = 32;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
-using decay_t = fp::t<kDecayTBits, kDecayTBits, unsigned>;
+using decay_t = fp::t<kDecayTBits, 0, unsigned>;
 inline constexpr u8 kLgLRDefault = 10;  // Learning rate
 inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
@@ -25,9 +25,9 @@ template <
 class Adam {
  private:
   using self_t = Adam<T, republican, lg_lr, lg_b1, lg_b2, lg_wd, lg_ep>;
-  static constexpr decay_t ep = decay_t::p2(-lg_ep);
-  decay_t decay1 = decay_t::p2(-lg_b1);
-  decay_t decay2 = decay_t::p2(-lg_b2);
+  static constexpr decay_t ep = decay_t::p2<-lg_ep>();
+  decay_t decay1 = decay_t::p2<-lg_b1>();
+  decay_t decay2 = decay_t::p2<-lg_b2>();
   T m = T::zero();
   T v = T::zero();
   pure auto aug_m() const -> T;

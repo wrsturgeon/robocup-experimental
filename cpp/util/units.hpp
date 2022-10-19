@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
+#include "util/byte-ceil.hpp"
 #include "util/ints.hpp"
 #include "util/isqrt.hpp"
 
@@ -16,21 +17,6 @@
 #include <iostream>
 #include <string>
 #endif  // NDEBUG
-
-//%%%%%%%%%%%%%%%% Pixel positions
-
-using imsize_t = u16;
-
-inline constexpr auto kImageDiag = isqrt<imsize_t>((kImageH * kImageH) + (kImageW * kImageW));
-inline constexpr auto kLgImageDiag = static_cast<u8>(std::bit_width(std::bit_ceil(kImageDiag)));
-
-// We need to be able to represent the negative image diagonal to subtract any two points
-inline constexpr u8 kPxTBits = kLgImageDiag + 1;
-inline constexpr u8 kPxTPw2 = std::bit_ceil(kPxTBits);  // e.g. 11 -> 16
-
-using pxint_t = cint<kPxTPw2, signed>;
-using px_t = fp::t<kPxTPw2, kPxTBits, signed>;  // wiggle room for severe distortion
-using px2d = px_t::array<2>;
 
 //%%%%%%%%%%%%%%%% Physical distance
 // TODO(wrsturgeon): unfuck this (use fp<...>)
@@ -100,18 +86,19 @@ template <int H, int W> inline constexpr auto RowMajor = ((W == 1) ? Eigen::ColM
 template <int H, int W> inline constexpr auto ColMajor = ((H == 1) ? Eigen::RowMajor : Eigen::ColMajor);
 
 template <int H, int W, typename T = u8> requires ((W > 0) and (H > 0))
-using Array = Eigen::Array<T, H, W, Eigen::RowMajor>;
+using Array = Eigen::Array<T, H, W, RowMajor<H, W>>;
+template <int N, typename T = u8> using Vector = Array<N, 1, T>;  // Column vector
 
 template <int H, int W, int C, typename T = u8> using Tensor = Eigen::TensorFixedSize<T, Eigen::Sizes<H, W, C>>;
 template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> using ImageTensor = Tensor<H, W, C, T>;
 template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> requires (C > 1)
 using ImageMap = Eigen::Map<Array<H * W, C, T>>;
-template <int H = kImageH, int W = kImageW, typename T = u8> using ChannelMap = Eigen::Map<Array<H, W, T>, Eigen::RowMajor>;
+template <int H = kImageH, int W = kImageW, typename T = u8> using ChannelMap = Eigen::Map<Array<H, W, T>, RowMajor<H, W>>;
 
-template <typename T> concept EigenExpressible = std::is_base_of_v<Eigen::EigenBase<T>, T> ||
+template <typename T> concept EigenExpressible = std::is_base_of_v<Eigen::EigenBase<T>, T> or
       std::is_base_of_v<Eigen::EigenBase<typename T::Derived>, typename T::Derived>;
 template <typename T, int h, int w, typename t = u8>
 concept ArrayExpressible = EigenExpressible<T> && std::is_convertible_v<T, Array<h, w, t>>;
 template <typename T, int h, int w, int c, typename t = u8>
-concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<h, w, c, t>>) ||
+concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<h, w, c, t>>) or
       ((c == 1) && ArrayExpressible<T, h, w, t>);

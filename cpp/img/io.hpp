@@ -1,5 +1,6 @@
 #pragma once
 
+#include "img/types.hpp"
 #include "util/ints.hpp"
 #include "util/units.hpp"
 
@@ -56,7 +57,7 @@ template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3> class t {
 template <imsize_t H, imsize_t W, u8 C>
 t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str(), &STBI_W, &STBI_H, &STBI_C, C)}, map{data} {
   if (!data) { throw std::runtime_error{stbi_failure_reason()}; }
-  if ((STBI_W != static_cast<int>(W)) || (STBI_H != static_cast<int>(H))) {
+  if ((STBI_W != static_cast<int>(W)) or (STBI_H != static_cast<int>(H))) {
     throw std::runtime_error{
           "Image size mismatch: supposed to be " +                          //
           std::to_string(W) + "x" + std::to_string(H) + " but actually " +  //
