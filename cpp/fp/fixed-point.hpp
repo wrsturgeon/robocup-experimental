@@ -8,6 +8,7 @@
 #include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>

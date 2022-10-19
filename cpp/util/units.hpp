@@ -7,7 +7,6 @@
 
 #include "eigen.hpp"
 
-#include <algorithm>
 #include <bit>
 #include <cmath>
 #include <cstddef>
