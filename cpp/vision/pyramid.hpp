@@ -23,15 +23,15 @@ pure auto min_pool(T const& arr) -> decltype(auto) {
   // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
   using Eigen::seqN;
   using Eigen::placeholders::all;
-  static constexpr img::imsize_t hh = (T::RowsAtCompileTime >> 1);
-  static constexpr img::imsize_t hw = (T::ColsAtCompileTime >> 1);
+  static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
+  static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
   auto tmp = arr(all, seqN(0, hw, 2)).min(arr(all, seqN(1, hw, 2)));
   // TODO(wrsturgeon): why isn't this actually taking the minimum???
   return tmp(seqN(0, hh, 2), all).min(tmp(seqN(1, hh, 2), all));
 }
 
 #define LAYER_BASE Array<h, w>
-template <img::imsize_t h, img::imsize_t w>  //
+template <imsize_t h, imsize_t w>  //
 class Layer : public LAYER_BASE {
  public:
   using Derived = LAYER_BASE;
@@ -45,10 +45,10 @@ class Layer : public LAYER_BASE {
 
 struct bullshit {};
 
-template <img::imsize_t h, img::imsize_t w> class Pyramid : public Layer<h, w> {
+template <imsize_t h, imsize_t w> class Pyramid : public Layer<h, w> {
  private:
-  static constexpr img::imsize_t hh = (h >> 1);
-  static constexpr img::imsize_t hw = (w >> 1);
+  static constexpr imsize_t hh = (h >> 1);
+  static constexpr imsize_t hw = (w >> 1);
  public:
   // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
   using typename Layer<h, w>::Derived;
@@ -64,7 +64,7 @@ template <img::imsize_t h, img::imsize_t w> class Pyramid : public Layer<h, w> {
 };
 
 #ifndef NDEBUG
-template <img::imsize_t h, img::imsize_t w>
+template <imsize_t h, imsize_t w>
 Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
       : self_t{img::t<h, w, 3>{fpath}.collapse()} {
   // For some reason the data in the self_t constructor is getting swapped to column-major
@@ -72,10 +72,10 @@ Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) 
   // TODO(wrsturgeon): so theoretically if we interpret it as column-major it would be correct
   img::save<h, w>(*this, std::filesystem::current_path() / ("LAYER_" + std::to_string(w) + 'x' + std::to_string(h) + ".png"));
 }
-template <img::imsize_t h, img::imsize_t w>
+template <imsize_t h, imsize_t w>
 Pyramid<h, w>::Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
       : Layer<h, w>{fpath}, dn{min_pool(*this)} {}
-template <img::imsize_t h, img::imsize_t w> template <bool first> void
+template <imsize_t h, imsize_t w> template <bool first> void
 Pyramid<h, w>::save(std::filesystem::path const& fpath) const {
   if constexpr (first) { std::filesystem::create_directories(fpath); }
   img::save<h, w>(*this, fpath / (std::to_string(w) + 'x' + std::to_string(h) + ".png"));
