@@ -12,7 +12,7 @@
 namespace vision {
 
 /**
- * Class holding parameters representing the idiosyncrasies of any given camera.
+ * Simple transform to correct for lens distortion.
  * Can be manually undone & redone to verify current view against internal estimate.
  * TODO: Make these compile-time when not training, configured then saved to disk
  */

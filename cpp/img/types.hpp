@@ -7,8 +7,6 @@
 
 namespace img {
 
-using imsize_t = u16;
-
 inline constexpr auto kImageDiag = isqrt<imsize_t>((kImageH * kImageH) + (kImageW * kImageW));
 inline constexpr auto kLgImageDiag = static_cast<u8>(std::bit_width(std::bit_ceil(kImageDiag)));
 
