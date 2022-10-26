@@ -61,8 +61,7 @@ template <
 requires (all(D) or none(V))
 class a;
 
-template <FixedString Name, typename... T> requires (!sizeof...(T) or FixedPoint<std::tuple_element_t<0, std::tuple<T...>>>)
-struct op;
+template <FixedString Name, FixedPoint T1, typename... Tn> struct op;
 
 template <typename T> struct get_b_s {};
 template <typename T> constexpr inline static u8 get_b = get_b_s<T>::value;
@@ -116,28 +115,6 @@ template <FixedString Name, typename... T> struct get_f_s<op<Name, T...>> {
   static constexpr u8 value = get_f<std::tuple_element_t<0, std::tuple<T...>>>;
 };
 
-template <FixedString Name, typename... T> requires (!sizeof...(T) or FixedPoint<std::tuple_element_t<0, std::tuple<T...>>>)
-struct op {  // NOLINT(altera-struct-pack-align)
-  using argv_t = std::tuple<T const&...>;
-  argv_t argv;  // NOLINT(misc-non-private-member-variables-in-classes)
-  using arg0_t = std::decay_t<std::tuple_element_t<0, argv_t>>;
-  using rtn_t = typename arg0_t::rtn_t;
-  static constexpr u8 b = get_b<arg0_t>;
-  static constexpr u8 i = get_i<arg0_t>;
-  static constexpr u8 f = get_f<arg0_t>;
-  static constexpr bool s = get_s<arg0_t>;
-  static constexpr bool decidable = all({T::decidable...});
-  using int_t = cint<byte_ceil(b), std::conditional_t<s, signed, unsigned>>;
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  INLINE op(T const&... x) : argv{x...} {}
-  pure auto operator+() const noexcept -> rtn_t;
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  pure operator rtn_t() const noexcept { return +*this; }
-  pure operator bool() const noexcept { return +*this; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
-  template <std::size_t i> using arg_t = std::decay_t<std::tuple_element_t<i, argv_t>>;
-  template <std::size_t i> pure auto arg() const noexcept -> arg_t<i> const& { return std::get<i>(argv); }
-};
-
 template <u8 i, u8 f, i8 p> requires ((p < i) and (f + p >= 0))  // Vanishingly small (f + p < 0) rounds to zero
 pure static auto _p2() -> cint<byte_ceil(i + f), unsigned> {
   return cint<byte_ceil(i + f), unsigned>{std::size_t{1} << (f + p)};
@@ -176,24 +153,18 @@ class t {
         ((T::decidable and (V == T::V)) or !decidable) and (B == T::b) and (I == T::i) and std::is_same_v<S, typename T::s>);
 };
 
-template <u8 B, u8 I, typename S, bool D, cint<byte_ceil(B), S> V> requires (D or !V)
-template <FixedPoint T> pure auto t<B, I, S, D, V>::operator=(T&& x) noexcept -> self_t& requires (
-      ((T::decidable and (V == T::V)) or !decidable) and (B == T::b) and (I == T::i) and std::is_same_v<S, typename T::s>)  //
+template <u8 B, u8 I, typename S, bool D, cint<byte_ceil(B), S> V>
+requires (D or !V)
+         template <FixedPoint T> pure auto t<B, I, S, D, V>::operator=(T&& x) noexcept -> self_t& requires (
+               ((T::decidable and (V == T::V)) or !decidable) and (B == T::b) and (I == T::i) and
+               std::is_same_v<S, typename T::s>)  //
 {
   internal = +x;
   return *this;
 }
 
-template <typename T1, typename T2, std::size_t N>
-pure static auto arrayify(std::initializer_list<T1> const& x) -> std::array<T2, N> {
-  auto y = uninitialized<std::array<T2, N>>();
-  std::size_t i = 0;
-  for (auto const& z : x) { y[i++] = z; }
-  return y;
-}
-
-template <std::size_t N, u8 B, u8 I, typename S, std::array<bool, N> D, std::array<cint<byte_ceil(B), S>, N> V>
-requires (all(D) or none(V))
+         template <std::size_t N, u8 B, u8 I, typename S, std::array<bool, N> D, std::array<cint<byte_ceil(B), S>, N> V>
+         requires (all(D) or none(V))
 class a {
  public:
   using int_t = cint<byte_ceil(B), S>;
@@ -218,7 +189,13 @@ class a {
   friend class a;
  public:  // clang-format off
   constexpr a(arr_t const& x) : internal{x} {} // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
-  template <FixedPoint T> constexpr a(std::initializer_list<T> const& x) : internal{arrayify<T, int_t, N>(x)} {}
+  constexpr a(arr_t&& x) : internal{std::move(x)} {} // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+  // using std::forward:
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  template <FixedPoint... T> constexpr a(T&&... x) : internal{+std::forward<T>(x)...} {}
+  // template <FixedPoint T> constexpr a(std::initializer_list<T>&& x) : internal{arrayify<T, int_t, N>(std::move(x))} {}
+  // template <FixedPoint T> constexpr a(std::initializer_list<T> CONST_IF_RELEASE& x) : internal{arrayify<T, int_t, N>(x)} {}
+  // template <FixedPoint T> constexpr a(std::initializer_list<T>&& x) : internal{arrayify<T, int_t, N>(std::move(x))} {}
   constexpr a() noexcept requires decidable : internal{V} {}
   pure static auto value() noexcept -> run_t requires decidable { return run_t{V}; }
   // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
@@ -251,27 +228,9 @@ template <FixedPointArray T> pure auto a<N, B, I, S, D, V>::operator=(T&& x) noe
 
 // all overloadable operators: https://en.cppreference.com/w/cpp/language/operators
 
-// #define UNARY_PREFIX_OP(OPSYMBOL, OPNAME)                                                                                     \
-//   template <FixedPoint T> class OPNAME {                                                                                      \
-//    private:                                                                                                                   \
-//     T const& operand;                                                                                                         \
-//    public:                                                                                                                    \
-//     constexpr OPNAME(T const& x) noexcept : operand{x} {}                                                                     \
-//     pure operator decltype(auto)() const noexcept { return OPSYMBOL(+operand); }                                              \
-//     pure auto operator+() const noexcept -> decltype(auto) {                                                                  \
-//       if constexpr (T::decidable) {                                                                                           \
-//         using rtn_t = decltype(OPSYMBOL T::value());                                                                          \
-//         if constexpr (FixedPoint<rtn_t>) { return t<rtn_t::b, rtn_t::i, typename rtn_t::s, OPSYMBOL T::value()>{}; }          \
-//         static constexpr u8 bits = sizeof(rtn_t) * CHAR_BIT;                                                                  \
-//         return t<bits, bits, rtn_t, OPSYMBOL T::value()>{};                                                                   \
-//       }                                                                                                                       \
-//       return OPSYMBOL(+operand);                                                                                              \
-//     }                                                                                                                         \
-//   };                                                                                                                          \
-//   template <FixedPoint T> pure static auto operator OPSYMBOL(T const& x) noexcept -> OPNAME<T> { return {x}; }
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define UNARY_PREFIX_OP(SYMBOL, NAME)                                                                                         \
-  template <FixedPoint T> pure auto operator SYMBOL(T const& x) noexcept -> op<#NAME, T> { return {x}; }
+  template <FixedPoint T> pure auto operator SYMBOL(T CONST_IF_RELEASE& x) noexcept -> op<#NAME, T> { return {x}; }
 UNARY_PREFIX_OP(-, UnaryMinus);
 UNARY_PREFIX_OP(~, BitwiseNot);
 UNARY_PREFIX_OP(!, LogicalNot);
@@ -281,27 +240,10 @@ UNARY_PREFIX_OP(--, PreDecrement);
 
 // TODO(wrsturgeon): call and subscript operators
 
-// #define BINARY_OP_INTERNAL(OPSYMBOL, OPNAME, MODIFIER)                                                                        \
-//   template <FixedPoint lhs_t, typename rhs_t> class OPNAME {                                                                  \
-//    private:                                                                                                                   \
-//     lhs_t const& lhs;                                                                                                         \
-//     rhs_t const& rhs;                                                                                                         \
-//    public:                                                                                                                    \
-//     constexpr OPNAME(lhs_t const& a, rhs_t const& b) noexcept : lhs{a}, rhs{b} {}                                             \
-//     MODIFIER operator decltype(auto)() const noexcept { return (+lhs)OPSYMBOL(+rhs); }                                        \
-//     MODIFIER auto operator+() const noexcept -> decltype(auto) {                                                              \
-//       return ifc < lhs_t::decidable and rhs_t::decidable > ({}, (+lhs)OPSYMBOL(+rhs));                                        \
-//     }                                                                                                                         \
-//   };                                                                                                                          \
-//   template <FixedPoint lhs_t, typename rhs_t>                                                                                 \
-//   MODIFIER static auto operator OPSYMBOL(lhs_t const& a, rhs_t const& b) noexcept -> OPNAME<lhs_t, rhs_t> {                   \
-//     return {a, b};                                                                                                            \
-//   }
-// #define BINARY_OP(OPSYMBOL, OPNAME) BINARY_OP_INTERNAL(OPSYMBOL, OPNAME, pure)
-// #define BINARY_OP_DISCARD(OPSYMBOL, OPNAME) BINARY_OP_INTERNAL(OPSYMBOL, OPNAME, INLINE)
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define BINARY_OP(SYMBOL, NAME)                                                                                               \
-  template <FixedPoint A, typename B> pure auto operator SYMBOL(A const& a, B const& b) noexcept -> op<#NAME, A, B> {         \
+  template <FixedPoint A, typename B>                                                                                         \
+  pure auto operator SYMBOL(A CONST_IF_RELEASE& a, B CONST_IF_RELEASE& b) noexcept -> op<#NAME, A, B> {                       \
     return {a, b};                                                                                                            \
   }
 BINARY_OP(+, Sum);
@@ -325,29 +267,72 @@ BINARY_OP(&&, LogicalAnd);
 BINARY_OP(||, LogicalOr);
 #undef BINARY_OP
 
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define BINARY_OP_DISCARD(SYMBOL, NAME)                                                                                       \
-  template <FixedPoint A, typename B> INLINE auto operator SYMBOL(A& a, B const& b) noexcept -> op<#NAME, A, B> {             \
-    return {a, b};                                                                                                            \
-  }
-BINARY_OP_DISCARD(+=, SumAssign);
-BINARY_OP_DISCARD(-=, DifferenceAssign);
-BINARY_OP_DISCARD(*=, ProductAssign);
-BINARY_OP_DISCARD(/=, QuotientAssign);
-BINARY_OP_DISCARD(%=, RemainderAssign);
-BINARY_OP_DISCARD(^=, BitwiseXorAssign);
-BINARY_OP_DISCARD(&=, BitwiseAndAssign);
-BINARY_OP_DISCARD(|=, BitwiseOrAssign);
-BINARY_OP_DISCARD(>>=, RightShiftAssign);
-BINARY_OP_DISCARD(<<=, LeftShiftAssign);
-#undef BINARY_OP_DISCARD
+// // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+// #define BINARY_OP_DISCARD(SYMBOL, NAME) \
+//   template <FixedPoint A, typename B> INLINE auto operator SYMBOL(A& a, B CONST_IF_RELEASE& b) noexcept -> op<#NAME, A, B> {
+//   \
+//     return {a, b}; \
+//   } \
+//   template <FixedPoint A, typename B> INLINE auto operator SYMBOL(A& a, B&& b) noexcept -> op<#NAME, A, B> { \
+//     return {a, std::move(b)}; \
+//   }
+// BINARY_OP_DISCARD(+=, SumAssign);
+// BINARY_OP_DISCARD(-=, DifferenceAssign);
+// BINARY_OP_DISCARD(*=, ProductAssign);
+// BINARY_OP_DISCARD(/=, QuotientAssign);
+// BINARY_OP_DISCARD(%=, RemainderAssign);
+// BINARY_OP_DISCARD(^=, BitwiseXorAssign);
+// BINARY_OP_DISCARD(&=, BitwiseAndAssign);
+// BINARY_OP_DISCARD(|=, BitwiseOrAssign);
+// BINARY_OP_DISCARD(>>=, RightShiftAssign);
+// BINARY_OP_DISCARD(<<=, LeftShiftAssign);
+// #undef BINARY_OP_DISCARD
 
-template <FixedString Name, typename... T> requires (!sizeof...(T) or FixedPoint<std::tuple_element_t<0, std::tuple<T...>>>)
-pure auto op<Name, T...>::operator+() const noexcept -> rtn_t {
+#ifndef NDEBUG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+template <FixedString Name, FixedPoint T1, typename... Tn> struct op {  // NOLINT(altera-struct-pack-align)
+  using argv_t = std::tuple<std::decay_t<T1>, std::decay_t<Tn>...>;
+  template <std::size_t j> using arg_t = std::tuple_element_t<j, argv_t>;
+  static constexpr u8 b = get_b<T1>;
+  static constexpr u8 i = get_i<T1>;
+  static constexpr u8 f = get_f<T1>;
+  static constexpr bool s = get_s<T1>;
+  static constexpr bool decidable = T1::decidable and (Tn::decidable and ...);
+  using int_t = typename T1::int_t;
+  using rtn_t = typename T1::rtn_t;
+ private:
+  argv_t argv;  // NOLINT(misc-non-private-member-variables-in-classes)
+  template <std::size_t j> pure auto arg() const noexcept -> typename arg_t<j>::rtn_t { return +std::get<j>(argv); }
+#ifndef NDEBUG
+  bool used = false;
+#endif
+ public:
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  INLINE op(T1&& x, Tn&&... y) noexcept : argv{std::forward<T1>(x), std::forward<Tn>(y)...} {}
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  INLINE op(T1 const& x, Tn const&... y) noexcept : argv{x, y...} {}
+  pure auto operator+() CONST_IF_RELEASE noexcept -> rtn_t;
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  pure operator rtn_t() CONST_IF_RELEASE noexcept { return +*this; }
+  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+  pure operator bool() CONST_IF_RELEASE noexcept { return +*this; }
+};
+#ifndef NDEBUG
+#pragma clang diagnostic pop
+#endif
+
+template <FixedString Name, FixedPoint T1, typename... Tn> pure auto
+op<Name, T1, Tn...>::operator+() CONST_IF_RELEASE noexcept -> rtn_t {
+#ifndef NDEBUG
+  assert(!used);  // Huge waste: lazily defined expression evaluated multiple times independently. Evaluate it ahead of time.
+  used = true;
+#endif
   if constexpr ((Name == FixedString{"Sum"}) || (Name == FixedString{"Difference"})) {
     static constexpr auto ls = arg_t<1>::f - arg_t<0>::f;
-    auto normalized = ifc<(ls < 0)>(+arg<1>() >> -ls, +arg<1>() << ls);
-    return static_cast<int_t>(ifc<Name == FixedString{"Sum"}>((+arg<0>()) + normalized, (+arg<0>()) - normalized));
+    auto normalized = ifc<(ls < 0)>(arg<1>() >> -ls, arg<1>() << ls);
+    return ifc<Name == FixedString{"Sum"}>(arg<0>() + normalized, arg<0>() - normalized);
   }
   assert(false);  // unimplemented
   return rtn_t::zero();
