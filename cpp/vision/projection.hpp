@@ -11,7 +11,7 @@ inline constexpr u8 kParameterBits = 32;
 using param_t = fp::t<kParameterBits, (kParameterBits >> 1), signed>;
 template <std::size_t N> using param_array_t = fp::a<N, kParameterBits, (kParameterBits >> 1), signed>;
 
-template <imsize_t u, imsize_t v> class Projection {
+template <imsize_t u = (kImageW >> 1), imsize_t v = (kImageH >> 1)> class Projection {
  private:
   param_array_t<3> t = {param_t::zero(), param_t::zero(), param_t::zero()};  // Translation
   param_array_t<3> r = {param_t::zero(), param_t::zero(), param_t::zero()};  // Rotation

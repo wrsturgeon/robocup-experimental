@@ -45,22 +45,18 @@ class Layer : public LAYER_BASE {
 
 struct bullshit {};
 
-template <imsize_t h, imsize_t w> class Pyramid : public Layer<h, w> {
- private:
-  static constexpr imsize_t hh = (h >> 1);
-  static constexpr imsize_t hw = (w >> 1);
- public:
-  // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
-  using typename Layer<h, w>::Derived;
-  template <EigenExpressible T> requires ((hh > 0) and (hw > 0))
+template <imsize_t h, imsize_t w> struct Pyramid : public Layer<h, w> {
+  using Derived = typename Layer<h, w>::Derived;
+  template <EigenExpressible T> requires ((h > 1) and (h > 1))
   constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src}, dn{min_pool(*this)} {}
   template <EigenExpressible T> constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src} {}
 #ifndef NDEBUG
   explicit Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
-  template <bool first = true> void save(std::filesystem::path const& fpath) const;
+  void save(std::filesystem::path const& fpath) const;
 #endif
+  using dn_t = Pyramid<(h >> 1), (w >> 1)>;
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  std::conditional_t<hh and hw, Pyramid<hh, hw>, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
+  std::conditional_t<(h > 1) and (w > 1), dn_t, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
 };
 
 #ifndef NDEBUG
@@ -75,11 +71,11 @@ Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) 
 template <imsize_t h, imsize_t w>
 Pyramid<h, w>::Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
       : Layer<h, w>{fpath}, dn{min_pool(*this)} {}
-template <imsize_t h, imsize_t w> template <bool first> void
+template <imsize_t h, imsize_t w> void
 Pyramid<h, w>::save(std::filesystem::path const& fpath) const {
-  if constexpr (first) { std::filesystem::create_directories(fpath); }
+  std::filesystem::create_directories(fpath);
   img::save<h, w>(*this, fpath / (std::to_string(w) + 'x' + std::to_string(h) + ".png"));
-  if constexpr (hw and hh) { dn.template save<false>(fpath); }
+  if constexpr (hw and hh) { dn.save(fpath); }
 }
 #endif  // NDEBUG
 
