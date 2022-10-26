@@ -54,11 +54,12 @@ Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T
   m += ((grad - m) >> lg_b1);
   v += (((grad * grad) - v) >> lg_b2);
   if (decay2) {
-    v /= ~decay2;
-    decay2 -= (decay2 >> lg_b2);
+    v = v / ~decay2;
+    static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
+    decay2 = decay2 - (decay2 >> lg_b2);
     if (decay1) {
-      m /= ~decay1;
-      decay1 -= (decay1 >> lg_b1);
+      m = m / ~decay1;
+      decay1 = decay1 - (decay1 >> lg_b1);
     }
   }
   return (aug_m() >> lg_lr) / (v.sqrt() | 1);
