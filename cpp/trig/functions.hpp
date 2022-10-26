@@ -26,12 +26,12 @@ using rtn_array_t = fp::a<2, TRIG_BITS, 0, signed>;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define MAKE_TRIG_FN(NAME, RTNTYPE, ...)                                                                                      \
   pure auto NAME(u8 const x) noexcept -> RTNTYPE { return RTNTYPE{__VA_ARGS__}; }                                             \
-  template <FixedPoint T> pure auto NAME(T const x) noexcept -> RTNTYPE {                                                     \
+  template <FixedPoint T> pure auto NAME(T CONST_IF_RELEASE& x) noexcept -> RTNTYPE {                                         \
     if constexpr (T::f < 8) { return NAME(static_cast<u8>((+x) << (8 - T::f))); }                                             \
     return NAME(static_cast<u8>((+x) >> (T::f - 8)));                                                                         \
   }
 MAKE_TRIG_FN(cos, rtn_t, lookup::cos[x])
 MAKE_TRIG_FN(sin, rtn_t, lookup::sin[x])
-MAKE_TRIG_FN(exp, rtn_array_t, rtn_t{lookup::cos[x]}, rtn_t{lookup::sin[x]})
+MAKE_TRIG_FN(exp, rtn_array_t, {rtn_t{lookup::cos[x]}, rtn_t{lookup::sin[x]}})
 
 }  // namespace trig

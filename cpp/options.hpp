@@ -52,9 +52,11 @@ inline constexpr nao_h_t kNaoHeightMM = 500;  // TODO(wrsturgeon): ROUGH ESTIMAT
 #define impure [[nodiscard]] [[gnu::always_inline]] inline  // not constexpr since std::string for whatever reason isn't
 
 #ifdef NDEBUG
+#define CONST_IF_RELEASE const
 #define NOX noexcept
 #else
 #define NOX
+#define CONST_IF_RELEASE
 #endif
 
 #ifndef TRIG_BITS

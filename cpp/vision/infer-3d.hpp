@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vision/distortion.hpp"
+#include "vision/projection.hpp"
 #include "vision/pyramid.hpp"
 
 #include "img/types.hpp"
