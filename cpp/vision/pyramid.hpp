@@ -19,15 +19,14 @@ namespace vision {
 using dtype = u8;
 
 template <EigenExpressible T> requires ((T::RowsAtCompileTime > 1) and (T::ColsAtCompileTime > 1))
-pure auto min_pool(T const& arr) -> decltype(auto) {
+pure auto pool(T const& arr) -> decltype(auto) {
   // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
   using Eigen::seqN;
   using Eigen::placeholders::all;
   static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
   static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
-  auto tmp = arr(all, seqN(0, hw, 2)).min(arr(all, seqN(1, hw, 2)));
-  // TODO(wrsturgeon): why isn't this actually taking the minimum???
-  return tmp(seqN(0, hh, 2), all).min(tmp(seqN(1, hh, 2), all));
+  auto tmp = arr(all, seqN(0, hw, 2)).max(arr(all, seqN(1, hw, 2)));
+  return tmp(seqN(0, hh, 2), all).max(tmp(seqN(1, hh, 2), all));
 }
 
 #define LAYER_BASE Array<h, w>
@@ -53,7 +52,7 @@ template <imsize_t h, imsize_t w> class Pyramid : public Layer<h, w> {
   // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
   using typename Layer<h, w>::Derived;
   template <EigenExpressible T> requires ((hh > 0) and (hw > 0))
-  constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src}, dn{min_pool(*this)} {}
+  constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src}, dn{pool(*this)} {}
   template <EigenExpressible T> constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src} {}
 #ifndef NDEBUG
   explicit Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
@@ -74,7 +73,7 @@ Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) 
 }
 template <imsize_t h, imsize_t w>
 Pyramid<h, w>::Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
-      : Layer<h, w>{fpath}, dn{min_pool(*this)} {}
+      : Layer<h, w>{fpath}, dn{pool(*this)} {}
 template <imsize_t h, imsize_t w> template <bool first> void
 Pyramid<h, w>::save(std::filesystem::path const& fpath) const {
   if constexpr (first) { std::filesystem::create_directories(fpath); }
