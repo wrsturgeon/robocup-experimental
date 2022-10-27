@@ -29,56 +29,53 @@ pure auto pool(T const& arr) -> decltype(auto) {
   return tmp(seqN(0, hh, 2), all).max(tmp(seqN(1, hh, 2), all));
 }
 
-#define LAYER_BASE Array<h, w>
-template <imsize_t h, imsize_t w>  //
+#define LAYER_BASE Array<H, W>
+template <imsize_t H = kImageH, imsize_t W = kImageW>  //
 class Layer : public LAYER_BASE {
  public:
   using Derived = LAYER_BASE;
 #undef LAYER_BASE
-  using self_t = Layer<h, w>;
-  template <ArrayExpressible<h, w> T> constexpr explicit Layer(T const& src) noexcept : Derived{src} {}
+  using self_t = Layer<H, W>;
+  template <ArrayExpressible<H, W> T> constexpr explicit Layer(T const& src) noexcept : Derived{src} {}
 #ifndef NDEBUG
-  explicit Layer(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
+  explicit Layer(std::filesystem::path const& fpath) requires ((H == kImageH) and (W == kImageW));
 #endif
 };
 
 struct bullshit {};
 
-template <imsize_t h, imsize_t w> class Pyramid : public Layer<h, w> {
- private:
-  static constexpr imsize_t hh = (h >> 1);
-  static constexpr imsize_t hw = (w >> 1);
- public:
-  // TODO(wrsturgeon): Check if Gaussian blur provides noticeable benefits
-  using typename Layer<h, w>::Derived;
-  template <EigenExpressible T> requires ((hh > 0) and (hw > 0))
-  constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src}, dn{pool(*this)} {}
-  template <EigenExpressible T> constexpr explicit Pyramid(T const& src) noexcept : Layer<h, w>{src} {}
+// TODO(wrsturgeon): listen to the pack/align tidy warning
+template <imsize_t H, imsize_t W> struct Pyramid : public Layer<H, W> {  // NOLINT(altera-struct-pack-align)
+  using Derived = typename Layer<H, W>::Derived;
+  template <EigenExpressible T> requires ((H > 1) and (W > 1))
+  constexpr explicit Pyramid(T const& src) noexcept : Layer<H, W>{src}, dn{pool(*this)} {}
+  template <EigenExpressible T> constexpr explicit Pyramid(T const& src) noexcept : Layer<H, W>{src} {}
 #ifndef NDEBUG
-  explicit Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW));
-  template <bool first = true> void save(std::filesystem::path const& fpath) const;
+  explicit Pyramid(std::filesystem::path const& fpath) requires ((H == kImageH) and (W == kImageW));
+  void save(std::filesystem::path const& fpath) const;
 #endif
+  using dn_t = Pyramid<(H >> 1), (W >> 1)>;
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  std::conditional_t<hh and hw, Pyramid<hh, hw>, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
+  std::conditional_t<(H > 1) and (W > 1), dn_t, bullshit> const dn;  // downsample in O(1) (calculated once & saved)
 };
 
 #ifndef NDEBUG
-template <imsize_t h, imsize_t w>
-Layer<h, w>::Layer(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
-      : self_t{img::t<h, w, 3>{fpath}.collapse()} {
+template <imsize_t H, imsize_t W>
+Layer<H, W>::Layer(std::filesystem::path const& fpath) requires ((H == kImageH) and (W == kImageW))
+      : self_t{img::t<H, W, 3>{fpath}.collapse()} {
   // For some reason the data in the self_t constructor is getting swapped to column-major
   // So the image looks like it was meant to have been written to WxH but it got written to HxW
   // TODO(wrsturgeon): so theoretically if we interpret it as column-major it would be correct
-  img::save<h, w>(*this, std::filesystem::current_path() / ("LAYER_" + std::to_string(w) + 'x' + std::to_string(h) + ".png"));
+  img::save<H, W>(*this, std::filesystem::current_path() / ("LAYER_" + std::to_string(W) + 'x' + std::to_string(H) + ".png"));
 }
-template <imsize_t h, imsize_t w>
-Pyramid<h, w>::Pyramid(std::filesystem::path const& fpath) requires ((h == kImageH) and (w == kImageW))
-      : Layer<h, w>{fpath}, dn{pool(*this)} {}
-template <imsize_t h, imsize_t w> template <bool first> void
-Pyramid<h, w>::save(std::filesystem::path const& fpath) const {
-  if constexpr (first) { std::filesystem::create_directories(fpath); }
-  img::save<h, w>(*this, fpath / (std::to_string(w) + 'x' + std::to_string(h) + ".png"));
-  if constexpr (hw and hh) { dn.template save<false>(fpath); }
+template <imsize_t H, imsize_t W>
+Pyramid<H, W>::Pyramid(std::filesystem::path const& fpath) requires ((H == kImageH) and (W == kImageW))
+      : Layer<H, W>{fpath}, dn{pool(*this)} {}
+template <imsize_t H, imsize_t W> void
+Pyramid<H, W>::save(std::filesystem::path const& fpath) const {
+  std::filesystem::create_directories(fpath);
+  img::save<H, W>(*this, fpath / (std::to_string(W) + 'x' + std::to_string(H) + ".png"));
+  if constexpr ((H > 1) and (W > 1)) { dn.save(fpath); }
 }
 #endif  // NDEBUG
 

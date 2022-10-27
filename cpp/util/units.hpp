@@ -97,8 +97,8 @@ template <int H = kImageH, int W = kImageW, typename T = u8> using ChannelMap = 
 
 template <typename T> concept EigenExpressible = std::is_base_of_v<Eigen::EigenBase<T>, T> or
       std::is_base_of_v<Eigen::EigenBase<typename T::Derived>, typename T::Derived>;
-template <typename T, int h, int w, typename t = u8>
-concept ArrayExpressible = EigenExpressible<T> && std::is_convertible_v<T, Array<h, w, t>>;
-template <typename T, int h, int w, int c, typename t = u8>
-concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<h, w, c, t>>) or
-      ((c == 1) && ArrayExpressible<T, h, w, t>);
+template <typename T, int H, int W, typename t = u8>
+concept ArrayExpressible = EigenExpressible<T> && std::is_convertible_v<T, Array<H, W, t>>;
+template <typename T, int H, int W, int C, typename t = u8>
+concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<H, W, C, t>>) or
+      ((C == 1) && ArrayExpressible<T, H, W, t>);

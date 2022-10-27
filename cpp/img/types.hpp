@@ -7,11 +7,11 @@
 
 namespace img {
 
-inline constexpr auto kImageDiag = isqrt<imsize_t>((kImageH * kImageH) + (kImageW * kImageW));
-inline constexpr auto kLgImageDiag = static_cast<u8>(std::bit_width(std::bit_ceil(kImageDiag)));
+inline constexpr auto diag = isqrt<imsize_t>((kImageH * kImageH) + (kImageW * kImageW));
+inline constexpr auto lg_diag = static_cast<u8>(std::bit_width(std::bit_ceil(diag)));
 
 // We need to be able to represent the negative image diagonal to subtract any two points
-inline constexpr u8 kPxTBits = kLgImageDiag + 1;
+inline constexpr u8 kPxTBits = lg_diag + 1;
 inline constexpr u8 kPxTPw2 = byte_ceil(kPxTBits);  // e.g. 11 -> 16
 
 using pxint_t = cint<kPxTPw2, signed>;

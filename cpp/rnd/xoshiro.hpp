@@ -54,7 +54,7 @@ next() -> t {
 // [[nodiscard]] static auto bit() -> bool {
 //   static t state;
 //   static u8 uses;
-//   if (!uses) {
+//   if (uses == 0) {
 //     uses = kSystemBits - 1;
 //     state = next();
 //   } else {

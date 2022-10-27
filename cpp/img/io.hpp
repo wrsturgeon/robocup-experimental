@@ -18,7 +18,7 @@ namespace img {
 // Best possible (but still awkward) solution for STB-Image in initializer lists
 inline int STBI_W, STBI_H, STBI_C;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-template <int H, int W, u8 C> void
+template <imsize_t H, imsize_t W, u8 C> void
 save(u8 const* const data, std::filesystem::path const& fpath) {
   assert(fpath.extension() == ".png");
   std::filesystem::path p = fpath;
@@ -28,12 +28,12 @@ save(u8 const* const data, std::filesystem::path const& fpath) {
   assert(std::filesystem::exists(p));
 }
 
-template <int H, int W, u8 C, TensorExpressible<H, W, C> T> void
+template <imsize_t H, imsize_t W, u8 C, TensorExpressible<H, W, C> T> void
 save(T x, std::filesystem::path const& fpath) {
   save<H, W, C>(x.eval().data(), fpath);
 }  // calls the above
 
-template <int H, int W, ArrayExpressible<H, W> T> void
+template <imsize_t H, imsize_t W, ArrayExpressible<H, W> T> void
 save(T x, std::filesystem::path const& fpath) {
   save<H, W, 1>(x, fpath);
 }  // calls the above
@@ -56,7 +56,7 @@ template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3> class t {
 
 template <imsize_t H, imsize_t W, u8 C>
 t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str(), &STBI_W, &STBI_H, &STBI_C, C)}, map{data} {
-  if (!data) { throw std::runtime_error{stbi_failure_reason()}; }
+  if (data == nullptr) { throw std::runtime_error{stbi_failure_reason()}; }
   if ((STBI_W != static_cast<int>(W)) or (STBI_H != static_cast<int>(H))) {
     throw std::runtime_error{
           "Image size mismatch: supposed to be " +                          //
