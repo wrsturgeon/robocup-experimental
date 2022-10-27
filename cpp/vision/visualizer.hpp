@@ -13,13 +13,13 @@ namespace vision {
 
 template <std::size_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW> void
 display_estimate(Layer<H, W> const& im, Projection<(H >> 1), (W >> 1)> const& proj) {
-  Tensor<3, W, H> rgb;
+  Tensor<H, W, 3> rgb;
   // issues with assigning to an Eigen chip, so we'll do it manually--efficiency couldn't matter less here
   for (imsize_t y = 0; y < H; ++y) {
     for (imsize_t x = 0; x < W; ++x) {
-      rgb(0, x, y) = im(y, x);
-      rgb(1, x, y) = im(y, x);
-      rgb(2, x, y) = im(y, x);
+      rgb(y, x, 0) = im(y, x);
+      rgb(y, x, 1) = im(y, x);
+      rgb(y, x, 2) = im(y, x);
     }
   }
   for (std::size_t i = 0; i < N_samples; ++i) {
@@ -28,9 +28,9 @@ display_estimate(Layer<H, W> const& im, Projection<(H >> 1), (W >> 1)> const& pr
     std::cout << "Projecting " << Xw << " to " << uv << std::endl;
     auto u = uv[0].round();
     auto v = uv[1].round();
-    rgb(0, u, v) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    rgb(1, u, v) = 0;
-    rgb(2, u, v) = 0;
+    rgb(v, u, 0) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    rgb(v, u, 1) = 0;
+    rgb(v, u, 2) = 0;
   }
   img::save<H, W, 3>(rgb.data(), "_estimate.png");
 }
