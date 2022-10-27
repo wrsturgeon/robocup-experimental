@@ -2,6 +2,7 @@
 
 #include "rnd/xoshiro.hpp"
 
+#include "fp/fixed-point.hpp"
 #include "util/ints.hpp"
 #include "util/units.hpp"
 
@@ -69,66 +70,53 @@ inline constexpr i16 kBPen = kVPen;
 // NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTBEGIN(clang-diagnostic-sign-conversion)
 
-// [[nodiscard]] static auto sample_field_lines() -> ds2d {
-//   static constexpr u8 rnd_uses = (kSystemBits >> 4);
-//   static rnd::t rnd_state;
-//   static u8 rnd_uses_left;
-//   do {
-//     if (!rnd_uses_left) {
-//       rnd_uses_left = rnd_uses - 1;
-//       rnd_state = rnd::next();
-//     } else {
-//       --rnd_uses_left;
-//     }
-//     auto x = static_cast<u16>(rnd_state);
-//     rnd_state >>= 16;
-//     if (x < 30000) {
-//       if (x < 15000) {
-//         return (x < 6000)
-//               ? ds2d{kLEdge, static_cast<i16>(x - 3000)}
-//               : ds2d{static_cast<i16>(x - 10500), kBEdge};
-//       }
-//       return (x < 21000)
-//             ? ds2d{kREdge, static_cast<i16>(x - 18000)}
-//             : ds2d{static_cast<i16>(x - 25500), kTEdge};
-//     }
-//     if (x < 48950) {
-//       if (x < 37650) {
-//         return (x < 36000)
-//               ? ds2d{kCenter, static_cast<i16>(x - 33000)}
-//               : ds2d{static_cast<i16>(x - 40500), kTPen};
-//       }
-//       if (x < 43300) {
-//         return (x < 41650)
-//               ? ds2d{kLPen, static_cast<i16>(x - 39650)}
-//               : ds2d{static_cast<i16>(x - 46150), kBPen};
-//       }
-//       return (x < 44950)
-//             ? ds2d{static_cast<i16>(x - 40450), kTPen}
-//             : ds2d{kRPen, static_cast<i16>(x - 46950)};
-//     }
-//     if (x < 54000) {
-//       if (x < 51200) {
-//         return (x < 50600)
-//               ? ds2d{static_cast<i16>(x - 46100), kBPen}
-//               : ds2d{static_cast<i16>(x - 55100), kTGoal};
-//       }
-//       return (x < 53400)
-//             ? ds2d{kLGoal, static_cast<i16>(x - 52300)}
-//             : ds2d{static_cast<i16>(x - 57900), kBGoal};
-//     }
-//     if (x < 56800) {
-//       return (x < 54600)
-//             ? ds2d{static_cast<i16>(x - 50100), kTGoal}
-//             : ds2d{kRGoal, static_cast<i16>(x - 55700)};
-//     }
-//     if (x < 57400) {
-//       return ds2d{static_cast<i16>(x - 52900), kBGoal};
-//     }
-//     // If >= 57400, resample
-//     // TODO(wrsturgeon): consider, instead of resampling, sampling green
-//   } while (true);
-// }
+[[nodiscard]] inline static auto
+sample_field_lines() -> fp::a<3, 16, 0, signed> {
+  using rtn_t = fp::a<3, 16, 0, signed>;
+  static constexpr auto zero = fp::t<16, 0, signed>::zero();
+  static constexpr u8 rnd_uses = (kSystemBits >> 4);
+  static rnd::t rnd_state;
+  static u8 rnd_uses_left;
+  do {
+    if (rnd_uses_left == 0) {
+      rnd_uses_left = rnd_uses - 1;
+      rnd_state = rnd::next();
+    } else {
+      --rnd_uses_left;
+    }
+    auto x = static_cast<u16>(rnd_state);
+    rnd_state >>= 16;
+    if (x < 30000) {
+      if (x < 15000) {
+        return (x < 6000) ? rtn_t{kLEdge, static_cast<i16>(x - 3000), zero} : rtn_t{static_cast<i16>(x - 10500), kBEdge, zero};
+      }
+      return (x < 21000) ? rtn_t{kREdge, static_cast<i16>(x - 18000), zero} : rtn_t{static_cast<i16>(x - 25500), kTEdge, zero};
+    }
+    if (x < 48950) {
+      if (x < 37650) {
+        return (x < 36000)
+              ? rtn_t{kCenter, static_cast<i16>(x - 33000), zero}
+              : rtn_t{static_cast<i16>(x - 40500), kTPen, zero};
+      }
+      if (x < 43300) {
+        return (x < 41650) ? rtn_t{kLPen, static_cast<i16>(x - 39650), zero} : rtn_t{static_cast<i16>(x - 46150), kBPen, zero};
+      }
+      return (x < 44950) ? rtn_t{static_cast<i16>(x - 40450), kTPen, zero} : rtn_t{kRPen, static_cast<i16>(x - 46950), zero};
+    }
+    if (x < 54000) {
+      if (x < 51200) {
+        return (x < 50600) ? rtn_t{static_cast<i16>(x - 46100), kBPen, zero} : rtn_t{static_cast<i16>(x - 55100), kTGoal, zero};
+      }
+      return (x < 53400) ? rtn_t{kLGoal, static_cast<i16>(x - 52300), zero} : rtn_t{static_cast<i16>(x - 57900), kBGoal, zero};
+    }
+    if (x < 56800) {
+      return (x < 54600) ? rtn_t{static_cast<i16>(x - 50100), kTGoal, zero} : rtn_t{kRGoal, static_cast<i16>(x - 55700), zero};
+    }
+    if (x < 57400) { return rtn_t{static_cast<i16>(x - 52900), kBGoal, zero}; }
+    // If >= 57400, resample
+    // TODO(wrsturgeon): consider, instead of resampling, sampling green
+  } while (true);
+}
 
 // NOLINTEND(clang-diagnostic-sign-conversion)
 // NOLINTEND(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)

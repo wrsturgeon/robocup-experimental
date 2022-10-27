@@ -49,7 +49,7 @@ Scrambler<T, abits>::prefill(T&& current) {
 template <typename T, u8 abits> auto
 Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   assert(n_prefilled == n);
-  if (!rnd_uses_left) {
+  if (rnd_uses_left == 0) {
     rnd_uses_left = n_renew - 1;
     rnd_state = rnd::next();
   } else {

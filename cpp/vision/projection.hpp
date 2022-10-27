@@ -1,5 +1,7 @@
 #pragma once
 
+#include "img/types.hpp"
+
 #include "fp/fixed-point.hpp"
 #include "trig/functions.hpp"
 
@@ -11,12 +13,14 @@ inline constexpr u8 kParameterBits = 32;
 using param_t = fp::t<kParameterBits, (kParameterBits >> 1), signed>;
 template <std::size_t N> using param_array_t = fp::a<N, kParameterBits, (kParameterBits >> 1), signed>;
 
-template <imsize_t u = (kImageW >> 1), imsize_t v = (kImageH >> 1)> class Projection {
+inline constexpr auto focal_len_init = static_cast<param_t>(fp::from_int(img::diag));
+
+template <imsize_t v = (kImageH >> 1), imsize_t u = (kImageW >> 1)> class Projection {
  private:
-  param_array_t<3> t = {param_t::zero(), param_t::zero(), param_t::zero()};  // Translation
-  param_array_t<3> r = {param_t::zero(), param_t::zero(), param_t::zero()};  // Rotation
-  param_array_t<3> k = {param_t::unit(), param_t::unit(), param_t::zero()};  // Intrinsics
-  param_array_t<3> l = {param_t::zero(), param_t::zero(), param_t::zero()};  // Lens distortion
+  param_array_t<3> t = param_array_t<3>{param_t::zero(), param_t::zero(), param_t::unit()};  // Translation
+  param_array_t<3> r = param_array_t<3>{param_t::zero(), param_t::zero(), param_t::zero()};  // Rotation
+  param_array_t<3> k = param_array_t<3>{+focal_len_init, +focal_len_init, param_t::zero()};  // Intrinsics
+  param_array_t<3> l = param_array_t<3>{param_t::zero(), param_t::zero(), param_t::zero()};  // Lens distortion
  public:
   template <u8 B, u8 I, typename S> pure auto operator()(fp::a<3, B, I, S> const& x) const noexcept -> fp::a<2, B, I, S>;
 };
@@ -50,16 +54,16 @@ Projection<u, v>::operator()(fp::a<3, B, I, S> const& X) const noexcept -> fp::a
   auto const R33 = trig::cos(r[1]) * trig::cos(r[2]);
 
   // No projection yet, just Euclidean transformation to camera frame
-  auto const x_c = +(X[0] * R11 + X[1] * R12 + X[2] * R13 + t[0]);
-  auto const y_c = +(X[0] * R21 + X[1] * R22 + X[2] * R23 + t[1]);
-  auto const z_c = +(X[0] * R31 + X[1] * R32 + X[2] * R33 + t[2]);
+  auto const x_c = X[0] * R11 + X[1] * R12 + X[2] * R13 + t[0];
+  auto const y_c = X[0] * R21 + X[1] * R22 + X[2] * R23 + t[1];
+  auto const z_c = X[0] * R31 + X[1] * R32 + X[2] * R33 + t[2];
 
-  auto const r_sq = +((x_c.squared() + y_c.squared()) / z_c.squared());
-  auto const ld_k = +(l[2] * r_sq * r_sq * r_sq + l[1] * r_sq * r_sq + l[0] * r_sq + param_t::unit());
+  auto const r_sq = (x_c.squared() + y_c.squared()) / z_c.squared();
+  auto const ld_k = l[2] * r_sq * r_sq * r_sq + l[1] * r_sq * r_sq + l[0] * r_sq + param_t::unit();
   auto const u_ld = ld_k * u;
   auto const v_ld = ld_k * v;
 
-  return fp::a<2, B, I, S>{(k[0] * x_c + k[2] * y_c + u_ld * z_c) / z_c, (k[1] * y_c + v * z_c) / z_c};
+  return fp::a<2, B, I, S>{(x_c * k[0] + y_c * k[2] + z_c * u_ld) / z_c, (y_c * k[1] + z_c * v_ld) / z_c};
 }
 
 }  // namespace vision

@@ -1,8 +1,8 @@
 #include "vision/pyramid.hpp"
-#include "vision/visualizer.hpp"
 
 #ifndef NDEBUG
 #include "img/io.hpp"
+#include "vision/visualizer.hpp"
 #endif  // NDEBUG
 
 #include "util/ints.hpp"
@@ -41,7 +41,8 @@ main() -> int {
     // std::cout << ((((im[0] >> 1) + (im[2] >> 1)) >> 1) + (im[1] >> 1)) << std::endl;
     auto p = vision::Pyramid<kImageH, kImageW>{"../img/blurred.png"};
     p.save(std::filesystem::current_path() / "_PYRAMID");  // WHAT THE FUCK THIS OPERATOR/ IS SO COOL WHAT
-    vision::display_estimate<32>(p, vision::Projection{});
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    vision::display_estimate<32>(p, vision::Projection<(kImageH >> 1), (kImageW >> 1)>{});
   } catch (std::exception const& e) {
     std::cerr << e.what() << std::endl;
     return 1;

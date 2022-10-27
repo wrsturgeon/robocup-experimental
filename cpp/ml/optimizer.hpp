@@ -49,15 +49,15 @@ ADAM_TEMPLATE
 auto
 Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T {
   if constexpr (republican) {
-    if (!decay2) { return T::zero(); }
+    if (decay2 == decay_t::zero()) { return T::zero(); }
   }
   m += ((grad - m) >> lg_b1);
   v += (((grad * grad) - v) >> lg_b2);
-  if (decay2) {
+  if (decay2 != decay_t::zero()) {
     v = v / ~decay2;
     static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
     decay2 = decay2 - (decay2 >> lg_b2);
-    if (decay1) {
+    if (decay1 != decay_t::zero()) {
       m = m / ~decay1;
       decay1 = decay1 - (decay1 >> lg_b1);
     }
