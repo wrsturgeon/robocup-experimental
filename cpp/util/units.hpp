@@ -89,7 +89,8 @@ template <int H, int W, typename T = u8> requires ((W > 0) and (H > 0))
 using Array = Eigen::Array<T, H, W, RowMajor<H, W>>;
 template <int N, typename T = u8> using Vector = Array<N, 1, T>;  // Column vector
 
-template <int H, int W, int C, typename T = u8> using Tensor = Eigen::TensorFixedSize<T, Eigen::Sizes<H, W, C>>;
+template <int H, int W, int C, typename T = u8>
+using Tensor = Eigen::TensorFixedSize<T, Eigen::Sizes<H, W, C>, Eigen::RowMajor>;
 template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> using ImageTensor = Tensor<H, W, C, T>;
 template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> requires (C > 1)
 using ImageMap = Eigen::Map<Array<H * W, C, T>>;
