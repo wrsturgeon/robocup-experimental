@@ -7,12 +7,12 @@
 #include "img/io.hpp"
 #include "util/units.hpp"
 
-#include <iostream>
-
 namespace vision {
 
 template <std::size_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW> void
-display_estimate(Layer<H, W> const& im, Projection<(H >> 1), (W >> 1)> const& proj) {
+display_estimate(Layer<H, W> const& im, Projection const& proj) {
+  static constexpr auto vcenter = ((H + 1) >> 1);
+  static constexpr auto hcenter = ((W + 1) >> 1);
   Tensor<H, W, 3> rgb;
   // issues with assigning to an Eigen chip, so we'll do it manually--efficiency couldn't matter less here
   for (imsize_t y = 0; y < H; ++y) {
@@ -22,15 +22,19 @@ display_estimate(Layer<H, W> const& im, Projection<(H >> 1), (W >> 1)> const& pr
       rgb(y, x, 2) = im(y, x);
     }
   }
+  img::idxintdiff_t uv;
   for (std::size_t i = 0; i < N_samples; ++i) {
-    auto Xw = measure::sample_field_lines();
-    auto uv = proj(Xw);
-    std::cout << "Projecting " << Xw << " to " << uv << std::endl;
-    auto u = uv[0].round();
-    auto v = uv[1].round();
-    rgb(v, u, 0) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    rgb(v, u, 1) = 0;
-    rgb(v, u, 2) = 0;
+    // do { uv = proj(measure::sample_field_lines()); } while (std::abs(uv[1]) >= vcenter or std::abs(uv[0]) >= hcenter);
+    uv = proj(measure::sample_field_lines());
+    std::cout << "u, v = " << uv[0] << ", " << uv[1] << std::endl;
+    if (std::abs(uv[1]) < vcenter and std::abs(uv[0]) < hcenter) {
+      auto u = hcenter + uv[0];
+      auto v = vcenter + uv[1];
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+      rgb(v, u, 0) = 255;
+      rgb(v, u, 1) = 0;
+      rgb(v, u, 2) = 0;
+    }
   }
   img::save<H, W, 3>(rgb.data(), "_estimate.png");
 }

@@ -10,8 +10,11 @@
 
 #include <cassert>
 #include <filesystem>
-#include <iostream>
 #include <stdexcept>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif  // NDEBUG
 
 auto
 main() -> int {
@@ -42,7 +45,7 @@ main() -> int {
     auto p = vision::Pyramid<kImageH, kImageW>{"../img/blurred.png"};
     p.save(std::filesystem::current_path() / "_PYRAMID");  // WHAT THE FUCK THIS OPERATOR/ IS SO COOL WHAT
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    vision::display_estimate<32>(p, vision::Projection<(kImageH >> 1), (kImageW >> 1)>{});
+    vision::display_estimate<1024>(p, vision::Projection{});
   } catch (std::exception const& e) {
     std::cerr << e.what() << std::endl;
     return 1;

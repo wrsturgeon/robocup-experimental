@@ -3,11 +3,8 @@
 #include <cstdint>
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-template <std::uint8_t bits, typename is_signed> requires (bits >= 8 and bits <= BITS)
-struct cint_s {
-  static constexpr bool valid = false;
-  using t = void;
-};
+template <std::uint8_t bits, typename is_signed> requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))
+struct cint_s {};
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define BLIND_UINT_T(bits) std::uint##bits##_t
@@ -34,9 +31,7 @@ struct cint_s {
 MAKE_INT(8);
 MAKE_INT(16);
 MAKE_INT(32);
-#if BITS >= 64
 MAKE_INT(64);
-#endif
 
 #undef MAKE_INT
 #undef INT

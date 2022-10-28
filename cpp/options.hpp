@@ -43,13 +43,18 @@ using nao_h_t = std::uint16_t;
 #ifdef NAO_HEIGHT_MM
 inline constexpr nao_h_t kNaoHeightMM = NAO_HEIGHT_MM;
 #else
-inline constexpr nao_h_t kNaoHeightMM = 500;  // TODO(wrsturgeon): ROUGH ESTIMATE
+inline constexpr nao_h_t kNaoHeightMM = 550;  // TODO(wrsturgeon): ROUGH ESTIMATE
 #endif  // ifdef NAO_HEIGHT_MM
 #undef NAO_HEIGHT_MM
 
+#ifdef NDEBUG
 #define INLINE [[gnu::always_inline]] inline constexpr
-#define pure [[nodiscard]] INLINE
 #define impure [[nodiscard]] [[gnu::always_inline]] inline  // not constexpr since std::string for whatever reason isn't
+#else
+#define INLINE constexpr
+#define impure [[nodiscard]]
+#endif  // NDEBUG
+#define pure [[nodiscard]] INLINE
 
 #ifdef NDEBUG
 #define CONST_IF_RELEASE const
@@ -60,5 +65,5 @@ inline constexpr nao_h_t kNaoHeightMM = 500;  // TODO(wrsturgeon): ROUGH ESTIMAT
 #endif
 
 #ifndef TRIG_BITS
-#define TRIG_BITS 8  // NOLINT(cppcoreguidelines-macro-usage)
+#define TRIG_BITS 16  // NOLINT(cppcoreguidelines-macro-usage)
 #endif
