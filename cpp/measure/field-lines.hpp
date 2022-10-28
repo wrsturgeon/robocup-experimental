@@ -3,6 +3,7 @@
 #include "rnd/xoshiro.hpp"
 
 #include "fp/fixed-point.hpp"
+#include "measure/units.hpp"
 #include "util/ints.hpp"
 #include "util/units.hpp"
 
@@ -45,35 +46,34 @@ namespace measure {
  *  [17]   +3900 +4500      +1100       600   57400
  */
 
-inline constexpr i16 kCenter = 0;
-inline constexpr i16 kHEdge = 4500;
-inline constexpr i16 kVEdge = 3000;
-inline constexpr i16 kHGoal = 3900;
-inline constexpr i16 kVGoal = 1100;
-inline constexpr i16 kHPen = 2850;
-inline constexpr i16 kVPen = 2000;
+inline constexpr auto kCenter = static_cast<mm_t>(fp::from_int(0));
+inline constexpr auto kHEdge = static_cast<mm_t>(fp::from_int(4500));
+inline constexpr auto kVEdge = static_cast<mm_t>(fp::from_int(3000));
+inline constexpr auto kHGoal = static_cast<mm_t>(fp::from_int(3900));
+inline constexpr auto kVGoal = static_cast<mm_t>(fp::from_int(1100));
+inline constexpr auto kHPen = static_cast<mm_t>(fp::from_int(2850));
+inline constexpr auto kVPen = static_cast<mm_t>(fp::from_int(2000));
 
-inline constexpr i16 kLEdge = -kHEdge;
-inline constexpr i16 kREdge = kHEdge;
-inline constexpr i16 kTEdge = -kVEdge;
-inline constexpr i16 kBEdge = kVEdge;
-inline constexpr i16 kLGoal = -kHGoal;
-inline constexpr i16 kRGoal = kHGoal;
-inline constexpr i16 kTGoal = -kVGoal;
-inline constexpr i16 kBGoal = kVGoal;
-inline constexpr i16 kLPen = -kHPen;
-inline constexpr i16 kRPen = kHPen;
-inline constexpr i16 kTPen = -kVPen;
-inline constexpr i16 kBPen = kVPen;
+inline constexpr mm_t kLEdge = -kHEdge;
+inline constexpr mm_t kREdge = kHEdge;
+inline constexpr mm_t kTEdge = -kVEdge;
+inline constexpr mm_t kBEdge = kVEdge;
+inline constexpr mm_t kLGoal = -kHGoal;
+inline constexpr mm_t kRGoal = kHGoal;
+inline constexpr mm_t kTGoal = -kVGoal;
+inline constexpr mm_t kBGoal = kVGoal;
+inline constexpr mm_t kLPen = -kHPen;
+inline constexpr mm_t kRPen = kHPen;
+inline constexpr mm_t kTPen = -kVPen;
+inline constexpr mm_t kBPen = kVPen;
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 // NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
 // NOLINTBEGIN(clang-diagnostic-sign-conversion)
 
 [[nodiscard]] inline static auto
-sample_field_lines() -> fp::a<3, 16, 0, signed> {
-  using rtn_t = fp::a<3, 16, 0, signed>;
-  static constexpr auto zero = fp::t<16, 0, signed>::zero();
+sample_field_lines() -> xw_t {
+  static constexpr auto zero = mm_t::zero();
   static constexpr u8 rnd_uses = (kSystemBits >> 4);
   static rnd::t rnd_state;
   static u8 rnd_uses_left;
@@ -88,31 +88,29 @@ sample_field_lines() -> fp::a<3, 16, 0, signed> {
     rnd_state >>= 16;
     if (x < 30000) {
       if (x < 15000) {
-        return (x < 6000) ? rtn_t{kLEdge, static_cast<i16>(x - 3000), zero} : rtn_t{static_cast<i16>(x - 10500), kBEdge, zero};
+        return (x < 6000) ? xw_t{kLEdge, fp::from_int(x - 3000), zero} : xw_t{fp::from_int(x - 10500), kBEdge, zero};
       }
-      return (x < 21000) ? rtn_t{kREdge, static_cast<i16>(x - 18000), zero} : rtn_t{static_cast<i16>(x - 25500), kTEdge, zero};
+      return (x < 21000) ? xw_t{kREdge, fp::from_int(x - 18000), zero} : xw_t{fp::from_int(x - 25500), kTEdge, zero};
     }
     if (x < 48950) {
       if (x < 37650) {
-        return (x < 36000)
-              ? rtn_t{kCenter, static_cast<i16>(x - 33000), zero}
-              : rtn_t{static_cast<i16>(x - 40500), kTPen, zero};
+        return (x < 36000) ? xw_t{kCenter, fp::from_int(x - 33000), zero} : xw_t{fp::from_int(x - 40500), kTPen, zero};
       }
       if (x < 43300) {
-        return (x < 41650) ? rtn_t{kLPen, static_cast<i16>(x - 39650), zero} : rtn_t{static_cast<i16>(x - 46150), kBPen, zero};
+        return (x < 41650) ? xw_t{kLPen, fp::from_int(x - 39650), zero} : xw_t{fp::from_int(x - 46150), kBPen, zero};
       }
-      return (x < 44950) ? rtn_t{static_cast<i16>(x - 40450), kTPen, zero} : rtn_t{kRPen, static_cast<i16>(x - 46950), zero};
+      return (x < 44950) ? xw_t{fp::from_int(x - 40450), kTPen, zero} : xw_t{kRPen, fp::from_int(x - 46950), zero};
     }
     if (x < 54000) {
       if (x < 51200) {
-        return (x < 50600) ? rtn_t{static_cast<i16>(x - 46100), kBPen, zero} : rtn_t{static_cast<i16>(x - 55100), kTGoal, zero};
+        return (x < 50600) ? xw_t{fp::from_int(x - 46100), kBPen, zero} : xw_t{fp::from_int(x - 55100), kTGoal, zero};
       }
-      return (x < 53400) ? rtn_t{kLGoal, static_cast<i16>(x - 52300), zero} : rtn_t{static_cast<i16>(x - 57900), kBGoal, zero};
+      return (x < 53400) ? xw_t{kLGoal, fp::from_int(x - 52300), zero} : xw_t{fp::from_int(x - 57900), kBGoal, zero};
     }
     if (x < 56800) {
-      return (x < 54600) ? rtn_t{static_cast<i16>(x - 50100), kTGoal, zero} : rtn_t{kRGoal, static_cast<i16>(x - 55700), zero};
+      return (x < 54600) ? xw_t{fp::from_int(x - 50100), kTGoal, zero} : xw_t{kRGoal, fp::from_int(x - 55700), zero};
     }
-    if (x < 57400) { return rtn_t{static_cast<i16>(x - 52900), kBGoal, zero}; }
+    if (x < 57400) { return xw_t{fp::from_int(x - 52900), kBGoal, zero}; }
     // If >= 57400, resample
     // TODO(wrsturgeon): consider, instead of resampling, sampling green
   } while (true);
