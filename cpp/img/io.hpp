@@ -86,7 +86,8 @@ t<H, W, C>::collapse() const -> decltype(auto) requires (C == 3)
   // TODO(wrsturgeon): Should we prioritize green or penalize it?
   using Eigen::placeholders::all;
 // #define COLLAPSE_OP ~((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
-#define COLLAPSE_OP ((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
+// #define COLLAPSE_OP ((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
+#define COLLAPSE_OP ((map(all, 0) >> 1) + (map(all, 2) >> 1))
   using PreReshape = decltype(COLLAPSE_OP);
   img::save<H, W, C>(data, std::filesystem::current_path() / "PRECOLLAPSE.png");
   img::save<H, W>(
