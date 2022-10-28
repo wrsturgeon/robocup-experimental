@@ -21,12 +21,11 @@ using dtype = u8;
 template <EigenExpressible T> requires ((T::RowsAtCompileTime > 1) and (T::ColsAtCompileTime > 1))
 pure auto pool(T const& arr) -> decltype(auto) {
   // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
-  using Eigen::seqN;
-  using Eigen::placeholders::all;
+  using Eigen::seqN, Eigen::fix, Eigen::placeholders::all;
   static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
   static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
-  auto tmp = arr(all, seqN(0, hw, 2)).max(arr(all, seqN(1, hw, 2)));
-  return tmp(seqN(0, hh, 2), all).max(tmp(seqN(1, hh, 2), all));
+  auto tmp = arr(all, seqN(fix<0>, fix<hw>, fix<2>)).max(arr(all, seqN(fix<1>, fix<hw>, fix<2>)));
+  return tmp(seqN(fix<0>, fix<hh>, fix<2>), all).max(tmp(seqN(fix<1>, fix<hh>, fix<2>), all));
 }
 
 #define LAYER_BASE Array<H, W>
@@ -62,7 +61,7 @@ template <imsize_t H, imsize_t W> struct Pyramid : public Layer<H, W> {  // NOLI
 #ifndef NDEBUG
 template <imsize_t H, imsize_t W>
 Layer<H, W>::Layer(std::filesystem::path const& fpath) requires ((H == kImageH) and (W == kImageW))
-      : self_t{img::t<H, W, 3>{fpath}.collapse()} {
+      : self_t{img::t<H, W, 3>{fpath}.template channel<0>()} {
   // For some reason the data in the self_t constructor is getting swapped to column-major
   // So the image looks like it was meant to have been written to WxH but it got written to HxW
   // TODO(wrsturgeon): so theoretically if we interpret it as column-major it would be correct

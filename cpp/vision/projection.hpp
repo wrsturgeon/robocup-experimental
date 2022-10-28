@@ -65,38 +65,44 @@ Projection::operator()(measure::xw_t const& X) const noexcept -> img::idxintdiff
   auto const R31 = -trig::sin(r[1]);
   auto const R32 = trig::cos(r[1]) * trig::sin(r[2]);
   auto const R33 = trig::cos(r[1]) * trig::cos(r[2]);
-#ifndef NDEBUG
-  std::cout << "\n    " << R11 << R12 << R13 << "\nR = " << R21 << R22 << R23 << "\n    " << R31 << R32 << R33 << std::endl;
-#endif
+  // #ifndef NDEBUG
+  //   std::cout << "\n    " << R11 << R12 << R13 << "\nR = " << R21 << R22 << R23 << "\n    " << R31 << R32 << R33 <<
+  //   std::endl;
+  // #endif
 
   // No projection yet, just Euclidean transformation to camera frame
   auto const x_c = X[0] * R11 + X[1] * R12 + X[2] * R13 + t[0];
   auto const y_c = X[0] * R21 + X[1] * R22 + X[2] * R23 + t[1];
   auto const z_c = X[0] * R31 + X[1] * R32 + X[2] * R33 + t[2];
-#ifndef NDEBUG
-  std::cout
-        << "x_c =      R11(    X[0]) +      R12(    X[1]) +      R13(    X[2]) +     t[0]\n    = " << R11 << '(' << X[0]
-        << ") + " << R12 << '(' << X[1] << ") + " << R13 << '(' << X[2] << ") + " << t[0]
-        << "\n    =           " << (X[0] * R11) << " +           " << (X[1] * R12) << " +           " << (X[2] * R13) << " + "
-        << t[0] << "\n    = " << x_c << std::endl;
-  std::cout
-        << "y_c =      R21(    X[0]) +      R22(    X[1]) +      R23(    X[2]) +     t[1]\n    = " << R21 << '(' << X[0]
-        << ") + " << R22 << '(' << X[1] << ") + " << R23 << '(' << X[2] << ") + " << t[1]
-        << "\n    =           " << (X[0] * R21) << " +           " << (X[1] * R22) << " +           " << (X[2] * R23) << " + "
-        << t[1] << "\n    = " << y_c << std::endl;
-  std::cout
-        << "z_c =      R31(    X[0]) +      R32(    X[1]) +      R33(    X[2]) +     t[2]\n    = " << R31 << '(' << X[0]
-        << ") + " << R32 << '(' << X[1] << ") + " << R33 << '(' << X[2] << ") + " << t[2]
-        << "\n    =           " << (X[0] * R31) << " +           " << (X[1] * R32) << " +           " << (X[2] * R33) << " + "
-        << t[2] << "\n    = " << z_c << std::endl;
-  std::cout
-        << "u = (    k[0](     x_c) +     k[2](     y_c)) /      z_c\n  = (" << k[0] << '(' << x_c << ") + " << k[2] << '('
-        << y_c << ")) / " << z_c << "\n  = (          " << (x_c * k[0]) << " +           " << (y_c * k[2]) << ") / " << z_c
-        << "\n  =                                  " << (x_c * k[0] + y_c * k[2]) << " / " << z_c
-        << "\n  = " << ((x_c * k[0]) + (y_c * k[2])) / z_c << std::endl;
-  std::cout << "v =     k[1](     y_c) /      z_c\n  = " << k[1] << '(' << y_c << ") / " << z_c
-            << "\n  =           " << (y_c * k[1]) << " / " << z_c << "\n  = " << (y_c * k[1]) / z_c << std::endl;
-#endif
+  // #ifndef NDEBUG
+  //   std::cout
+  //         << "x_c =      R11(    X[0]) +      R12(    X[1]) +      R13(    X[2]) +     t[0]\n    = " << R11 << '(' << X[0]
+  //         << ") + " << R12 << '(' << X[1] << ") + " << R13 << '(' << X[2] << ") + " << t[0]
+  //         << "\n    =           " << (X[0] * R11) << " +           " << (X[1] * R12) << " +           " << (X[2] * R13) << "
+  //         + "
+  //         << t[0] << "\n    = " << x_c << std::endl;
+  //   std::cout
+  //         << "y_c =      R21(    X[0]) +      R22(    X[1]) +      R23(    X[2]) +     t[1]\n    = " << R21 << '(' << X[0]
+  //         << ") + " << R22 << '(' << X[1] << ") + " << R23 << '(' << X[2] << ") + " << t[1]
+  //         << "\n    =           " << (X[0] * R21) << " +           " << (X[1] * R22) << " +           " << (X[2] * R23) << "
+  //         + "
+  //         << t[1] << "\n    = " << y_c << std::endl;
+  //   std::cout
+  //         << "z_c =      R31(    X[0]) +      R32(    X[1]) +      R33(    X[2]) +     t[2]\n    = " << R31 << '(' << X[0]
+  //         << ") + " << R32 << '(' << X[1] << ") + " << R33 << '(' << X[2] << ") + " << t[2]
+  //         << "\n    =           " << (X[0] * R31) << " +           " << (X[1] * R32) << " +           " << (X[2] * R33) << "
+  //         + "
+  //         << t[2] << "\n    = " << z_c << std::endl;
+  //   std::cout
+  //         << "u = (    k[0](     x_c) +     k[2](     y_c)) /      z_c\n  = (" << k[0] << '(' << x_c << ") + " << k[2] <<
+  //         '('
+  //         << y_c << ")) / " << z_c << "\n  = (          " << (x_c * k[0]) << " +           " << (y_c * k[2]) << ") / " <<
+  //         z_c
+  //         << "\n  =                                  " << (x_c * k[0] + y_c * k[2]) << " / " << z_c
+  //         << "\n  = " << ((x_c * k[0]) + (y_c * k[2])) / z_c << std::endl;
+  //   std::cout << "v =     k[1](     y_c) /      z_c\n  = " << k[1] << '(' << y_c << ") / " << z_c
+  //             << "\n  =           " << (y_c * k[1]) << " / " << z_c << "\n  = " << (y_c * k[1]) / z_c << std::endl;
+  // #endif
   assert(z_c > decltype(z_c)::zero());
   return img::idxintdiff_t{((x_c * k[0] + y_c * k[2]) / z_c).round(), ((y_c * k[1]) / z_c).round()};
 }

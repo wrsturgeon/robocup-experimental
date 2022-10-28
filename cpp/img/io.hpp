@@ -41,8 +41,7 @@ save(T x, std::filesystem::path const& fpath) {
 template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3> class t {
  private:
   u8* data;
-  using map_t = ImageMap<H, W, C>;
-  map_t map;
+  using channel_map_t = Eigen::Map<Array<H, W, u8>, RowMajor<H, W>, Eigen::InnerStride<3>>;
  public:
   explicit t(std::filesystem::path const& fpath);
   t(t<H, W, C> const&) = delete;
@@ -50,12 +49,13 @@ template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3> class t {
   t(t<H, W, C>&&) = delete;
   auto operator=(t<H, W, C>&&) -> t<H, W, C>& = delete;
   ~t() noexcept { stbi_image_free(data); }
-  pure auto operator[](u8 i) const -> map_t const&;
+  template <u8 i> requires (i < C)  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  pure auto channel() const -> channel_map_t /* clang-format off */ { return channel_map_t{data + i}; }                                 /* clang-format on */
   pure auto collapse() const -> decltype(auto) requires (C == 3);
 };
 
 template <imsize_t H, imsize_t W, u8 C>
-t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str(), &STBI_W, &STBI_H, &STBI_C, C)}, map{data} {
+t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str(), &STBI_W, &STBI_H, &STBI_C, C)} {
   if (data == nullptr) { throw std::runtime_error{stbi_failure_reason()}; }
   if ((STBI_W != static_cast<int>(W)) or (STBI_H != static_cast<int>(H))) {
     throw std::runtime_error{
@@ -68,31 +68,6 @@ t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str()
           "Image channel mismatch: supposed to have " + std::to_string(C) + " channels but actually has " +
           std::to_string(STBI_C)};
   }
-}
-
-template <imsize_t H, imsize_t W, u8 C> pure auto
-t<H, W, C>::operator[](u8 i) const -> map_t const& {
-  assert(i < C);
-  return map[i];
-}
-
-template <imsize_t H, imsize_t W, u8 C> pure auto
-t<H, W, C>::collapse() const -> decltype(auto) requires (C == 3)
-{
-  // Writing out the return type would take ~20 lines
-  // Alternative is to force evaluation which defeats the point of using Eigen
-  // So decltype(auto) it is
-  //
-  // TODO(wrsturgeon): Should we prioritize green or penalize it?
-  using Eigen::placeholders::all;
-// #define COLLAPSE_OP ~((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
-// #define COLLAPSE_OP ((((map(all, 0) >> 1) + (map(all, 2) >> 1)) >> 1) + (map(all, 1) >> 1))
-#define COLLAPSE_OP ((map(all, 0) >> 1) + (map(all, 2) >> 1))
-  using PreReshape = decltype(COLLAPSE_OP);
-  img::save<H, W, C>(data, std::filesystem::current_path() / "PRECOLLAPSE.png");
-  img::save<H, W>(
-        Eigen::Reshaped<PreReshape, H, W, Eigen::RowMajor>(COLLAPSE_OP), std::filesystem::current_path() / "POSTCOLLAPSE.png");
-  return Eigen::Reshaped<PreReshape, H, W, Eigen::RowMajor>(COLLAPSE_OP);
 }
 
 }  // namespace img
