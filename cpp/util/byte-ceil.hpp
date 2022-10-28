@@ -4,8 +4,10 @@
 
 #include <bit>
 
-pure static auto
-byte_ceil(u8 n) -> u8 {
-  if (n <= 8) { return 8; }  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-  return std::bit_ceil(n);
-}
+#ifndef NDEBUG
+#include <stdexcept>
+#endif
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+template <u8 n> requires (n <= 64)  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+static constexpr u8 byte_ceil = (n <= 8) ? 8 : ((n <= 16) ? 16 : ((n <= 32) ? 32 : 64));

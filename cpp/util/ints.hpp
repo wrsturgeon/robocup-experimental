@@ -39,5 +39,11 @@ MAKE_INT(64);
 #undef BLIND_INT
 #undef BLIND_UINT
 
-template <std::uint8_t bits, typename is_signed = unsigned> using cint = typename cint_s<bits, is_signed>::t;
-template <std::uint8_t bits> using cint_exists = typename cint_s<bits, unsigned>::valid;
+template <std::uint8_t bits, typename is_signed = unsigned>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))
+using cint = typename cint_s<bits, is_signed>::t;
+
+template <typename T> using full_t = cint<kSystemBits, T>;
+using ifull_t = full_t<signed>;
+using ufull_t = full_t<unsigned>;
