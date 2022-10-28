@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <cstddef>
 
 template <typename T> pure auto
 uninitialized() -> std::decay_t<T> {
