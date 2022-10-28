@@ -5,11 +5,12 @@
 #include "vision/pyramid.hpp"
 
 #include "img/io.hpp"
+#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 namespace vision {
 
-template <std::size_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW> void
+template <ufull_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW> void
 display_estimate(Layer<H, W> const& im, Projection const& proj) {
   static constexpr auto vcenter = ((H + 1) >> 1);
   static constexpr auto hcenter = ((W + 1) >> 1);
@@ -22,12 +23,11 @@ display_estimate(Layer<H, W> const& im, Projection const& proj) {
       rgb(y, x, Eigen::fix<2>) = im(y, x);
     }
   }
-  img::idxintdiff_t uv;
-  for (std::size_t i = 0; i < N_samples; ++i) {
+  std::array<cint<kSystemBits, signed>, 2> uv = uninitialized<std::array<cint<kSystemBits, signed>, 2>>();
+  for (ufull_t i = 0; i < N_samples; ++i) {
     // do { uv = proj(measure::sample_field_lines()); } while (std::abs(uv[1]) >= vcenter or std::abs(uv[0]) >= hcenter);
     uv = proj(measure::sample_field_lines());
-    // std::cout << "u, v = " << uv[0] << ", " << uv[1] << std::endl;
-    if (std::abs(uv[1]) < vcenter and std::abs(uv[0]) < hcenter) {
+    if ((std::abs(uv[1]) < vcenter) and (std::abs(uv[0]) < hcenter)) {
       auto u = hcenter + uv[0];
       auto v = vcenter + uv[1];
       // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

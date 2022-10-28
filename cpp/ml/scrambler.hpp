@@ -7,7 +7,6 @@
 #include <array>    // std::array
 #include <bit>      // std::bit_width
 #include <cassert>  // assert
-#include <cstddef>  // std::size_t
 #include <memory>   // std::unique_ptr
 #include <utility>  // std::move, std::swap
 
@@ -27,16 +26,16 @@ template <typename T, u8 abits = kDefaultABits> class Scrambler {
  private:
   static_assert(abits, "Scrambler abits can't be 0");
   static_assert(abits <= kMaxABits, "No way you'll need this many memories at a time");
-  static constexpr std::size_t n = std::size_t{1} << abits;
+  static constexpr ufull_t n = ufull_t{1} << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
   static constexpr u8 n_renew = kSystemBits / abits;  // # of uses per xoshiro result
   static constexpr rnd::t bitmask = n - 1;
   u8 rnd_uses_left = n_renew - 1;
   rnd::t rnd_state = rnd::next();
   std::array<T, n> data = uninitialized<std::array<T, n>>();
-  cint<byte_ceil(abits), unsigned> counter = 0;
+  cint<byte_ceil<abits>, unsigned> counter = 0;
 #ifndef NDEBUG
-  std::size_t n_prefilled = 0;  // NOLINT(clang-diagnostic-padded)
+  ufull_t n_prefilled = 0;  // NOLINT(clang-diagnostic-padded)
 #endif
 };
 
