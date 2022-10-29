@@ -10,6 +10,7 @@
 #include "util/units.hpp"
 
 #include <array>
+#include <limits>
 
 #ifndef NDEBUG
 #include <iomanip>
@@ -55,12 +56,16 @@ template <u8 B, i8 I, typename S> class t {
   static constexpr bool s = std::is_signed_v<S>;
   static constexpr i8 f = b - i - s;
   using internal_t = cint<byte_ceil<B>, S>;
-  using floor_t = cint<byte_ceil<i + s>, S>;
+  using floor_t = cint<byte_ceil<(i + s < 0) ? 0 : static_cast<u8>(i + s)>, S>;
   using self_t = t<B, I, S>;
+  using signed_t = S;
  private:
   internal_t internal;
  public:
   constexpr explicit t(internal_t x) : internal{x} {}
+  template <u8 B2, i8 I2, typename S2> pure explicit operator t<B2, I2, S2>() const noexcept;
+  template <u8 B2, i8 I2, typename S2> constexpr explicit t(t<B2, I2, S2> x) : internal{+(x.operator self_t())} {}
+  pure static auto max() -> self_t { return self_t{std::numeric_limits<internal_t>::max()}; }
   pure static auto zero() -> self_t { return self_t{0}; }
   template <i8 p> requires (p < i)  // and (f + p >= 0))
   pure static auto p2() -> self_t {
@@ -69,10 +74,15 @@ template <u8 B, i8 I, typename S> class t {
   pure static auto unit() -> self_t { return p2<0>(); }
   pure auto operator+() const noexcept -> internal_t { return internal; }
   pure explicit operator internal_t() const noexcept { return internal; }
-  template <u8 B2, i8 I2, typename S2> pure explicit operator t<B2, I2, S2>() const noexcept;
+  pure auto abs() const noexcept -> t<B, I, unsigned> /* clang-format off */ { return t<B, I, unsigned>{static_cast<cint<B, unsigned>>(std::abs(internal))}; } /* clang-format on */
   pure auto floor() const noexcept -> floor_t { return static_cast<floor_t>(rshift<f, full_t<S>>(internal)); }
+  pure auto floor() const noexcept -> u8 requires (i + s < 0) /* clang-format off */ { return 0; } /* clang-format on */
   pure auto round() const noexcept -> floor_t { return (p2<-1>() + *this).floor(); }
-  pure auto squared() const noexcept -> t<B, (I << 1), S> { return t<B, (I << 1), S>((internal * internal) >> f); }
+  pure auto squared() const noexcept -> self_t { return (*this) * (*this); }
+  INLINE auto operator+=(FixedPoint auto&& x) noexcept -> self_t& { return *this = *this + std::forward<decltype(x)>(x); }
+  INLINE auto operator-=(FixedPoint auto&& x) noexcept -> self_t& { return *this = *this - std::forward<decltype(x)>(x); }
+  INLINE auto operator*=(FixedPoint auto&& x) noexcept -> self_t& { return *this = *this * std::forward<decltype(x)>(x); }
+  INLINE auto operator/=(FixedPoint auto&& x) noexcept -> self_t& { return *this = *this / std::forward<decltype(x)>(x); }
 };
 
 template <ufull_t N, u8 B, i8 I, typename S> class a {
@@ -142,40 +152,32 @@ pure t<B, I, S>::operator t<B2, I2, S2>() const noexcept {
   pure auto operator SYMBOL(t<B1, I1, S1> const& x, std::integral auto y)->decltype(auto) {                                   \
     return operator SYMBOL(x, from_int(y));                                                                                   \
   }
-template <typename A, typename B>
-using either_signed = std::conditional_t<std::is_signed_v<A> or std::is_signed_v<B>, signed, unsigned>;
 #define RETURNTYPE t<B1, I1, S1>
-// #define RETURNTYPE t<B1, std::max(I1, I2) + 1, either_signed<S1, S2>>
-DEFINE_BINARY_OP(+, (+x) + (+static_cast<t<B1, I1, S1>>(y)))
-// #undef RETURNTYPE
-// #define RETURNTYPE t<B1, std::max(I1, I2) + 1, signed>
-DEFINE_BINARY_OP(-, (+x) - (+static_cast<t<B1, I1, S1>>(y)))
-// #undef RETURNTYPE
-// #define RETURNTYPE t<B1, I1 + I2, either_signed<S1, S2>>
-// DEFINE_BINARY_OP(*, static_cast<typename RETURNTYPE::internal_t>(rshift<F2, ifull_t>(static_cast<ifull_t>(+x) *
-// static_cast<ifull_t>(+y))))
-// DEFINE_BINARY_OP(*, static_cast<typename RETURNTYPE::internal_t>(ifc<(B1 < kSystemBits)>(rshift<F2,
-// full_t<S1>>(static_cast<full_t<S1>>(+x) * static_cast<full_t<S2>>(+y)), rshift<F2, full_t<S1>>(+x) *
-// static_cast<full_t<S2>>(+y))))
+DEFINE_BINARY_OP(+, (+x) + (+t<B1, I1, S1>{y}))
+DEFINE_BINARY_OP(-, (+x) - (+t<B1, I1, S1>{y}))
 template <u8 B1, i8 I1, typename S1, u8 B2, i8 I2, typename S2> requires (B1 + B2 <= kSystemBits)
 pure auto
 operator*(t<B1, I1, S1> const& x, t<B2, I2, S2> const& y) -> t<B1, I1, S1> {
-  constexpr auto F1 = t<B1, I1, S1>::f;
-  constexpr auto F2 = t<B2, I2, S2>::f;
   return t<B1, I1, S1>{static_cast<typename t<B1, I1, S1>::internal_t>(
-        rshift<F2, full_t<S1>>(static_cast<full_t<S1>>(+x) * static_cast<full_t<S2>>(+y)))};
+        rshift<t<B2, I2, S2>::f, full_t<S1>>(static_cast<full_t<S1>>(+x) * static_cast<full_t<S2>>(+y)))};
 }
 template <u8 B1, i8 I1, typename S1> pure auto
 operator*(t<B1, I1, S1> const& x, std::integral auto y) -> decltype(auto) {
   return operator*(x, from_int(y));
 }
-// DEFINE_BINARY_OP(*, static_cast<typename RETURNTYPE::internal_t>(rshift<F2, full_t<S1>>(static_cast<full_t<S1>>(+x) *
-// static_cast<full_t<S2>>(+y)))) #undef RETURNTYPE #define RETURNTYPE t<B1, I1 + F2, either_signed<S1, S2>>
-// DEFINE_BINARY_OP(/, static_cast<typename RETURNTYPE::internal_t>(lshift<F2, ifull_t>(+x) / (+y))); // too unsafe
-// #undef RETURNTYPE
-// #define RETURNTYPE t<B1, I1, S1>
-DEFINE_BINARY_OP(>>, (+x) >> y.round())
-DEFINE_BINARY_OP(<<, (+x) << y.round())
+template <typename T1, typename T2> concept Divisible = T1::b +
+T2::f <= kSystemBits;
+template <u8 B1, i8 I1, typename S1, u8 B2, i8 I2, typename S2> requires Divisible<t<B1, I1, S1>, t<B2, I2, S2>>
+pure auto
+operator/(t<B1, I1, S1> const& x, t<B2, I2, S2> const& y) -> t<B1, I1, S1> {
+  return t<B1, I1, S1>{static_cast<typename t<B1, I1, S1>::internal_t>(
+        lshift<t<B2, I2, S2>::f, full_t<S1>>(+x) / static_cast<full_t<S2>>(+y))};
+}
+template <u8 B1, i8 I1, typename S1> pure auto
+operator/(t<B1, I1, S1> const& x, std::integral auto y) -> decltype(auto) {
+  return operator/(x, from_int(y));
+}
+DEFINE_BINARY_OP(|, (+x) | (+t<B1, I1, S1>{y}))
 #undef RETURNTYPE
 #define RETURNTYPE bool
 DEFINE_BINARY_OP(==, (+x) == rshift<F2 - F1>(+y))  // Note that this is not necessarily commutative!
@@ -204,8 +206,7 @@ static constexpr u8 kPrintWidth = 8;
 #ifndef NDEBUG
 template <u8 B, i8 I, typename S> auto
 operator<<(std::ostream& os, fp::t<B, I, S> const& x) -> std::ostream& {
-  return os << std::setprecision(2) << std::fixed << std::right << std::setw(fp::kPrintWidth)
-            << (static_cast<double>(+x) / (1 << fp::t<B, I, S>::f));
+  return os << std::setprecision(2) << std::fixed << std::right << std::setw(fp::kPrintWidth) << ldexp(+x, -fp::t<B, I, S>::f);
 }
 template <ufull_t N, u8 B, i8 I, typename S> auto
 operator<<(std::ostream& os, fp::a<N, B, I, S> const& x) -> std::ostream& {
