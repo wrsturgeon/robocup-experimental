@@ -113,7 +113,7 @@ sample_field_lines() -> xw_t {
     if (x < cutoff + ((kHPost.round() + kWPost.round()) << 1)) {
       return xw_t{kHEdge, kWPost, fp::from_int(x - cutoff - (kHPost.round() << 1) - kWPost.round())};
     }
-  } while (true);  // If >= 57400, resample
+  } while (true);  // If >= 63600, resample
 }
 
 // NOLINTEND(clang-diagnostic-sign-conversion)
