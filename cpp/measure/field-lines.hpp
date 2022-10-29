@@ -76,43 +76,27 @@ sample_field_lines() -> xw_t {
     auto x = static_cast<u16>(rnd_state);
     rnd_state >>= 16;
     if (x < 30000) {
-      if (x < 15000) {
-        return (x < 6000) ? xw_t{-kHEdge, fp::from_int(x - 3000), zero} : xw_t{fp::from_int(x - 10500), kVEdge, zero};
-      }
+      if (x < 15000) { return (x < 6000) ? xw_t{-kHEdge, fp::from_int(x - 3000), zero} : xw_t{fp::from_int(x - 10500), kVEdge, zero}; }
       return (x < 21000) ? xw_t{kHEdge, fp::from_int(x - 18000), zero} : xw_t{fp::from_int(x - 25500), -kVEdge, zero};
     }
     if (x < 48950) {
-      if (x < 37650) {
-        return (x < 36000) ? xw_t{kCenter, fp::from_int(x - 33000), zero} : xw_t{fp::from_int(x - 40500), -kVPen, zero};
-      }
-      if (x < 43300) {
-        return (x < 41650) ? xw_t{-kHPen, fp::from_int(x - 39650), zero} : xw_t{fp::from_int(x - 46150), kVPen, zero};
-      }
+      if (x < 37650) { return (x < 36000) ? xw_t{kCenter, fp::from_int(x - 33000), zero} : xw_t{fp::from_int(x - 40500), -kVPen, zero}; }
+      if (x < 43300) { return (x < 41650) ? xw_t{-kHPen, fp::from_int(x - 39650), zero} : xw_t{fp::from_int(x - 46150), kVPen, zero}; }
       return (x < 44950) ? xw_t{fp::from_int(x - 40450), -kVPen, zero} : xw_t{kHPen, fp::from_int(x - 46950), zero};
     }
     if (x < 54000) {
-      if (x < 51200) {
-        return (x < 50600) ? xw_t{fp::from_int(x - 46100), kVPen, zero} : xw_t{fp::from_int(x - 55100), -kVGoal, zero};
-      }
+      if (x < 51200) { return (x < 50600) ? xw_t{fp::from_int(x - 46100), kVPen, zero} : xw_t{fp::from_int(x - 55100), -kVGoal, zero}; }
       return (x < 53400) ? xw_t{-kHGoal, fp::from_int(x - 52300), zero} : xw_t{fp::from_int(x - 57900), kVGoal, zero};
     }
-    if (x < 56800) {
-      return (x < 54600) ? xw_t{fp::from_int(x - 50100), -kVGoal, zero} : xw_t{kHGoal, fp::from_int(x - 55700), zero};
-    }
+    if (x < 56800) { return (x < 54600) ? xw_t{fp::from_int(x - 50100), -kVGoal, zero} : xw_t{kHGoal, fp::from_int(x - 55700), zero}; }
     if (x < 57400) { return xw_t{fp::from_int(x - 52900), kVGoal, zero}; }
     if (x < 57400 + kHPost.round()) { return xw_t{-kHEdge, -kWPost, fp::from_int(x - 57400)}; }
-    if (x < 57400 + kHPost.round() + (kWPost.round() << 1)) {
-      return xw_t{-kHEdge, fp::from_int(x - 57400 - kHPost.round() - kWPost.round()), kHPost};
-    }
+    if (x < 57400 + kHPost.round() + (kWPost.round() << 1)) { return xw_t{-kHEdge, fp::from_int(x - 57400 - kHPost.round() - kWPost.round()), kHPost}; }
     static constexpr auto cutoff = 57400 + ((kHPost.round() + kWPost.round()) << 1);
     if (x < cutoff) { return xw_t{-kHEdge, kWPost, fp::from_int(x - 57400 - (kHPost.round() << 1) - kWPost.round())}; }
     if (x < cutoff + kHPost.round()) { return xw_t{kHEdge, -kWPost, fp::from_int(x - cutoff)}; }
-    if (x < cutoff + kHPost.round() + (kWPost.round() << 1)) {
-      return xw_t{kHEdge, fp::from_int(x - cutoff - kHPost.round() - kWPost.round()), kHPost};
-    }
-    if (x < cutoff + ((kHPost.round() + kWPost.round()) << 1)) {
-      return xw_t{kHEdge, kWPost, fp::from_int(x - cutoff - (kHPost.round() << 1) - kWPost.round())};
-    }
+    if (x < cutoff + kHPost.round() + (kWPost.round() << 1)) { return xw_t{kHEdge, fp::from_int(x - cutoff - kHPost.round() - kWPost.round()), kHPost}; }
+    if (x < cutoff + ((kHPost.round() + kWPost.round()) << 1)) { return xw_t{kHEdge, kWPost, fp::from_int(x - cutoff - (kHPost.round() << 1) - kWPost.round())}; }
   } while (true);  // If >= 63600, resample
 }
 

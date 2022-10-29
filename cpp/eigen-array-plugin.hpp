@@ -2,30 +2,39 @@
 
 // Included at Eigen/src/Core/ArrayBase.h:132 (WITHIN Eigen namespace)
 
-template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Packet const& b) {
+template <typename Packet>
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static prshift(Packet const& a, Packet const& b) {
   return a >> b;
 }
 
-template <typename lhs_t> struct scalar_rshift_op : internal::binary_op_base<lhs_t, std::uint8_t> {
+template <typename lhs_t>
+struct scalar_rshift_op : internal::binary_op_base<lhs_t, std::uint8_t> {
   typedef typename ScalarBinaryOpTraits<lhs_t, std::uint8_t, scalar_rshift_op>::ReturnType result_t;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t operator()(lhs_t const& a, std::uint8_t const& b) const { return a >> b; }
 
-  template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(Packet const& a, Packet const& b) const {
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(Packet const& a, Packet const& b) const {
     return prshift(a, b);
   }
 
-  template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t predux(Packet const& a) const {
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_t predux(Packet const& a) const {
     return Eigen::internal::predux(a);
   }
 };
 
-template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static pbitinv(Packet const& a) { return ~a; }
+template <typename Packet>
+EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet static pbitinv(Packet const& a) {
+  return ~a;
+}
 
-template <typename rhs_t> struct scalar_bitinv_op {
+template <typename rhs_t>
+struct scalar_bitinv_op {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const rhs_t operator()(rhs_t const& a) const { return ~a; }
 
-  template <typename Packet> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(Packet const& a) const {
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet packetOp(Packet const& a) const {
     return pbitinv(a);
   }
 };

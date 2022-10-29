@@ -21,9 +21,12 @@ using world_t = fp::t<kParameterBits, measure::kFieldDiagBits, signed>;
 using angle_t = fp::t<kParameterBits, 0, unsigned>;
 using focal_t = fp::t<kParameterBits, kFocalIntBits, unsigned>;
 using vskew_t = fp::t<kParameterBits, 0, signed>;
-template <ufull_t N> using world_array_t = fp::a<N, kParameterBits, measure::kFieldDiagBits, signed>;
-template <ufull_t N> using angle_array_t = fp::a<N, kParameterBits, 0, unsigned>;
-template <ufull_t N> using focal_array_t = fp::a<N, kParameterBits, kFocalIntBits, signed>;
+template <ufull_t N>
+using world_array_t = fp::a<N, kParameterBits, measure::kFieldDiagBits, signed>;
+template <ufull_t N>
+using angle_array_t = fp::a<N, kParameterBits, 0, unsigned>;
+template <ufull_t N>
+using focal_array_t = fp::a<N, kParameterBits, kFocalIntBits, signed>;
 
 inline constexpr auto starting_pos = world_array_t<3>{
       fp::from_int(-3100),  //
@@ -108,7 +111,8 @@ class Projection {
 #endif
 };
 
-template <u8 B> pure auto
+template <u8 B>
+pure auto
 Projection::operator()(measure::xw_t const& X) const noexcept -> std::array<cint<kSystemBits, signed>, 3> {
   // INVERSE rotation (i.e. transpose since this is an orthogonal transformation)
   auto const cos0 = trig::cos(r[0]);
@@ -167,8 +171,7 @@ Projection::grad(measure::xw_t const& X) const noexcept -> ProjectionGradient {
   auto const z_c = x * R31 + y * R32 + z * R33;
   auto const f0 = fp::t<fp::kCompactBits, fp::kCompactBits - 1 - kRoundoffBits, signed>{f[0]};
   auto const f1 = fp::t<fp::kCompactBits, fp::kCompactBits - 1 - kRoundoffBits, signed>{f[1]};
-  // clang-format off
-  return ProjectionGradient {
+  return ProjectionGradient{
         /* du_dskew */ y_c / z_c,
         /*   du_df0 */ x_c / z_c,
         /*   dv_df1 */ y_c / z_c,
@@ -185,7 +188,6 @@ Projection::grad(measure::xw_t const& X) const noexcept -> ProjectionGradient {
         /*   dv_dr1 */ ((x * cos0 * cos1 * sin2 + y * sin0 * cos1 * sin2 - z * sin1 * sin2) * f1) / z_c - (y_c * (x * cos0 * cos1 * cos2 + y * sin0 * cos1 * cos2 - z * sin1 * cos2) * f1) / z_c.squared(),
         /*   dv_dr2 */ (y_c.squared() * f1) / z_c.squared() + f1,
   };
-  // clang-format on
 }
 
 #ifndef NDEBUG

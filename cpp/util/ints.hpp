@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-template <std::uint8_t bits, typename is_signed> requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))
+template <std::uint8_t bits, typename is_signed>
+requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 struct cint_s {};
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
@@ -15,16 +15,18 @@ struct cint_s {};
 #define INT_T(bits) BLIND_INT_T(bits)
 #define UINT(bits) BLIND_UINT(bits)
 #define INT(bits) BLIND_INT(bits)
-#define MAKE_INT(bits)                                                                                                        \
-  using INT(bits) = INT_T(bits);                                                                                              \
-  using UINT(bits) = UINT_T(bits);                                                                                            \
-  template <> struct cint_s<bits, unsigned> {                                                                                 \
-    static constexpr bool valid = true;                                                                                       \
-    using t = UINT(bits);                                                                                                     \
-  };                                                                                                                          \
-  template <> struct cint_s<bits, signed> {                                                                                   \
-    static constexpr bool valid = true;                                                                                       \
-    using t = INT(bits);                                                                                                      \
+#define MAKE_INT(bits)                                                                                                                                                                                                                                        \
+  using INT(bits) = INT_T(bits);                                                                                                                                                                                                                              \
+  using UINT(bits) = UINT_T(bits);                                                                                                                                                                                                                            \
+  template <>                                                                                                                                                                                                                                                 \
+  struct cint_s<bits, unsigned> {                                                                                                                                                                                                                             \
+    static constexpr bool valid = true;                                                                                                                                                                                                                       \
+    using t = UINT(bits);                                                                                                                                                                                                                                     \
+  };                                                                                                                                                                                                                                                          \
+  template <>                                                                                                                                                                                                                                                 \
+  struct cint_s<bits, signed> {                                                                                                                                                                                                                               \
+    static constexpr bool valid = true;                                                                                                                                                                                                                       \
+    using t = INT(bits);                                                                                                                                                                                                                                      \
   }
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
@@ -40,10 +42,10 @@ MAKE_INT(64);
 #undef BLIND_UINT
 
 template <std::uint8_t bits, typename is_signed = unsigned>
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))
+requires ((bits >= 8) and (bits <= 64) and ((bits & (bits - 1)) == 0))  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 using cint = typename cint_s<bits, is_signed>::t;
 
-template <typename T> using full_t = cint<kSystemBits, T>;
+template <typename T>
+using full_t = cint<kSystemBits, T>;
 using ifull_t = full_t<signed>;
 using ufull_t = full_t<unsigned>;

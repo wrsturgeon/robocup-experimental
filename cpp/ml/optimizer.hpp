@@ -13,13 +13,7 @@ inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for th
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
 inline constexpr u8 kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
 
-template <
-      FixedPoint T,
-      bool republican = false,
-      u8 lg_lr = kLgLRDefault,
-      u8 lg_b1 = kLgB1Default,
-      u8 lg_b2 = kLgB2Default,
-      u8 lg_wd = kLgWDDefault>
+template <FixedPoint T, bool republican = false, u8 lg_lr = kLgLRDefault, u8 lg_b1 = kLgB1Default, u8 lg_b2 = kLgB2Default, u8 lg_wd = kLgWDDefault>
 class AdamL1 {
  private:
   using self_t = AdamL1<std::decay_t<T>, republican, lg_lr, lg_b1, lg_b2, lg_wd>;
