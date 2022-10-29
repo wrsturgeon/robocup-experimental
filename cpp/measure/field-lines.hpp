@@ -111,9 +111,9 @@ sample_field_lines() -> xw_t {
       return (x < 54600) ? xw_t{fp::from_int(x - 50100), kTGoal, zero} : xw_t{kRGoal, fp::from_int(x - 55700), zero};
     }
     if (x < 57400) { return xw_t{fp::from_int(x - 52900), kBGoal, zero}; }
-    // If >= 57400, resample
     // TODO(wrsturgeon): consider, instead of resampling, sampling green
-  } while (true);
+    // TODO(wrsturgeon): no, sample the fucking GOALPOSTS!!!
+  } while (true);  // If >= 57400, resample
 }
 
 // NOLINTEND(clang-diagnostic-sign-conversion)
