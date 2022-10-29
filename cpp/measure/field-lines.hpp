@@ -104,6 +104,15 @@ sample_field_lines() -> xw_t {
     if (x < 57400 + kHPost.round() + (kWPost.round() << 1)) {
       return xw_t{-kHEdge, fp::from_int(x - 57400 - kHPost.round() - kWPost.round()), kHPost};
     }
+    static constexpr auto cutoff = 57400 + ((kHPost.round() + kWPost.round()) << 1);
+    if (x < cutoff) { return xw_t{-kHEdge, kWPost, fp::from_int(x - 57400 - (kHPost.round() << 1) - kWPost.round())}; }
+    if (x < cutoff + kHPost.round()) { return xw_t{kHEdge, -kWPost, fp::from_int(x - cutoff)}; }
+    if (x < cutoff + kHPost.round() + (kWPost.round() << 1)) {
+      return xw_t{kHEdge, fp::from_int(x - cutoff - kHPost.round() - kWPost.round()), kHPost};
+    }
+    if (x < cutoff + ((kHPost.round() + kWPost.round()) << 1)) {
+      return xw_t{kHEdge, kWPost, fp::from_int(x - cutoff - (kHPost.round() << 1) - kWPost.round())};
+    }
   } while (true);  // If >= 57400, resample
 }
 
