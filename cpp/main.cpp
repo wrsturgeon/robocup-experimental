@@ -20,9 +20,8 @@ main() -> int {
 #ifndef NDEBUG
   try {
     auto p = vision::Pyramid<kImageH, kImageW>{"../img/blurred.png"};
-    p.save(std::filesystem::current_path() / "_PYRAMID");  // WHAT THE FUCK THIS OPERATOR/ IS SO COOL WHAT
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    vision::display_estimate<(1 << 12)>(p, vision::Projection{});
+    p.save(std::filesystem::current_path() / "_PYRAMID");          // WHAT THE FUCK THIS OPERATOR/ IS SO COOL WHAT
+    vision::display_estimate<(1 << 12)>(p, vision::Projection{});  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
   } catch (std::exception const& e) {
     std::cerr << e.what() << std::endl;
     return 1;

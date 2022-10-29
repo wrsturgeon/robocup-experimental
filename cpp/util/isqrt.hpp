@@ -3,7 +3,8 @@
 #include <type_traits>
 
 // DO NOT USE THIS IN ACTUAL NON-CONSTEXPR CODE
-template <typename T_o, typename T_i> [[nodiscard]] static constexpr auto
+template <typename T_o, typename T_i>
+[[nodiscard]] static constexpr auto
 isqrt(T_i y) -> T_o {
   static_assert(std::is_integral_v<T_i>, "isqrt works only on integral types");
   static_assert(std::is_integral_v<T_o>, "isqrt works only on integral types");

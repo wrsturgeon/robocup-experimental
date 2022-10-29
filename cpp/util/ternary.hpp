@@ -1,6 +1,7 @@
 #pragma once
 
-template <auto t1f2> pure static auto
+template <auto t1f2>
+pure static auto
 ifc(auto const& v_if_true, auto const& v_if_false) -> decltype(auto) {
   if constexpr (t1f2) {
     return v_if_true;

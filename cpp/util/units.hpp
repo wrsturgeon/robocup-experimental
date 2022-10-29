@@ -81,24 +81,27 @@ impure ds2d::operator std::string() const { return std::string{'('} + x + " x, "
 
 #endif  // NDEBUG
 
-template <int H, int W> inline constexpr auto RowMajor = ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor);
-template <int H, int W> inline constexpr auto ColMajor = ((H == 1) ? Eigen::RowMajor : Eigen::ColMajor);
+template <int H, int W>
+inline constexpr auto RowMajor = ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor);
+template <int H, int W>
+inline constexpr auto ColMajor = ((H == 1) ? Eigen::RowMajor : Eigen::ColMajor);
 
-template <int H, int W, typename T = u8> requires ((W > 0) and (H > 0))
+template <int H, int W, typename T = u8>
+requires ((W > 0) and (H > 0))
 using Array = Eigen::Array<T, H, W, RowMajor<H, W>>;
-template <int N, typename T = u8> using Vector = Array<N, 1, T>;  // Column vector
+template <int N, typename T = u8>
+using Vector = Array<N, 1, T>;  // Column vector
 
 template <int H, int W, int C, typename T = u8>
 using Tensor = Eigen::TensorFixedSize<T, Eigen::Sizes<H, W, C>, Eigen::RowMajor>;
-template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> using ImageTensor = Tensor<H, W, C, T>;
-template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8> requires (C > 1)
+template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8>
+using ImageTensor = Tensor<H, W, C, T>;
+template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8>
+requires (C > 1)
 using ImageMap = Eigen::Map<Array<H * W, C, T>>;
-template <int H = kImageH, int W = kImageW, typename T = u8> using ChannelMap = Eigen::Map<Array<H, W, T>, RowMajor<H, W>>;
+template <int H = kImageH, int W = kImageW, typename T = u8>
+using ChannelMap = Eigen::Map<Array<H, W, T>, RowMajor<H, W>>;
 
-template <typename T> concept EigenExpressible = std::is_base_of_v<Eigen::EigenBase<T>, T> or
-      std::is_base_of_v<Eigen::EigenBase<typename T::Derived>, typename T::Derived>;
-template <typename T, int H, int W, typename t = u8>
-concept ArrayExpressible = EigenExpressible<T> && std::is_convertible_v<T, Array<H, W, t>>;
-template <typename T, int H, int W, int C, typename t = u8>
-concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<H, W, C, t>>) or
-      ((C == 1) && ArrayExpressible<T, H, W, t>);
+template <typename T> concept EigenExpressible = std::is_base_of_v<Eigen::EigenBase<T>, T> or std::is_base_of_v<Eigen::EigenBase<typename T::Derived>, typename T::Derived>;
+template <typename T, int H, int W, typename t = u8> concept ArrayExpressible = EigenExpressible<T> && std::is_convertible_v<T, Array<H, W, t>>;
+template <typename T, int H, int W, int C, typename t = u8> concept TensorExpressible = (EigenExpressible<T> && std::is_convertible_v<T, Tensor<H, W, C, t>>) or ((C == 1) && ArrayExpressible<T, H, W, t>);

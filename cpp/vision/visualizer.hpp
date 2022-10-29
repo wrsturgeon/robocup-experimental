@@ -10,7 +10,8 @@
 
 namespace vision {
 
-template <ufull_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW> void
+template <ufull_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW>
+void
 display_estimate(Layer<H, W> const& im, Projection const& proj) {
   static constexpr imsize_t vcenter = ((H + 1) >> 1);
   static constexpr imsize_t hcenter = ((W + 1) >> 1);
@@ -31,8 +32,7 @@ display_estimate(Layer<H, W> const& im, Projection const& proj) {
       u = static_cast<ufull_t>(hcenter + uvw[0]);
       v = static_cast<ufull_t>(vcenter + uvw[1]);
       if ((v < H) and (u < W)) {
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-        rgb(v, u, Eigen::fix<0>) = 255;
+        rgb(v, u, Eigen::fix<0>) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         rgb(v, u, Eigen::fix<1>) = 0;
         rgb(v, u, Eigen::fix<2>) = 0;
       }

@@ -22,7 +22,8 @@ inline constexpr u8 r1 = if32(7, 23);
 inline constexpr u8 l1 = if32(9, 17);
 inline constexpr u8 r2 = if32(11, 45);
 
-template <u8 k> pure static auto
+template <u8 k>
+pure static auto
 rotl(const t x) -> t {
   return (x << k) | (x >> (kSystemBits - k));
 }

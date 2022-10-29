@@ -27,10 +27,11 @@ using rtn_t = fp::t<TRIG_BITS, 0, signed>;
 using rtn_array_t = fp::a<2, TRIG_BITS, 0, signed>;
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define MAKE_TRIG_FN(NAME, RTNTYPE, ...)                                                                                      \
-  template <FixedPoint T> pure auto NAME(T&& fp_arg) noexcept -> RTNTYPE {                                                    \
-    u8 const x = +fp::t<8, 0, unsigned>{fp_arg};                                                                              \
-    return RTNTYPE{__VA_ARGS__};                                                                                              \
+#define MAKE_TRIG_FN(NAME, RTNTYPE, ...)                                                                                                                                                                                                                      \
+  template <FixedPoint T>                                                                                                                                                                                                                                     \
+  pure auto NAME(T&& fp_arg) noexcept -> RTNTYPE {                                                                                                                                                                                                            \
+    u8 const x = +fp::t<8, 0, unsigned>{fp_arg};                                                                                                                                                                                                              \
+    return RTNTYPE{__VA_ARGS__};                                                                                                                                                                                                                              \
   }
 MAKE_TRIG_FN(cos, rtn_t, lookup::cos[x])
 MAKE_TRIG_FN(sin, rtn_t, lookup::sin[x])

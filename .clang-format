@@ -18,14 +18,14 @@ AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterReturnType: TopLevelDefinitions
-AlwaysBreakTemplateDeclarations: No
+AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 # BreakBeforeBraces: Stroustrup
 BreakBeforeConceptDeclarations: false
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
-ColumnLimit: 127 # 95
+ColumnLimit: 255 # 127 # 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
 Cpp11BracedListStyle: true
@@ -36,7 +36,7 @@ FixNamespaceComments: true
 IncludeBlocks: Preserve
 InsertBraces: true # Unsupported until v15
 InsertTrailingCommas: Wrapped
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: CurrentLine
 PenaltyBreakAssignment: 1000000
 PenaltyBreakTemplateDeclaration: 0
 PenaltyIndentedWhitespace: 100000
