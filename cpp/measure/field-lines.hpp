@@ -46,15 +46,15 @@ namespace measure {
  *  [17]   +3900 +4500      +1100       600   57400
  */
 
-inline constexpr auto kCenter = static_cast<mm_t>(fp::from_int(0));
-inline constexpr auto kHEdge = static_cast<mm_t>(fp::from_int(4500));
-inline constexpr auto kVEdge = static_cast<mm_t>(fp::from_int(3000));
-inline constexpr auto kHGoal = static_cast<mm_t>(fp::from_int(3900));
-inline constexpr auto kVGoal = static_cast<mm_t>(fp::from_int(1100));
-inline constexpr auto kHPen = static_cast<mm_t>(fp::from_int(2850));
-inline constexpr auto kVPen = static_cast<mm_t>(fp::from_int(2000));
-inline constexpr auto kHPost = static_cast<mm_t>(fp::from_int(800));
-inline constexpr auto kWPost = static_cast<mm_t>(fp::from_int(750));
+inline constexpr auto kCenter = mm_t{fp::from_int(0)};
+inline constexpr auto kHEdge = mm_t{fp::from_int(4500)};
+inline constexpr auto kVEdge = mm_t{fp::from_int(3000)};
+inline constexpr auto kHGoal = mm_t{fp::from_int(3900)};
+inline constexpr auto kVGoal = mm_t{fp::from_int(1100)};
+inline constexpr auto kHPen = mm_t{fp::from_int(2850)};
+inline constexpr auto kVPen = mm_t{fp::from_int(2000)};
+inline constexpr auto kHPost = mm_t{fp::from_int(800)};
+inline constexpr auto kWPost = mm_t{fp::from_int(750)};
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 // NOLINTBEGIN(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)

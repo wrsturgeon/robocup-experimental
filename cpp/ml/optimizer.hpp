@@ -6,71 +6,72 @@
 
 namespace ml {
 
-inline constexpr u8 kDecayTBits = 32;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
+inline constexpr u8 kDecayTBits = 16;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
 using decay_t = fp::t<kDecayTBits, 0, unsigned>;
-inline constexpr u8 kLgLRDefault = 10;  // Learning rate
+inline constexpr u8 kLgLRDefault = 5;   // Learning rate (also fractional bits in second-moment divisor)
 inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
 inline constexpr u8 kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
-inline constexpr u8 kLgEpDefault = 27;  // Epsilon: a small constant against division by zero
 
 template <
-      typename T,
+      FixedPoint T,
       bool republican = false,
       u8 lg_lr = kLgLRDefault,
       u8 lg_b1 = kLgB1Default,
       u8 lg_b2 = kLgB2Default,
-      u8 lg_wd = kLgWDDefault,
-      u8 lg_ep = kLgEpDefault>
-class Adam {
+      u8 lg_wd = kLgWDDefault>
+class AdamL1 {
  private:
-  using self_t = Adam<T, republican, lg_lr, lg_b1, lg_b2, lg_wd, lg_ep>;
-  static constexpr decay_t ep = decay_t::p2<-lg_ep>();
+  using self_t = AdamL1<std::decay_t<T>, republican, lg_lr, lg_b1, lg_b2, lg_wd>;
+  using rtn_t = fp::t<kSystemBits, T::i - lg_lr, typename T::signed_t>;
   decay_t decay1 = decay_t::p2<-lg_b1>();
   decay_t decay2 = decay_t::p2<-lg_b2>();
-  T m = T::zero();
-  T v = T::zero();
-  pure auto aug_m() const -> T;
+  fp::t<kSystemBits, T::i, typename T::signed_t> m{0};
+  fp::t<kSystemBits, T::i, unsigned> v = fp::t<kSystemBits, T::i, unsigned>::max();
+  pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
-  [[nodiscard]] auto step(T const& grad) -> T;
-  pure auto step(T const& grad, T const& w) -> T;
+  [[nodiscard]] auto step(std::decay_t<T> const& grad) -> rtn_t;
+  pure auto step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t;
 };
 
-#define ADAM_TEMPLATE template <typename T, bool republican, u8 lg_lr, u8 lg_ep, u8 lg_b1, u8 lg_b2, u8 lg_wd>
+#define ADAML1_TEMPLATE template <FixedPoint T, bool republican, u8 lg_lr, u8 lg_b1, u8 lg_b2, u8 lg_wd>
 
-ADAM_TEMPLATE
+ADAML1_TEMPLATE
 pure auto
-Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::aug_m() const -> T {
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t> {
   if constexpr (republican) { return m * decay2; }
   return m;
 }
 
-ADAM_TEMPLATE
+ADAML1_TEMPLATE
 auto
-Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad) -> T {
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad) -> rtn_t {
   if constexpr (republican) {
-    if (decay2 == decay_t::zero()) { return T::zero(); }
+    if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
-  m += ((grad - m) >> lg_b1);
-  v += (((grad * grad) - v) >> lg_b2);
-  if (decay2 != decay_t::zero()) {
-    v = v / ~decay2;
-    static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
-    decay2 = decay2 - (decay2 >> lg_b2);
-    if (decay1 != decay_t::zero()) {
-      m = m / ~decay1;
-      decay1 = decay1 - (decay1 >> lg_b1);
-    }
-  }
-  return (aug_m() >> lg_lr) / (v.sqrt() | 1);
+  m += rshift<lg_b1>(grad - m);
+  v += rshift<lg_b2>(grad.abs() - v);
+  // if (decay2 != decay_t::zero()) {
+  //   v /= ~decay2;
+  //   static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
+  //   decay2 -= (decay2 >> lg_b2);
+  //   if (decay1 != decay_t::zero()) {
+  //     m /= ~decay1;
+  //     decay1 -= (decay1 >> lg_b1);
+  //   }
+  // }
+  if constexpr (republican) { decay2 -= rshift<lg_b2>(decay2); }
+  using div_t = fp::t<T::b, T::b - lg_lr, unsigned>;
+  static_assert(div_t::f == lg_lr);
+  return rtn_t((+aug_m()) / ((+div_t{v}) | 0b1));  // 0b1 ~= epsilon
 }
 
-ADAM_TEMPLATE
+ADAML1_TEMPLATE
 pure auto
-Adam<T, republican, lg_lr, lg_ep, lg_b1, lg_b2, lg_wd>::step(T const& grad, T const& w) -> T {
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t {
   return step(grad) + (w >> lg_wd);
 }
 
-#undef ADAM_TEMPLATE
+#undef ADAML1_TEMPLATE
 
 }  // namespace ml

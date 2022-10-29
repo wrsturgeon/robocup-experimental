@@ -1,3 +1,4 @@
+#include "ml/optimizer.hpp"
 #include "vision/pyramid.hpp"
 
 #ifndef NDEBUG
@@ -26,6 +27,14 @@ main() -> int {
     std::cerr << e.what() << std::endl;
     return 1;
   }
+  auto x = fp::t<fp::kCompactBits, 0, signed>::p2<-1>();
+  auto adam = ml::AdamL1<fp::t<fp::kCompactBits, 0, signed>>{};
+  auto s = uninitialized<decltype(adam.step(x))>();
+  u8 i = 0;
+  do {
+    s = adam.step(x);
+    std::cout << x << " - " << s << " = " << (x -= s) << std::endl;
+  } while (++i);
 #endif  // NDEBUG
   return 0;
 }
