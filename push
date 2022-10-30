@@ -8,5 +8,9 @@ make format
 make ci
 git add --all > /dev/null 2>&1 || git add --all
 git commit -m "${MESSAGE}" > /dev/null 2>&1 || git commit -m "${MESSAGE}"
-git push -u origin $(git branch --show-current) > /dev/null 2>&1 || git push -u origin $(git branch --show-current)
+BRANCH=$(git branch --show-current)
+git push -u origin ${BRANCH} > /dev/null 2>&1 || git push -u origin ${BRANCH}
+git checkout main > /dev/null 2>&1 || git checkout main
+git branch -D ${BRANCH} > /dev/null 2>&1 || git branch -D ${BRANCH}
+git remote prune origin > /dev/null 2>&1 || git remote prune origin
 echo 'Pushed to GitHub! Make a pull request to merge it into the codebase.'
