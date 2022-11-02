@@ -15,12 +15,12 @@ SCT := $(DIR)/sh
 
 FLAGS := -std=gnu++2b -ftemplate-backtrace-limit=0 -ferror-limit=1
 INCLUDES := -iquote $(SRC) -isystem $(EXT)/eigen -isystem $(EXT)/stb -include $(SRC)/options.hpp
-MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES) -DEIGEN_STACK_ALLOCATION_LIMIT=0
+MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES) -DEIGEN_STACK_ALLOCATION_LIMIT=0 -DEIGEN_NO_MALLOC
 WARNINGS := -Wall -Wextra -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -fno-common #-fsanitize=address -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG -DEIGEN_NO_ASSERTION_CHECKING
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -DEIGEN_NO_AUTOMATIC_RESIZING -DEIGEN_FAST_MATH=0 -fno-common #-fsanitize=address -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG -DEIGEN_FAST_MATH=1 -DEIGEN_NO_ASSERTION_CHECKING
 
 
 

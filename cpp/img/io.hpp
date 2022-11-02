@@ -29,17 +29,53 @@ save(u8 const* const data, std::filesystem::path const& fpath) {
   assert(std::filesystem::exists(p));
 }
 
-template <imsize_t H, imsize_t W, u8 C, TensorExpressible<H, W, C> T>
+template <imsize_t H, imsize_t W, u8 C, typename T>
+requires requires (T const& x) { /* clang-format off */ { x.eval().data() } -> std::convertible_to<u8 const*>; /* clang-format on */
+         }
 void
-save(T x, std::filesystem::path const& fpath) {
+save(T const& x, std::filesystem::path const& fpath) {
   save<H, W, C>(x.eval().data(), fpath);
 }  // calls the above
 
-template <imsize_t H, imsize_t W, ArrayExpressible<H, W> T>
+template <imsize_t H, imsize_t W, typename T>
+requires requires (T const& x, std::filesystem::path const& fpath) { save<H, W, 1>(x, fpath); }
 void
-save(T x, std::filesystem::path const& fpath) {
+save(T const& x, std::filesystem::path const& fpath) {
   save<H, W, 1>(x, fpath);
 }  // calls the above
+
+template <imsize_t H, imsize_t W, typename T>
+// requires requires (T const& x, Tensor<H, W, 3> const& t) { t.chip(Eigen::fix<2>, Eigen::fix<2>) = x; }
+void
+save_and_pinpoint(T const& t, std::filesystem::path const& fpath, imsize_t y, imsize_t x) {
+  // not efficient whatsoever but never even parsed in release mode
+  assert(y < H);
+  assert(x < W);
+  Tensor<H, W, 3> tmp;
+  for (imsize_t i = 0; i < H; ++i) {
+    for (imsize_t j = 0; j < W; ++j) {
+      tmp(i, j, Eigen::fix<0>) = t(i, j);
+      tmp(i, j, Eigen::fix<1>) = t(i, j);
+      tmp(i, j, Eigen::fix<2>) = t(i, j);
+    }
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SET_RED(i, j)                                                                                                                                                                                                                                         \
+  tmp(i, j, 0) = 255;                                                                                                                                                                                                                                         \
+  tmp(i, j, 1) = 0;                                                                                                                                                                                                                                           \
+  tmp(i, j, 2) = 0
+  SET_RED(y, x);
+  if ((x - 2 > 0) and (y - 2 > 0)) { SET_RED(y - 2, x - 2); }
+  if ((x - 1 > 0) and (y - 1 > 0)) { SET_RED(y - 1, x - 1); }
+  if ((x - 1 > 0) and (y + 1 < H)) { SET_RED(y + 1, x - 1); }
+  if ((x - 2 > 0) and (y + 2 < H)) { SET_RED(y + 2, x - 2); }
+  if ((x + 2 < W) and (y - 2 > 0)) { SET_RED(y - 2, x + 2); }
+  if ((x + 1 < W) and (y - 1 > 0)) { SET_RED(y - 1, x + 1); }
+  if ((x + 1 < W) and (y + 1 < H)) { SET_RED(y + 1, x + 1); }
+  if ((x + 2 < W) and (y + 2 < H)) { SET_RED(y + 2, x + 2); }
+#undef SET_RED
+  save<H, W, 3>(tmp.data(), fpath);
+}
 
 template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3>
 class t {
