@@ -12,7 +12,7 @@ namespace vision {
 
 template <ufull_t N_samples, imsize_t H = kImageH, imsize_t W = kImageW>
 void
-display_estimate(Layer<H, W> const& im, Projection const& proj) {
+display_estimate(Pyramid<H, W> const& im, Projection const& proj) {
   static constexpr imsize_t vcenter = ((H + 1) >> 1);
   static constexpr imsize_t hcenter = ((W + 1) >> 1);
   Tensor<H, W, 3> rgb;
