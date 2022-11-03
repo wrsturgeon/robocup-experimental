@@ -54,7 +54,7 @@ all.cpp:
 
 tidy: all.cpp
 	echo 'Running clang-tidy on the project (takes a minute)...'
-	clang-tidy ./all.cpp --quiet -- $(strip $(COMMON)) $(strip $(DEBUG_FLAGS))
+	clang-tidy ./all.cpp --system-headers -- $(strip $(COMMON)) $(strip $(DEBUG_FLAGS)) -DCLANG_TIDY_RUNNING
 
 naoqi-sdk: $(EXT)
 	echo '  naoqi-sdk'
