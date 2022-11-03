@@ -1,12 +1,9 @@
 #pragma once
 
 #include "util/array-inits.hpp"
-#include "util/byte-ceil.hpp"
 #include "util/fixed-string.hpp"
-#include "util/ints.hpp"
 #include "util/shift.hpp"
 #include "util/ternary.hpp"
-#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 #include <array>
@@ -37,7 +34,7 @@ struct is_fixed_point_s<fp::a<N, B, I, S>> {
   static constexpr bool value = true;
 };
 template <typename T>
-static constexpr bool is_fixed_point = is_fixed_point_s<std::decay_t<T>>::value;
+inline constexpr bool is_fixed_point = is_fixed_point_s<std::decay_t<T>>::value;
 template <typename T> concept FixedPoint = is_fixed_point<T>;
 
 template <typename T>
@@ -49,12 +46,12 @@ struct is_fixed_point_array_s<fp::a<N, B, I, S>> {
   static constexpr bool value = true;
 };
 template <typename T>
-static constexpr bool is_fixed_point_array = is_fixed_point_array_s<std::decay_t<T>>::value;
+inline constexpr bool is_fixed_point_array = is_fixed_point_array_s<std::decay_t<T>>::value;
 template <typename T> concept FixedPointArray = is_fixed_point_array<T>;
 
 namespace fp {
 
-static constexpr u8 kCompactBits = 16;  // very arbitrary: enough to have reasonable precision
+inline constexpr u8 kCompactBits = 16;  // very arbitrary: enough to have reasonable precision
 // also must be less than half system bits to prevent multiplication overflow
 
 // TODO(wrsturgeon): no particular reason `I` can't be negative
@@ -120,7 +117,9 @@ class a {
   // constexpr explicit a(arr_t&& x) : internal{std::move(x)} {}
   // template <typename... T> constexpr explicit a(T&&... x) : internal{static_cast<internal_t>(std::forward<T>(x))...} {}
   template <FixedPoint... T>
-  constexpr explicit a(T&&... x) : internal{+static_cast<scalar_t>(std::forward<T>(x))...} {}
+  requires (std::same_as<scalar_t, std::decay_t<T>> && ...)
+  constexpr explicit a(T&&... x) : internal{+std::forward<T>(x)...} {}
+  // constexpr explicit a(T&&... x) : internal{+static_cast<scalar_t>(std::forward<T>(x))...} {}
   pure static auto zero() -> self_t { return self_t{zeros<internal_t, N>()}; }
   pure auto operator+() const noexcept -> arr_t { return internal; }
   pure auto operator[](ufull_t idx) const -> scalar_t { return scalar_t{internal[idx]}; }
@@ -219,7 +218,7 @@ DEFINE_UNARY_OP(~, ~(+x))
 // NOLINTEND(cppcoreguidelines-macro-usage)
 #pragma clang diagnostic pop
 
-static constexpr u8 kPrintWidth = 8;
+inline constexpr u8 kPrintWidth = 8;
 
 }  // namespace fp
 
@@ -237,3 +236,29 @@ operator<<(std::ostream& os, fp::a<N, B, I, S> const& x) -> std::ostream& {
   return os << ')';
 }
 #endif
+
+template <u8 B = pxidx_bits>
+requires (B >= pxidx_bits)
+using pxidx_safe_t = fp::t<B, B, unsigned>;
+template <u8 B = pxidx_bits>
+requires (B >= pxidx_bits)
+using pxidx_exac_t = fp::t<B, pxidx_bits, unsigned>;
+template <ufull_t N, u8 B = pxidx_bits>
+requires (B >= pxidx_bits)
+using pxidx_safe_a = fp::a<N, B, B, unsigned>;
+template <ufull_t N, u8 B = pxidx_bits>
+requires (B >= pxidx_bits)
+using pxidx_exac_a = fp::a<N, B, pxidx_bits, unsigned>;
+
+template <u8 B = mm_bits + 1>
+requires (B >= mm_bits + 1)
+using mm_safe_t = fp::t<B, B - 1, signed>;
+template <u8 B = byte_ceil<mm_bits + 1>>
+requires (B >= byte_ceil<mm_bits + 1>)
+using mm_exac_t = fp::t<B, mm_bits, signed>;
+template <ufull_t N, u8 B = mm_bits + 1>
+requires (B >= mm_bits + 1)
+using mm_safe_a = fp::a<N, B, B - 1, signed>;
+template <ufull_t N, u8 B = byte_ceil<mm_bits + 1>>
+requires (B >= byte_ceil<mm_bits + 1>)
+using mm_exac_a = fp::a<N, B, mm_bits, signed>;

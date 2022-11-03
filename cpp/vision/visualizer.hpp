@@ -5,7 +5,6 @@
 #include "vision/pyramid.hpp"
 
 #include "img/io.hpp"
-#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 namespace vision {
@@ -24,13 +23,13 @@ display_estimate(Pyramid<H, W> const& im, Projection const& proj) {
       rgb(y, x, Eigen::fix<2>) = im(y, x);
     }
   }
-  auto uvw = uninitialized<std::array<cint<kSystemBits, signed>, 3>>();
-  ufull_t u, v;
+  auto uvw = uninitialized<xp_t>();
+  pxidx_t u, v;
   for (ufull_t i = 0; i < N_samples; ++i) {
     uvw = proj(measure::sample_field_lines());
-    if (uvw[2] > 0) {
-      u = static_cast<ufull_t>(hcenter + uvw[0]);
-      v = static_cast<ufull_t>(vcenter + uvw[1]);
+    if (std::get<2>(uvw) > 0) {
+      u = static_cast<pxidx_t>(hcenter + std::get<0>(uvw));
+      v = static_cast<pxidx_t>(vcenter + std::get<1>(uvw));
       if ((v < H) and (u < W)) {
         rgb(v, u, Eigen::fix<0>) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         rgb(v, u, Eigen::fix<1>) = 0;

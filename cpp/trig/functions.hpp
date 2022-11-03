@@ -1,8 +1,6 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/ints.hpp"
-#include "util/ternary.hpp"
 
 #include <array>
 

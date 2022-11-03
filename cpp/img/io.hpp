@@ -1,7 +1,5 @@
 #pragma once
 
-#include "img/types.hpp"
-#include "util/ints.hpp"
 #include "util/units.hpp"
 
 #include "stb-image.hpp"
@@ -47,13 +45,13 @@ save(T const& x, std::filesystem::path const& fpath) {
 template <imsize_t H, imsize_t W, typename T>
 // requires requires (T const& x, Tensor<H, W, 3> const& t) { t.chip(Eigen::fix<2>, Eigen::fix<2>) = x; }
 void
-save_and_pinpoint(T const& t, std::filesystem::path const& fpath, imsize_t y, imsize_t x) {
+save_and_pinpoint(T const& t, std::filesystem::path const& fpath, pxidx_t y, pxidx_t x) {
   // not efficient whatsoever but never even parsed in release mode
   assert(y < H);
   assert(x < W);
   Tensor<H, W, 3> tmp;
-  for (imsize_t i = 0; i < H; ++i) {
-    for (imsize_t j = 0; j < W; ++j) {
+  for (pxidx_t i = 0; i < H; ++i) {
+    for (pxidx_t j = 0; j < W; ++j) {
       tmp(i, j, Eigen::fix<0>) = t(i, j);
       tmp(i, j, Eigen::fix<1>) = t(i, j);
       tmp(i, j, Eigen::fix<2>) = t(i, j);
