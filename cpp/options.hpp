@@ -19,6 +19,7 @@ inline constexpr std::uint8_t kSystemBits = BITS;
 #endif  // ifdef BITS
 
 using imsize_t = std::uint16_t;
+using imsize_s_t = std::int16_t;
 #ifdef IMAGE_H
 inline constexpr imsize_t kImageH = IMAGE_H;
 static_assert(kImageH == IMAGE_H);
