@@ -1,7 +1,5 @@
 #pragma once
 
-#include "util/units.hpp"
-
 #include "stb-image.hpp"
 
 #include <cassert>

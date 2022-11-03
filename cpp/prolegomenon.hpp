@@ -171,3 +171,26 @@ uninitialized() -> std::decay_t<T> {
   std::byte bytes[sizeof(T)];           // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
   return *reinterpret_cast<T*>(bytes);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,clang-analyzer-core.uninitialized.UndefReturn)
 }
+
+/******** Eigen types ********/
+
+template <int H, int W>
+inline constexpr auto RowMajor = ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor);
+template <int H, int W>
+inline constexpr auto ColMajor = ((H == 1) ? Eigen::RowMajor : Eigen::ColMajor);
+
+template <int H, int W, typename T = u8>
+requires ((W > 0) and (H > 0))
+using Array = Eigen::Array<T, H, W, RowMajor<H, W>>;
+template <int N, typename T = u8>
+using Vector = Array<N, 1, T>;  // Column vector
+
+template <int H, int W, int C, typename T = u8>
+using Tensor = Eigen::TensorFixedSize<T, Eigen::Sizes<H, W, C>, Eigen::RowMajor>;
+template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8>
+using ImageTensor = Tensor<H, W, C, T>;
+template <int H = kImageH, int W = kImageW, int C = 3, typename T = u8>
+requires (C > 1)
+using ImageMap = Eigen::Map<Array<H * W, C, T>>;
+template <int H = kImageH, int W = kImageW, typename T = u8>
+using ChannelMap = Eigen::Map<Array<H, W, T>, RowMajor<H, W>>;

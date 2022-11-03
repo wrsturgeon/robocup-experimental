@@ -5,7 +5,6 @@
 #include "vision/pyramid.hpp"
 
 #include "img/io.hpp"
-#include "util/units.hpp"
 
 namespace vision {
 
