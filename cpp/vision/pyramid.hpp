@@ -4,7 +4,6 @@
 #include "img/io.hpp"
 #endif
 
-#include "img/types.hpp"
 #include "rnd/xoshiro.hpp"
 #include "util/units.hpp"
 
@@ -23,8 +22,8 @@ requires ((T::RowsAtCompileTime > 1) and (T::ColsAtCompileTime > 1))
 pure auto pool(T const& arr) -> decltype(auto) {
   // TODO(wrsturgeon): randomize start +0 or +1 for odd widths
   using Eigen::seqN, Eigen::fix, Eigen::placeholders::all;
-  static constexpr imsize_t hh = (T::RowsAtCompileTime >> 1);
-  static constexpr imsize_t hw = (T::ColsAtCompileTime >> 1);
+  static constexpr auto hh = (T::RowsAtCompileTime >> 1);
+  static constexpr auto hw = (T::ColsAtCompileTime >> 1);
   auto tmp = arr(all, seqN(fix<0>, fix<hw>, fix<2>)).max(arr(all, seqN(fix<1>, fix<hw>, fix<2>)));
   return tmp(seqN(fix<0>, fix<hh>, fix<2>), all).max(tmp(seqN(fix<1>, fix<hh>, fix<2>), all));
 }
@@ -48,98 +47,100 @@ struct Pyramid {  // NOLINT(altera-struct-pack-align)
         : Pyramid<H, W>{img::t<H, W, 3>{fpath}.template channel<0>()} {}
   void save(std::filesystem::path const& fpath) const;
 #endif
-  pure auto operator()(imsize_t i, imsize_t j) const noexcept -> decltype(auto) { return array(i, j); }
-  template <u8 threshold>
-  pure auto find_imprecise(imsize_t i, imsize_t j) const NOX->std::pair<imsize_s_t, imsize_s_t>;
-  template <u8 threshold>
-  pure auto find_precise(imsize_t i, imsize_t j) const NOX->std::pair<imsize_s_t, imsize_s_t>;  // still O(lg n)
+  pure auto operator()(imsize_t i, imsize_t j) const noexcept -> decltype(auto) {
+    assert(i < H);  // gone with -DNDEBUG
+    assert(j < W);
+    return array(i, j);
+  }
+  pure auto find_imprecise(px_t const& X) const NOX->pxdiff_t;
+  pure auto find_precise(px_t const& X) const NOX->pxdiff_t;  // still O(lg n)
 };
 
 template <imsize_t H, imsize_t W>
-template <u8 threshold>
 pure auto
-Pyramid<H, W>::find_imprecise(imsize_t i, imsize_t j) const NOX->std::pair<imsize_s_t, imsize_s_t> {
-  if (i >= H) { return (j >= W) ? std::pair<imsize_s_t, imsize_s_t>{-1, -1} : std::pair<imsize_s_t, imsize_s_t>{-1, 0}; }
+Pyramid<H, W>::find_imprecise(px_t const& X) const NOX->pxdiff_t {
+  auto const [i, j] = X;
+  if (i >= H) { return (j >= W) ? pxdiff_t{-1, -1} : pxdiff_t{-1, 0}; }
   if (j >= W) { return {0, -1}; }
-  if (array(i, j) >= threshold) { return {0, 0}; }
+  if (array(i, j) >= kPyramidFindThreshold) { return {0, 0}; }
   bool const lsafe = (j >= 1);
   bool const rsafe = (j < (W - 1));
   bool const usafe = (i >= 1);
   bool const dsafe = (i < (H - 1));
   // This section is incredibly verbose, redundant, and going to lead to a marginally longer executable file, but each execution will be as fast as possible
   if (usafe) {
-    if (array(i - 1, j) >= threshold) { return {-1, 0}; }
+    if (array(i - 1, j) >= kPyramidFindThreshold) { return {-1, 0}; }
     if (lsafe) {
-      if (array(i, j - 1) >= threshold) { return {0, -1}; }
+      if (array(i, j - 1) >= kPyramidFindThreshold) { return {0, -1}; }
       if (dsafe) {
-        if (array(i + 1, j) >= threshold) { return {1, 0}; }
+        if (array(i + 1, j) >= kPyramidFindThreshold) { return {1, 0}; }
         if (rsafe) {  // All 4 directions are safe
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i - 1, j - 1) >= threshold) { return {-1, -1}; }
-          if (array(i + 1, j - 1) >= threshold) { return {1, -1}; }
-          if (array(i - 1, j + 1) >= threshold) { return {-1, 1}; }
-          if (array(i + 1, j + 1) >= threshold) { return {1, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i - 1, j - 1) >= kPyramidFindThreshold) { return {-1, -1}; }
+          if (array(i + 1, j - 1) >= kPyramidFindThreshold) { return {1, -1}; }
+          if (array(i - 1, j + 1) >= kPyramidFindThreshold) { return {-1, 1}; }
+          if (array(i + 1, j + 1) >= kPyramidFindThreshold) { return {1, 1}; }
         } else {  // Only right (j + 1) is off the map
-          if (array(i - 1, j - 1) >= threshold) { return {-1, -1}; }
-          if (array(i + 1, j - 1) >= threshold) { return {1, -1}; }
+          if (array(i - 1, j - 1) >= kPyramidFindThreshold) { return {-1, -1}; }
+          if (array(i + 1, j - 1) >= kPyramidFindThreshold) { return {1, -1}; }
         }
       } else {        // Down (i + 1) is off the map
         if (rsafe) {  // Only down (i + 1) is off the map
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i - 1, j + 1) >= threshold) { return {-1, 1}; }
-          if (array(i - 1, j - 1) >= threshold) { return {-1, -1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i - 1, j + 1) >= kPyramidFindThreshold) { return {-1, 1}; }
+          if (array(i - 1, j - 1) >= kPyramidFindThreshold) { return {-1, -1}; }
         } else {  // Down (i + 1) and right (j + 1) are off the map
-          if (array(i - 1, j - 1) >= threshold) { return {-1, 1}; }
+          if (array(i - 1, j - 1) >= kPyramidFindThreshold) { return {-1, 1}; }
         }
       }
     } else {  // Left (j - 1) is off the map
       if (dsafe) {
-        if (array(i + 1, j) >= threshold) { return {1, 0}; }
+        if (array(i + 1, j) >= kPyramidFindThreshold) { return {1, 0}; }
         if (rsafe) {  // Only left (j - 1) is off the map
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i + 1, j + 1) >= threshold) { return {1, 1}; }
-          if (array(i - 1, j + 1) >= threshold) { return {-1, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i + 1, j + 1) >= kPyramidFindThreshold) { return {1, 1}; }
+          if (array(i - 1, j + 1) >= kPyramidFindThreshold) { return {-1, 1}; }
         }       // Left (j - 1) and right (j + 1) are off the map: do nothing
       } else {  // Down (i + 1) and left (j - 1) are off the map
         if (rsafe) {
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i - 1, j + 1) >= threshold) { return {-1, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i - 1, j + 1) >= kPyramidFindThreshold) { return {-1, 1}; }
         }  // Down (i + 1), left (j - 1), and right (j + 1) are off the map: do nothing
       }
     }
   } else {  // Up (i - 1) is off the map
     if (lsafe) {
-      if (array(i, j - 1) >= threshold) { return {0, -1}; }
+      if (array(i, j - 1) >= kPyramidFindThreshold) { return {0, -1}; }
       if (dsafe) {
-        if (array(i + 1, j) >= threshold) { return {1, 0}; }
+        if (array(i + 1, j) >= kPyramidFindThreshold) { return {1, 0}; }
         if (rsafe) {  // Only up (i - 1) is off the map
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i + 1, j + 1) >= threshold) { return {1, 1}; }
-          if (array(i + 1, j - 1) >= threshold) { return {1, -1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i + 1, j + 1) >= kPyramidFindThreshold) { return {1, 1}; }
+          if (array(i + 1, j - 1) >= kPyramidFindThreshold) { return {1, -1}; }
         } else {  // Up (i - 1) and right (j + 1) are off the map
-          if (array(i + 1, j - 1) >= threshold) { return {1, -1}; }
+          if (array(i + 1, j - 1) >= kPyramidFindThreshold) { return {1, -1}; }
         }
       } else {  // Down (i + 1) and up (i - 1) are off the map
         if (rsafe) {
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
         }  // Down (i + 1), up (i - 1), and right (j + 1) are off the map: do nothing
       }
     } else {  // Up (i - 1) and left (j - 1) are off the map
       if (dsafe) {
-        if (array(i + 1, j) >= threshold) { return {1, 0}; }
+        if (array(i + 1, j) >= kPyramidFindThreshold) { return {1, 0}; }
         if (rsafe) {  // Only up (i - 1) and left (j - 1) are off the map
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
-          if (array(i + 1, j + 1) >= threshold) { return {1, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
+          if (array(i + 1, j + 1) >= kPyramidFindThreshold) { return {1, 1}; }
         }       // Up (i - 1), left (j - 1), and right (j + 1) are off the map: do nothing
       } else {  // Down (i + 1), up (i - 1), and left (j - 1) are off the map
         if (rsafe) {
-          if (array(i, j + 1) >= threshold) { return {0, 1}; }
+          if (array(i, j + 1) >= kPyramidFindThreshold) { return {0, 1}; }
         }  // Down (i + 1), up (i - 1), left (j - 1), and right (j + 1) are off the map: do nothing
       }
     }
   }
   if constexpr ((H > 1) and (W > 1)) {
-    auto const [ii, jj] = dn.template find_imprecise<threshold>(i >> 1, j >> 1);
+    auto const [ii, jj] = dn.find_imprecise(px_t{i >> 1, j >> 1});
     return {ii << 1, jj << 1};
   }
 #ifndef NDEBUG

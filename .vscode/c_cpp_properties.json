@@ -8,6 +8,7 @@
                 "${workspaceFolder}/ext/stb"
             ],
             "defines": [
+              "LEARN=1",
               "BITS=32",
               "EIGEN_INITIALIZE_MATRICES_BY_NAN=1"
             ],
@@ -16,7 +17,7 @@
             ],
             "compilerPath": "/usr/local/opt/llvm/bin/clang",
             "compilerArgs": [
-              "-include ${workspaceFolder}/cpp/options.hpp"
+              "-include ${workspaceFolder}/cpp/prolegomenon.hpp"
             ],
             "cppStandard": "c++20",
             "configurationProvider": "ms-vscode.makefile-tools"

@@ -1,15 +1,12 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/byte-ceil.hpp"
-#include "util/ints.hpp"
 #include "util/isqrt.hpp"
 
 #include "eigen.hpp"
 
 #include <bit>
 #include <cmath>
-#include <cstdint>
 #include <type_traits>
 
 #ifndef NDEBUG

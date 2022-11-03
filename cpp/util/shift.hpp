@@ -1,7 +1,5 @@
 #pragma once
 
-#include "util/ints.hpp"
-
 // Copied from fixed-point.hpp (TODO(wrsturgeon): better solution)
 namespace fp {
 template <u8 B, i8 I, typename S>

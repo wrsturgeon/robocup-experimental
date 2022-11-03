@@ -1,7 +1,10 @@
 #pragma once
 
+#if !LEARN
+#error "Optimizers only available when LEARN macro is true (i.e. `-DLEARN` or `-DLEARN=1` as command-line arguments)"
+#endif
+
 #include "fp/fixed-point.hpp"
-#include "util/ints.hpp"
 #include "util/units.hpp"
 
 namespace ml {
@@ -17,15 +20,15 @@ template <FixedPoint T, bool republican = false, u8 lg_lr = kLgLRDefault, u8 lg_
 class AdamL1 {
  private:
   using self_t = AdamL1<std::decay_t<T>, republican, lg_lr, lg_b1, lg_b2, lg_wd>;
-  using rtn_t = fp::t<kSystemBits, T::i - lg_lr, typename T::signed_t>;
+  using rtn_t = std::decay_t<T>;  // typename T::template reformat_t<kSystemBits, T::i - lg_lr, typename T::signed_t>;
   decay_t decay1 = decay_t::p2<-lg_b1>();
   decay_t decay2 = decay_t::p2<-lg_b2>();
   fp::t<kSystemBits, T::i, typename T::signed_t> m{0};
   fp::t<kSystemBits, T::i, unsigned> v = fp::t<kSystemBits, T::i, unsigned>::max();
   pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
-  [[nodiscard]] auto step(std::decay_t<T> const& grad) -> rtn_t;
-  pure auto step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t;
+  [[nodiscard]] auto operator()(std::decay_t<T> const& grad) -> rtn_t;
+  pure auto operator()(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t;
 };
 
 #define ADAML1_TEMPLATE template <FixedPoint T, bool republican, u8 lg_lr, u8 lg_b1, u8 lg_b2, u8 lg_wd>
@@ -39,7 +42,7 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::aug_m() const -> fp::t<kSyste
 
 ADAML1_TEMPLATE
 auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad) -> rtn_t {
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::operator()(std::decay_t<T> const& grad) -> rtn_t {
   if constexpr (republican) {
     if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
@@ -62,8 +65,8 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& g
 
 ADAML1_TEMPLATE
 pure auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t {
-  return step(grad) + (w >> lg_wd);
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::operator()(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t {
+  return operator()(grad) + (w >> lg_wd);
 }
 
 #undef ADAML1_TEMPLATE

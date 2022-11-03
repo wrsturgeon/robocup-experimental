@@ -1,8 +1,6 @@
 #pragma once
 
 #include "rnd/xoshiro.hpp"
-#include "util/byte-ceil.hpp"
-#include "util/uninitialized.hpp"
 
 #include <array>    // std::array
 #include <bit>      // std::bit_width
@@ -30,9 +28,9 @@ class Scrambler {
   static constexpr ufull_t n = ufull_t{1} << abits;
   static_assert(n, "Scrambler abits is too big for this OS");
   static constexpr u8 n_renew = kSystemBits / abits;  // # of uses per xoshiro result
-  static constexpr rnd::t bitmask = n - 1;
+  static constexpr ufull_t bitmask = n - 1;
   u8 rnd_uses_left = n_renew - 1;
-  rnd::t rnd_state = rnd::next();
+  ufull_t rnd_state = rnd::next();
   std::array<T, n> data = uninitialized<std::array<T, n>>();
   cint<byte_ceil<abits>, unsigned> counter = 0;
 #ifndef NDEBUG
@@ -57,7 +55,7 @@ Scrambler<T, abits>::store_and_recall(T&& current) -> T {
   } else {
     --rnd_uses_left;
   }
-  rnd::t const rndidx = rnd_state & bitmask;
+  ufull_t const rndidx = rnd_state & bitmask;
   rnd_state >>= abits;
   std::swap(data[rndidx], current);
   return std::move(current);

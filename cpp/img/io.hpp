@@ -1,12 +1,9 @@
 #pragma once
 
-#include "img/types.hpp"
-#include "util/ints.hpp"
 #include "util/units.hpp"
 
 #include "stb-image.hpp"
 
-#include <array>
 #include <cassert>
 #include <filesystem>
 #include <iostream>
@@ -47,8 +44,9 @@ save(T const& x, std::filesystem::path const& fpath) {
 template <imsize_t H, imsize_t W, typename T>
 // requires requires (T const& x, Tensor<H, W, 3> const& t) { t.chip(Eigen::fix<2>, Eigen::fix<2>) = x; }
 void
-save_and_pinpoint(T const& t, std::filesystem::path const& fpath, imsize_t y, imsize_t x) {
+save_and_pinpoint(T const& t, std::filesystem::path const& fpath, px_t X) {
   // not efficient whatsoever but never even parsed in release mode
+  auto const [x, y] = X;
   assert(y < H);
   assert(x < W);
   Tensor<H, W, 3> tmp;

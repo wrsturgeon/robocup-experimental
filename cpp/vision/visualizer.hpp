@@ -5,7 +5,6 @@
 #include "vision/pyramid.hpp"
 
 #include "img/io.hpp"
-#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 namespace vision {
@@ -24,17 +23,16 @@ display_estimate(Pyramid<H, W> const& im, Projection const& proj) {
       rgb(y, x, Eigen::fix<2>) = im(y, x);
     }
   }
-  auto uvw = uninitialized<std::array<cint<kSystemBits, signed>, 3>>();
-  ufull_t u, v;
+  imsize_t y, x;
   for (ufull_t i = 0; i < N_samples; ++i) {
-    uvw = proj(measure::sample_field_lines());
-    if (uvw[2] > 0) {
-      u = static_cast<ufull_t>(hcenter + uvw[0]);
-      v = static_cast<ufull_t>(vcenter + uvw[1]);
+    auto const [u, v, w] = proj(measure::sample_field_lines());
+    if (w > 0) {
+      y = static_cast<imsize_t>(vcenter + v);
+      x = static_cast<imsize_t>(hcenter + u);
       if ((v < H) and (u < W)) {
-        rgb(v, u, Eigen::fix<0>) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-        rgb(v, u, Eigen::fix<1>) = 0;
-        rgb(v, u, Eigen::fix<2>) = 0;
+        rgb(y, x, Eigen::fix<0>) = 255;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        rgb(y, x, Eigen::fix<1>) = 0;
+        rgb(y, x, Eigen::fix<2>) = 0;
       }
     }
   }

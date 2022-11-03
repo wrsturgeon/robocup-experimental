@@ -1,12 +1,9 @@
 #pragma once
 
 #include "util/array-inits.hpp"
-#include "util/byte-ceil.hpp"
 #include "util/fixed-string.hpp"
-#include "util/ints.hpp"
 #include "util/shift.hpp"
 #include "util/ternary.hpp"
-#include "util/uninitialized.hpp"
 #include "util/units.hpp"
 
 #include <array>
@@ -54,9 +51,6 @@ template <typename T> concept FixedPointArray = is_fixed_point_array<T>;
 
 namespace fp {
 
-static constexpr u8 kCompactBits = 16;  // very arbitrary: enough to have reasonable precision
-// also must be less than half system bits to prevent multiplication overflow
-
 // TODO(wrsturgeon): no particular reason `I` can't be negative
 template <u8 B, i8 I, typename S>
 class t {
@@ -69,6 +63,8 @@ class t {
   using floor_t = cint<byte_ceil<(i + s < 0) ? 0 : static_cast<u8>(i + s)>, S>;
   using self_t = t<B, I, S>;
   using signed_t = S;
+  template <u8 B2, i8 I2, typename S2>
+  using reformat_t = t<B2, I2, S2>;
  private:
   internal_t internal;
  public:
@@ -76,7 +72,7 @@ class t {
   template <u8 B2, i8 I2, typename S2>
   pure explicit operator t<B2, I2, S2>() const noexcept;
   template <u8 B2, i8 I2, typename S2>
-  constexpr explicit t(t<B2, I2, S2> x) : internal{+(x.operator self_t())} {}
+  constexpr explicit t(t<B2, I2, S2> x) : internal{+(x.operator t<B, I, S>())} {}
   pure static auto max() -> self_t { return self_t{std::numeric_limits<internal_t>::max()}; }
   pure static auto zero() -> self_t { return self_t{0}; }
   template <i8 p>
@@ -111,16 +107,19 @@ class a {
   using floor_t = typename scalar_t::floor_t;
   using arr_t = std::array<internal_t, N>;
   using self_t = a<N, B, I, S>;
+  using signed_t = S;
+  template <u8 B2, i8 I2, typename S2>
+  using reformat_t = a<N, B2, I2, S2>;
  private:
   arr_t internal;
   template <ufull_t N2, u8 B2, i8 I2, typename S2>
   friend class a;
  public:
-  // constexpr explicit a(arr_t const& x) : internal{x} {}
-  // constexpr explicit a(arr_t&& x) : internal{std::move(x)} {}
-  // template <typename... T> constexpr explicit a(T&&... x) : internal{static_cast<internal_t>(std::forward<T>(x))...} {}
-  template <FixedPoint... T>
-  constexpr explicit a(T&&... x) : internal{+static_cast<scalar_t>(std::forward<T>(x))...} {}
+  // template <FixedPoint... T>
+  // constexpr explicit a(T&&... x) : internal{+static_cast<scalar_t>(std::forward<T>(x))...} {}
+  template <typename... T>
+  requires ((sizeof...(T) == N) and (std::same_as<std::decay_t<T>, scalar_t> and ...))
+  constexpr explicit a(T&&... x) : internal{+std::forward<T>(x)...} {}
   pure static auto zero() -> self_t { return self_t{zeros<internal_t, N>()}; }
   pure auto operator+() const noexcept -> arr_t { return internal; }
   pure auto operator[](ufull_t idx) const -> scalar_t { return scalar_t{internal[idx]}; }
@@ -128,6 +127,8 @@ class a {
   pure auto end() const noexcept -> decltype(auto) { return internal.end(); }
   pure auto floor() const noexcept -> std::array<floor_t, N>;
   pure auto round() const noexcept -> std::array<floor_t, N>;
+  template <u8 B2, i8 I2, typename S2>
+  INLINE auto operator+=(a<N, B2, I2, S2>&& x) -> self_t&;
 };
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
@@ -135,14 +136,20 @@ static_assert(sizeof(t<8, 0, signed>) == sizeof(typename t<8, 0, signed>::intern
 static_assert(sizeof(a<1, 8, 0, signed>) == sizeof(typename a<1, 8, 0, signed>::internal_t));
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
+#define RETURN_T fp::t<(sizeof x) * CHAR_BIT, (sizeof x) * CHAR_BIT - 1, signed>
 pure auto
-from_int(std::integral auto x) noexcept -> fp::t<kSystemBits, kSystemBits - 1, signed> {
-  return fp::t<kSystemBits, kSystemBits - 1, signed>{x};
+from_int(std::integral auto x) noexcept -> RETURN_T {
+  static_assert(RETURN_T::f == 0, "my bad");
+  return RETURN_T{x};
 }
+#undef RETURN_T
+#define RETURN_T fp::t<(sizeof x) * CHAR_BIT, (sizeof x) * CHAR_BIT, unsigned>
 pure auto
-from_int(std::unsigned_integral auto x) noexcept -> fp::t<kSystemBits, kSystemBits, unsigned> {
-  return fp::t<kSystemBits, kSystemBits, unsigned>{x};
+from_int(std::unsigned_integral auto x) noexcept -> RETURN_T {
+  static_assert(RETURN_T::f == 0, "my bad");
+  return RETURN_T{x};
 }
+#undef RETURN_T
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -156,6 +163,14 @@ template <u8 B2, i8 I2, typename S2>
 pure t<B, I, S>::operator t<B2, I2, S2>() const noexcept {
   using t2 = t<B2, I2, S2>;
   return t2{static_cast<typename t2::internal_t>(lshift<t2::f - f>(static_cast<full_t<S>>(internal)))};
+}
+
+template <ufull_t N, u8 B, i8 I, typename S>
+template <u8 B2, i8 I2, typename S2>
+INLINE auto
+a<N, B, I, S>::operator+=(a<N, B2, I2, S2>&& x) -> self_t& {
+  std::transform(internal.begin(), internal.end(), x.internal.begin(), internal.begin(), std::plus<internal_t>{});
+  return *this;
 }
 
 #define DEFINE_BINARY_OP(SYMBOL, ...)                                                                                                                                                                                                                         \
@@ -177,6 +192,12 @@ requires (B1 + B2 <= kSystemBits)
 pure auto
 operator*(t<B1, I1, S1> const& x, t<B2, I2, S2> const& y) -> t<B1, I1, S1> {
   return t<B1, I1, S1>{static_cast<typename t<B1, I1, S1>::internal_t>(rshift<t<B2, I2, S2>::f, full_t<S1>>(static_cast<full_t<S1>>(+x) * static_cast<full_t<S2>>(+y)))};
+}
+template <u8 B1, i8 I1, typename S1, u8 B2, typename S2>
+requires ((B1 + B2 > kSystemBits) and (B2 < B1))
+pure auto
+operator*(t<B1, I1, S1> const& x, t<B2, 0, S2> const& y) -> t<B1, I1, S1> {
+  return t<B1, I1, S1>{(+static_cast<fp::t<kSystemBits - B2 + std::is_signed_v<S2>, I1, S1>>(x)) * +y};
 }
 template <u8 B1, i8 I1, typename S1>
 pure auto
