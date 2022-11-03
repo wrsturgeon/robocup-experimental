@@ -5,8 +5,6 @@
 #include "fp/fixed-point.hpp"
 #include "util/units.hpp"
 
-#include <cstdint>
-
 namespace measure {
 
 /**

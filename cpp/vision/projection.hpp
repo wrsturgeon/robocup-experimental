@@ -4,8 +4,6 @@
 #include "measure/field-lines.hpp"
 #include "trig/functions.hpp"
 
-#include <array>
-
 #ifndef NDEBUG
 #include <string>
 #endif

@@ -4,7 +4,6 @@
 
 #include "stb-image.hpp"
 
-#include <array>
 #include <cassert>
 #include <filesystem>
 #include <iostream>

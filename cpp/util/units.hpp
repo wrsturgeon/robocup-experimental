@@ -6,7 +6,6 @@
 
 #include <bit>
 #include <cmath>
-#include <cstdint>
 #include <type_traits>
 
 #ifndef NDEBUG
