@@ -19,7 +19,7 @@ rotl(const t x) -> t {
   return (x << k) | (x >> (kSystemBits - k));
 }
 
-// NOLINTBEGIN(readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 impure static auto
 next() -> t {
   static auto s = std::tuple<t, t, t, t>{
@@ -43,7 +43,7 @@ next() -> t {
 
   return result;
 }
-// NOLINTEND(readability-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 // impure static auto bit() -> bool {
 //   static t state;
