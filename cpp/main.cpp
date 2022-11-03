@@ -6,8 +6,6 @@
 #include "vision/visualizer.hpp"
 #endif  // NDEBUG
 
-#include "util/units.hpp"
-
 #ifndef NDEBUG
 #include <filesystem>
 #include <iostream>

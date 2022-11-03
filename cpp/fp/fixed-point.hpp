@@ -4,7 +4,6 @@
 #include "util/fixed-string.hpp"
 #include "util/shift.hpp"
 #include "util/ternary.hpp"
-#include "util/units.hpp"
 
 #include <array>
 #include <limits>
