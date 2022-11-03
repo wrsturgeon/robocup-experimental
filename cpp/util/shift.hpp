@@ -1,14 +1,12 @@
 #pragma once
 
-#include "util/ints.hpp"
-
 // Copied from fixed-point.hpp (TODO(wrsturgeon): better solution)
 namespace fp {
 template <u8 B, i8 I, typename S>
 class t;
 }  // namespace fp
 
-static constexpr i8 kMostNegative = -128;
+inline constexpr i8 kMostNegative = -128;
 
 template <i8 b, typename T>
 requires (b != kMostNegative)

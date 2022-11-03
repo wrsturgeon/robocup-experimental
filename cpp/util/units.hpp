@@ -1,9 +1,6 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/byte-ceil.hpp"
-#include "util/ints.hpp"
-#include "util/isqrt.hpp"
 
 #include "eigen.hpp"
 

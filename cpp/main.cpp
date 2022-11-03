@@ -6,7 +6,6 @@
 #include "vision/visualizer.hpp"
 #endif  // NDEBUG
 
-#include "util/ints.hpp"
 #include "util/units.hpp"
 
 #ifndef NDEBUG
@@ -41,8 +40,8 @@ main() -> int {
     static_assert(256 % jump == 0);  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     u8 i = jump;
     u8 j;
-    imsize_t x;
-    imsize_t y;
+    pxidx_t x;
+    pxidx_t y;
     auto p = vision::Pyramid<kImageH, kImageW>{"../img/blurred.png"};
     do {
       j = jump;
@@ -50,8 +49,8 @@ main() -> int {
         y = (static_cast<ufull_t>(kImageH) * i) >> 8;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         x = (static_cast<ufull_t>(kImageW) * j) >> 8;  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         img::save_and_pinpoint<kImageH, kImageW>(p.array, std::filesystem::current_path() / ("_COORD_" + std::to_string(i) + "_" + std::to_string(j) + ".png"), y, x);
-        auto [m, n] = p.find_imprecise<192>(y, x);  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-        img::save_and_pinpoint<kImageH, kImageW>(p.array, std::filesystem::current_path() / ("_COORD_" + std::to_string(i) + "_" + std::to_string(j) + "_FOUND.png"), static_cast<imsize_t>(y + m), static_cast<imsize_t>(x + n));
+        auto [m, n] = p.find_imprecise({y, x});  // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        img::save_and_pinpoint<kImageH, kImageW>(p.array, std::filesystem::current_path() / ("_COORD_" + std::to_string(i) + "_" + std::to_string(j) + "_FOUND.png"), static_cast<pxidx_t>(y + m), static_cast<pxidx_t>(x + n));
       } while (j += jump);  // NOLINT(altera-id-dependent-backward-branch)
     } while (i += jump);    // NOLINT(altera-id-dependent-backward-branch)
   } catch (std::exception const& e) {

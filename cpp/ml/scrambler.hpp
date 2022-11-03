@@ -1,8 +1,6 @@
 #pragma once
 
 #include "rnd/xoshiro.hpp"
-#include "util/byte-ceil.hpp"
-#include "util/uninitialized.hpp"
 
 #include <array>    // std::array
 #include <bit>      // std::bit_width

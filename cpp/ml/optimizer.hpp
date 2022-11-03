@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fp/fixed-point.hpp"
-#include "util/ints.hpp"
 #include "util/units.hpp"
 
 namespace ml {
