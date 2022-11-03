@@ -174,6 +174,16 @@ uninitialized() -> std::decay_t<T> {
 
 /******** Eigen types ********/
 
+#define EIGEN_ARRAYBASE_PLUGIN "eigen-array-plugin.hpp"  // NOLINT(cppcoreguidelines-macro-usage)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+// NOLINTBEGIN
+#include "Eigen/Core"
+#include "unsupported/Eigen/CXX11/TensorSymmetry"
+// NOLINTEND
+#pragma clang diagnostic pop
+
 template <int H, int W>
 inline constexpr auto RowMajor = ((W == 1) ? Eigen::ColMajor : Eigen::RowMajor);
 template <int H, int W>

@@ -6,8 +6,6 @@
 
 #include "rnd/xoshiro.hpp"
 
-#include "eigen.hpp"
-
 #include <filesystem>
 #include <stdexcept>
 #include <type_traits>
