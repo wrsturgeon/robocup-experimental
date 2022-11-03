@@ -8,5 +8,5 @@ if [ ${#} -lt 1 ]; then
 fi
 
 git checkout -b ${1} > /dev/null 2>&1 || git checkout -b ${1}
-./push "${2:}" > /dev/null 2>&1 || ./push "${2:}"
-echo "Branch ${1} created and pushed to origin"
+./push "${*:2}" > /dev/null 2>&1 || ./push "${*:2}"
+echo "${1} created and pushed to origin"
