@@ -141,17 +141,22 @@ inline constexpr nao_h_t kNaoHeightMM = 550;  // TODO(wrsturgeon): ROUGH ESTIMAT
 /******** Useful macros ********/
 
 #ifdef NDEBUG
-#define INLINE [[gnu::always_inline]] inline constexpr
-#define impure [[nodiscard]] [[gnu::always_inline]] inline  // not constexpr since std::string for whatever reason isn't
+#define INLINE_NOATTR inline constexpr
+#define INLINE [[gnu::always_inline]] INLINE_NOATTR
+#define IMPURE_NOATTR inline
+#define impure [[nodiscard]] [[gnu::always_inline]] IMPURE_NOATTR  // not constexpr since std::string for whatever reason isn't
 #define CONST_IF_RELEASE const
 #define NOX noexcept
 #else
-#define INLINE constexpr
-#define impure [[nodiscard]]
+#define INLINE_NOATTR constexpr
+#define INLINE INLINE_NOATTR
+#define IMPURE_NOATTR
+#define impure [[nodiscard]] IMPURE_NOATTR
 #define NOX
 #define CONST_IF_RELEASE
 #endif  // NDEBUG
-#define pure [[nodiscard]] INLINE
+#define PURE_NOATTR INLINE_NOATTR
+#define pure [[nodiscard]] PURE_NOATTR
 
 #ifndef TRIG_BITS
 #define TRIG_BITS 16  // NOLINT(cppcoreguidelines-macro-usage)

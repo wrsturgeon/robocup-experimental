@@ -4,7 +4,7 @@
 #ifndef PROFILING_COMPILATION  // so we don't shoot ourselves in the foot trying to measure things
 #error "Please don't use image IO in release mode <3"
 #endif  // PROFILING_COMPILATION
-#endif  // NDEBUG
+#else   // NDEBUG
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
@@ -15,3 +15,5 @@
 #include "stb_image_write.h"
 // NOLINTEND
 #pragma clang diagnostic pop
+
+#endif  // NDEBUG
