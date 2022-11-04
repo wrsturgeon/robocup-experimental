@@ -19,12 +19,12 @@ jobs:
           sudo apt-get update > /dev/null 2>&1
           export CLANG_VERSION=$(clang --version | head -n1 | cut -d. -f1 | rev | cut -d' ' -f1 | rev) && sudo apt-get install clang-format-${CLANG_VERSION} clang-tidy-${CLANG_VERSION} > /dev/null 2>&1
           make ci VERBOSE=1
-  build-mac:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Mac
-        run: |
-          PATH=/usr/local/opt/llvm/bin:$PATH
-          brew install llvm
-          make ci VERBOSE=1
+  # build-mac:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Mac
+  #       run: |
+  #         PATH=/usr/local/opt/llvm/bin:$PATH
+  #         brew install llvm
+  #         make ci VERBOSE=1
