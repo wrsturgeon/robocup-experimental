@@ -11,6 +11,8 @@ inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for th
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
 inline constexpr u8 kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 template <FixedPoint T, bool republican = false, u8 lg_lr = kLgLRDefault, u8 lg_b1 = kLgB1Default, u8 lg_b2 = kLgB2Default, u8 lg_wd = kLgWDDefault>
 class AdamL1 {
  private:
@@ -24,9 +26,10 @@ class AdamL1 {
   pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
   constexpr AdamL1(std::decay_t<T> const& x_init) : x_prev{x_init} {}
-  [[nodiscard]] auto step(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
-  pure auto step_wt_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
+  [[nodiscard]] pure auto operator()(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
+  pure auto with_weight_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
 };
+#pragma clang diagnostic pop
 
 #define ADAML1_TEMPLATE template <FixedPoint T, bool republican, u8 lg_lr, u8 lg_b1, u8 lg_b2, u8 lg_wd>
 
@@ -38,8 +41,8 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::aug_m() const -> fp::t<kSyste
 }
 
 ADAML1_TEMPLATE
-auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
+pure auto
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::operator()(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
   if constexpr (republican) {
     if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
@@ -63,8 +66,8 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& x
 
 ADAML1_TEMPLATE
 pure auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& dLdx, std::decay_t<T> const& w) -> rtn_t {
-  return step(dLdx) + (w >> lg_wd);
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::with_weight_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
+  return operator()(dLdx) + (x >> lg_wd);
 }
 
 #undef ADAML1_TEMPLATE
