@@ -11,6 +11,8 @@ inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for th
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
 inline constexpr u8 kLgWDDefault = 7;   // Weight decay: L2 regularization multiplier
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 template <FixedPoint T, bool republican = false, u8 lg_lr = kLgLRDefault, u8 lg_b1 = kLgB1Default, u8 lg_b2 = kLgB2Default, u8 lg_wd = kLgWDDefault>
 class AdamL1 {
  private:
@@ -20,11 +22,14 @@ class AdamL1 {
   decay_t decay2 = decay_t::p2<-lg_b2>();
   fp::t<kSystemBits, T::i, typename T::signed_t> m{0};
   fp::t<kSystemBits, T::i, unsigned> v = fp::t<kSystemBits, T::i, unsigned>::max();
+  std::decay_t<T> x_prev;
   pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
-  [[nodiscard]] auto step(std::decay_t<T> const& grad) -> rtn_t;
-  pure auto step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t;
+  constexpr explicit AdamL1(std::decay_t<T> const& x_init) : x_prev{x_init} {}
+  [[nodiscard]] pure auto operator()(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
+  pure auto with_weight_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
 };
+#pragma clang diagnostic pop
 
 #define ADAML1_TEMPLATE template <FixedPoint T, bool republican, u8 lg_lr, u8 lg_b1, u8 lg_b2, u8 lg_wd>
 
@@ -36,13 +41,14 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::aug_m() const -> fp::t<kSyste
 }
 
 ADAML1_TEMPLATE
-auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad) -> rtn_t {
+pure auto
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::operator()(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
   if constexpr (republican) {
     if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
-  m += rshift<lg_b1>(grad - m);
-  v += rshift<lg_b2>(grad.abs() - v);
+  m += rshift<lg_b1>(dLdx - m);
+  v += rshift<lg_b2>((x - x_prev).abs() - v);  // Actual value differences, not full-precision gradients, since data will be lost
+  x_prev = x;
   // if (decay2 != decay_t::zero()) {
   //   v /= ~decay2;
   //   static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
@@ -60,8 +66,8 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& g
 
 ADAML1_TEMPLATE
 pure auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t {
-  return step(grad) + (w >> lg_wd);
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::with_weight_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
+  return operator()(dLdx) + (x >> lg_wd);
 }
 
 #undef ADAML1_TEMPLATE
