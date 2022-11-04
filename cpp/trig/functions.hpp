@@ -21,20 +21,16 @@ inline constexpr std::array<t, 256> cos = {32767, 32758, 32729, 32679, 32610, 32
 // clang-format on
 }  // namespace lookup
 
-using rtn_t = fp::t<TRIG_BITS, 0, signed>;
-using rtn_array_t = fp::a<2, TRIG_BITS, 0, signed>;
+using t = fp::t<TRIG_BITS, 0, signed>;
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define MAKE_TRIG_FN(NAME, RTNTYPE, ...)                                                                                                                                                                                                                      \
+#define MAKE_TRIG_FN(NAME, ...)                                                                                                                                                                                                                               \
   template <FixedPoint T>                                                                                                                                                                                                                                     \
-  pure auto NAME(T&& fp_arg) noexcept -> RTNTYPE {                                                                                                                                                                                                            \
-    u8 const x = +fp::t<8, 0, unsigned>{fp_arg};                                                                                                                                                                                                              \
-    return RTNTYPE{__VA_ARGS__};                                                                                                                                                                                                                              \
+  pure auto NAME(T const& fp_arg) noexcept -> t {                                                                                                                                                                                                             \
+    u8 const x = lshift<8>(fp::unsafe_cast<8, 0, unsigned>(fp_arg)).to_int();                                                                                                                                                                                 \
+    return t{__VA_ARGS__};                                                                                                                                                                                                                                    \
   }
-MAKE_TRIG_FN(cos, rtn_t, lookup::cos[x])
-MAKE_TRIG_FN(sin, rtn_t, lookup::sin[x])
-MAKE_TRIG_FN(exp, rtn_array_t, rtn_t{lookup::cos[x]}, rtn_t{lookup::sin[x]})
-MAKE_TRIG_FN(d_cos, rtn_t, -lookup::sin[x])
-MAKE_TRIG_FN(d_sin, rtn_t, lookup::cos[x])
+MAKE_TRIG_FN(cos, lookup::cos[x])
+MAKE_TRIG_FN(sin, lookup::sin[x])
 
 }  // namespace trig

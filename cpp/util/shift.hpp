@@ -3,6 +3,7 @@
 // Copied from fixed-point.hpp (TODO(wrsturgeon): better solution)
 namespace fp {
 template <u8 B, i8 I, typename S>
+requires (B <= kSystemBits)
 class t;
 }  // namespace fp
 
@@ -34,10 +35,10 @@ pure auto rshift(T x) noexcept -> T {
 template <i8 b, u8 B, i8 I, typename S>
 pure auto
 lshift(fp::t<B, I, S> x) noexcept -> fp::t<B, I + b, S> {
-  return fp::t<B, I + b, S>{+x};
+  return fp::t<B, I + b, S>{x.internal};
 }
 template <i8 b, u8 B, i8 I, typename S>
 pure auto
 rshift(fp::t<B, I, S> x) noexcept -> fp::t<B, I - b, S> {
-  return fp::t<B, I - b, S>{+x};
+  return fp::t<B, I - b, S>{x.internal};
 }

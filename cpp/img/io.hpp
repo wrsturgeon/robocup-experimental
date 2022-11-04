@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef NDEBUG
+#ifndef PROFILING_COMPILATION  // so we don't shoot ourselves in the foot trying to measure things
+#error "Please don't use image IO in release mode <3"
+#endif  // PROFILING_COMPILATION
+#else   // NDEBUG
+
 #include "stb-image.hpp"
 
 #include <cassert>
@@ -76,7 +82,7 @@ template <imsize_t H = kImageH, imsize_t W = kImageW, u8 C = 3>
 class t {
  private:
   u8* data;
-  using channel_map_t = Eigen::Map<Array<H, W, u8>, RowMajor<H, W>, Eigen::InnerStride<3>>;
+  using channel_map_t = Eigen::Map<Array<H, W, u8>, RowMajor<H, W>, Eigen::InnerStride<3> >;
  public:
   explicit t(std::filesystem::path const& fpath);
   t(t<H, W, C> const&) = delete;
@@ -103,3 +109,5 @@ t<H, W, C>::t(std::filesystem::path const& fpath) : data{stbi_load(fpath.c_str()
 }
 
 }  // namespace img
+
+#endif  // NDEBUG

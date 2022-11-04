@@ -19,14 +19,19 @@ MACROS := -DBITS=$(BITS) -DOS=$(strip $(OS)) -DCORES=$(CORES) -DEIGEN_STACK_ALLO
 WARNINGS := -Wall -Wextra -Weverything -Werror -pedantic-errors -Wno-c++98-compat -Wno-c++98-compat-pedantic
 COMMON := $(strip $(FLAGS)) $(strip $(MACROS)) $(strip $(INCLUDES)) $(strip $(WARNINGS))
 
-DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -DEIGEN_NO_AUTOMATIC_RESIZING -DEIGEN_FAST_MATH=0 -fno-common #-fsanitize=address -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always
-RELEASE_FLAGS := -Ofast -fomit-frame-pointer -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG -DEIGEN_FAST_MATH=1 -DEIGEN_NO_ASSERTION_CHECKING
+DEBUG_FLAGS   := -O0 -fno-omit-frame-pointer -g -ftrapv -fstack-check -fno-optimize-sibling-calls -DEIGEN_INITIALIZE_MATRICES_BY_NAN -DEIGEN_NO_AUTOMATIC_RESIZING -DEIGEN_FAST_MATH=0 -fno-common #-fsanitize=address -fsanitize-address-use-after-scope -fsanitize-address-use-after-return=always
+RELEASE_FLAGS := -Ofast -fomit-frame-pointer -fno-exceptions -fshort-enums -march=native -mtune=native -mllvm -polly -mllvm -polly-vectorizer=stripmine -DNDEBUG -DEIGEN_FAST_MATH=1 -DEIGEN_NO_ASSERTION_CHECKING
 
 
 
 # Release: no debug symbols, no bullshit, just as fast as possible
 release:
+	echo "Compiling the release build..."
 	$(CXX) -o ./run $(SRC)/main.cpp $(strip $(COMMON)) $(strip $(RELEASE_FLAGS))
+
+run-release:
+	echo "Running the release build..."
+	./run || :
 
 all.cpp:
 	echo '#pragma clang diagnostic push' > ./all.cpp

@@ -55,7 +55,7 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& g
   if constexpr (republican) { decay2 -= rshift<lg_b2>(decay2); }
   using div_t = fp::t<T::b, T::b - lg_lr, unsigned>;
   static_assert(div_t::f == lg_lr);
-  return rtn_t((+aug_m()) / ((+div_t{v}) | 0b1));  // 0b1 ~= epsilon
+  return rtn_t{lshift<decltype(aug_m())::f>(aug_m()).to_int() / (lshift<lg_lr>(div_t{v}).to_int() | 1)};  // 1 ~= epsilon
 }
 
 ADAML1_TEMPLATE
