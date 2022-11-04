@@ -112,7 +112,7 @@ class t {
   INLINE auto operator/=(FixedPoint auto&& x) noexcept -> self_t& { return *this = *this / std::forward<decltype(x)>(x); }
   pure auto operator-() const noexcept -> self_t requires (s) /* clang-format off */ { return self_t{static_cast<internal_t>(-internal)}; } /* clang-format on */
 #ifndef NDEBUG
-  pure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
+  impure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
 #endif
  private:  // Friend declarations
   template <ufull_t N2, u8 B2, i8 I2, typename S2>
