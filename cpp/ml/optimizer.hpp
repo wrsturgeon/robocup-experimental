@@ -20,10 +20,12 @@ class AdamL1 {
   decay_t decay2 = decay_t::p2<-lg_b2>();
   fp::t<kSystemBits, T::i, typename T::signed_t> m{0};
   fp::t<kSystemBits, T::i, unsigned> v = fp::t<kSystemBits, T::i, unsigned>::max();
+  std::decay_t<T> x_prev;
   pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
-  [[nodiscard]] auto step(std::decay_t<T> const& grad) -> rtn_t;
-  pure auto step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t;
+  constexpr AdamL1(std::decay_t<T> const& x_init) : x_prev{x_init} {}
+  [[nodiscard]] auto step(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
+  pure auto step_wt_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
 };
 
 #define ADAML1_TEMPLATE template <FixedPoint T, bool republican, u8 lg_lr, u8 lg_b1, u8 lg_b2, u8 lg_wd>
@@ -37,12 +39,13 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::aug_m() const -> fp::t<kSyste
 
 ADAML1_TEMPLATE
 auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad) -> rtn_t {
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t {
   if constexpr (republican) {
     if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
   m += rshift<lg_b1>(grad - m);
-  v += rshift<lg_b2>(grad.abs() - v);
+  v += rshift<lg_b2>((x - x_prev).abs() - v);  // Actual value differences, not full-precision gradients, since data will be lost
+  x_prev = x;
   // if (decay2 != decay_t::zero()) {
   //   v /= ~decay2;
   //   static_assert(FixedPoint<decltype(decay2 - (decay2 >> lg_b2))>);
