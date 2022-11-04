@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef NDEBUG
+#ifndef PROFILING_COMPILATION  // so we don't shoot ourselves in the foot trying to measure things
+#error "Please don't use image IO in release mode <3"
+#endif  // PROFILING_COMPILATION
+#else   // NDEBUG
+
 #include "measure/field-lines.hpp"
 #include "vision/projection.hpp"
 #include "vision/pyramid.hpp"
@@ -40,3 +46,5 @@ display_estimate(Pyramid<H, W> const& im, Projection const& proj) {
 }
 
 }  // namespace vision
+
+#endif  // NDEBUG
