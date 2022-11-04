@@ -25,7 +25,7 @@ class AdamL1 {
   std::decay_t<T> x_prev;
   pure auto aug_m() const -> fp::t<kSystemBits, T::i, typename T::signed_t>;
  public:
-  constexpr AdamL1(std::decay_t<T> const& x_init) : x_prev{x_init} {}
+  constexpr explicit AdamL1(std::decay_t<T> const& x_init) : x_prev{x_init} {}
   [[nodiscard]] pure auto operator()(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
   pure auto with_weight_decay(std::decay_t<T> const& x, std::decay_t<T> const& dLdx) -> rtn_t;
 };
