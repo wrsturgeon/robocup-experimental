@@ -43,7 +43,7 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& x
   if constexpr (republican) {
     if (decay2 == decay_t::zero()) { return rtn_t::zero(); }
   }
-  m += rshift<lg_b1>(grad - m);
+  m += rshift<lg_b1>(dLdx - m);
   v += rshift<lg_b2>((x - x_prev).abs() - v);  // Actual value differences, not full-precision gradients, since data will be lost
   x_prev = x;
   // if (decay2 != decay_t::zero()) {
@@ -63,8 +63,8 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& x
 
 ADAML1_TEMPLATE
 pure auto
-AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& grad, std::decay_t<T> const& w) -> rtn_t {
-  return step(grad) + (w >> lg_wd);
+AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::step(std::decay_t<T> const& dLdx, std::decay_t<T> const& w) -> rtn_t {
+  return step(dLdx) + (w >> lg_wd);
 }
 
 #undef ADAML1_TEMPLATE
