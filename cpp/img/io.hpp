@@ -61,9 +61,9 @@ save_and_pinpoint(T const& t, std::filesystem::path const& fpath, pxidx_t y, pxi
     }
   }
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define SET_RED(i, j)                                                                                                                                                                                                                                         \
-  tmp(i, j, 0) = 255;                                                                                                                                                                                                                                         \
-  tmp(i, j, 1) = 0;                                                                                                                                                                                                                                           \
+#define SET_RED(i, j) \
+  tmp(i, j, 0) = 255; \
+  tmp(i, j, 1) = 0;   \
   tmp(i, j, 2) = 0
   SET_RED(y, x);
   if ((x - 2 > 0) and (y - 2 > 0)) { SET_RED(y - 2, x - 2); }

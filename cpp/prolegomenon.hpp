@@ -17,6 +17,7 @@ inline constexpr std::uint8_t kSystemBits = BITS;
 #else   // ifdef BITS
 #error "Compile with argument -DBITS=$(getconf LONG_BIT)"
 #endif  // ifdef BITS
+inline constexpr std::uint8_t kHalfSystemBits = kSystemBits >> 1;
 
 /******** Custom integer types ********/
 
@@ -33,16 +34,16 @@ struct cint_s {};
 #define INT_T(bits) BLIND_INT_T(bits)
 #define UINT(bits) BLIND_UINT(bits)
 #define INT(bits) BLIND_INT(bits)
-#define MAKE_INT(bits)                                                                                                                                                                                                                                        \
-  using INT(bits) = INT_T(bits);                                                                                                                                                                                                                              \
-  using UINT(bits) = UINT_T(bits);                                                                                                                                                                                                                            \
-  template <>                                                                                                                                                                                                                                                 \
-  struct cint_s<bits, unsigned> {                                                                                                                                                                                                                             \
-    using t = UINT(bits);                                                                                                                                                                                                                                     \
-  };                                                                                                                                                                                                                                                          \
-  template <>                                                                                                                                                                                                                                                 \
-  struct cint_s<bits, signed> {                                                                                                                                                                                                                               \
-    using t = INT(bits);                                                                                                                                                                                                                                      \
+#define MAKE_INT(bits)             \
+  using INT(bits) = INT_T(bits);   \
+  using UINT(bits) = UINT_T(bits); \
+  template <>                      \
+  struct cint_s<bits, unsigned> {  \
+    using t = UINT(bits);          \
+  };                               \
+  template <>                      \
+  struct cint_s<bits, signed> {    \
+    using t = INT(bits);           \
   }
 #if BITS >= 8
 MAKE_INT(8);

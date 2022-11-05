@@ -4,8 +4,9 @@
 
 namespace ml {
 
-inline constexpr u8 kDecayTBits = 16;  // TODO(wrsturgeon): evaluate 16 with a lower epsilon
+inline constexpr u8 kDecayTBits = 16;
 using decay_t = fp::t<kDecayTBits, 0, unsigned>;
+
 inline constexpr u8 kLgLRDefault = 5;   // Learning rate (also fractional bits in second-moment divisor)
 inline constexpr u8 kLgB1Default = 3;   // Beta 1: exponential decay rate for the first moment
 inline constexpr u8 kLgB2Default = 10;  // Beta 2: exponential decay rate for the second moment
@@ -61,7 +62,7 @@ AdamL1<T, republican, lg_lr, lg_b1, lg_b2, lg_wd>::operator()(std::decay_t<T> co
   if constexpr (republican) { decay2 -= rshift<lg_b2>(decay2); }
   using div_t = fp::t<T::b, T::b - lg_lr, unsigned>;
   static_assert(div_t::f == lg_lr);
-  return rtn_t{lshift<decltype(aug_m())::f>(aug_m()).to_int() / (lshift<lg_lr>(div_t{v}).to_int() | 1)};  // 1 ~= epsilon
+  return rtn_t{aug_m().internal / (div_t{v}.internal | 1)};  // 1 ~= epsilon
 }
 
 ADAML1_TEMPLATE

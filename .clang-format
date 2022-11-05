@@ -6,7 +6,7 @@ AlignArrayOfStructures: Right
 AlignConsecutiveBitFields: Consecutive
 # AlignConsecutiveDeclarations: Consecutive
 # AlignConsecutiveMacros: Consecutive
-AlignEscapedNewlines: Right
+AlignEscapedNewlines: Left
 AlignOperands: DontAlign
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
@@ -25,7 +25,7 @@ BinPackParameters: false
 BreakBeforeConceptDeclarations: false
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
-ColumnLimit: 255 # 127 # 95
+ColumnLimit: 512 # 127 # 95
 ConstructorInitializerIndentWidth: 6
 ContinuationIndentWidth: 6
 Cpp11BracedListStyle: true
