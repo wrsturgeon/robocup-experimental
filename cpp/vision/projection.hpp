@@ -104,7 +104,7 @@ class Projection {
   auto const R33 = trig::t{cos1 * cos2};
 
 // No projection yet, just Euclidean transformation to camera frame
-// NOLINT(cppcoreguidelines-macro-usage)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define TRANSLATE_TO_CAMERA_COORDINATES(...)                                   \
   auto const x = compact_pos_t{std::get<0>(X)} - t[0];                         \
   auto const y = compact_pos_t{std::get<1>(X)} - t[1];                         \
