@@ -22,10 +22,10 @@
 namespace fp {
 template <u8 B, i8 I, typename S>
 requires (B <= kSystemBits)
-class t;
+struct t;
 template <ufull_t N, u8 B, i8 I, typename S>
 requires (B <= kSystemBits)
-class a;
+struct a;
 }  // namespace fp
 
 template <typename T>
@@ -61,16 +61,13 @@ template <typename T> concept FixedPointArray = is_fixed_point_array<T>;
 
 namespace fp {
 
-inline constexpr u8 kCompactBits = 16;  // very arbitrary: enough to have reasonable precision
-// also must be less than half system bits to prevent multiplication overflow
-
 template <u8 B1, i8 I1, typename S1, u8 B2, i8 I2, typename S2>
 using mul_rtn_t = t<B1 + B2, I1 + I2, std::conditional_t<std::is_signed_v<S1> or std::is_signed_v<S2>, signed, unsigned>>;
 
 // TODO(wrsturgeon): no particular reason `I` can't be negative
 template <u8 B, i8 I, typename S>
 requires (B <= kSystemBits)
-class t {
+struct t {
  public:
   static constexpr u8 b = B;
   static constexpr i8 i = I;
@@ -80,9 +77,7 @@ class t {
   using floor_t = cint<byte_ceil<(i + s < 0) ? 0 : static_cast<u8>(i + s)>, S>;
   using self_t = t<B, I, S>;
   using signed_t = S;
- private:
-  internal_t internal;
- public:
+  internal_t internal;  // NOLINT(misc-non-private-member-variables-in-classes)
   constexpr explicit t(internal_t x) : internal{x} {}
   template <u8 B2, i8 I2, typename S2>
   requires (B2 <= kSystemBits)
@@ -94,9 +89,7 @@ class t {
   pure static auto zero() -> self_t { return self_t{0}; }
   template <i8 p>
   requires (p < i)  // and (f + p >= 0))
-  pure static auto p2() -> self_t {
-    return self_t(lshift<f + p, ufull_t>(1));
-  }
+  pure static auto p2() -> self_t /* clang-format off */ { return self_t(lshift<f + p, ufull_t>(1)); }                 /* clang-format on */
   pure static auto unit() -> self_t { return p2<0>(); }
   // pure auto operator+() const noexcept -> internal_t { return internal; }
   pure explicit operator internal_t() const noexcept { return internal; }
@@ -114,32 +107,11 @@ class t {
 #ifndef NDEBUG
   impure explicit operator std::string() const { return std::to_string(ldexp(internal, -f)); }
 #endif
- private:  // Friend declarations
-  template <ufull_t N2, u8 B2, i8 I2, typename S2>
-  requires (B2 <= kSystemBits)
-  friend class a;
-  template <u8 B1, i8 I1, typename S1, typename S2>
-  requires (B1 <= kSystemBits)
-  friend PURE_NOATTR auto operator+(t<B1, I1, S1> const&, t<B1, I1, S2> const&) NOX->t<B1, I1, S1>;
-  template <u8 B1, i8 I1, typename S1, typename S2>
-  requires (B1 <= kSystemBits)
-  friend PURE_NOATTR auto operator-(t<B1, I1, S1> const&, t<B1, I1, S2> const&) NOX->t<B1, I1, S1>;
-  friend PURE_NOATTR auto operator==(t<B, I, S> const&, t<B, I, S> const&) noexcept -> bool;
-  template <u8 B2, i8 I2, typename S2, u8 B_in, i8 I_in, typename S_in>
-  requires ((B2 <= kSystemBits) and (B_in <= kSystemBits))
-  friend PURE_NOATTR auto unsafe_cast(t<B_in, I_in, S_in> const& x) noexcept -> t<B2, I2, S2>;
-  template <i8 b2, u8 B2, i8 I2, typename S2>
-  friend PURE_NOATTR auto ::lshift(fp::t<B2, I2, S2> x) noexcept -> fp::t<B2, I2 + b2, S2>;
-  template <i8 b2, u8 B2, i8 I2, typename S2>
-  friend PURE_NOATTR auto ::rshift(fp::t<B2, I2, S2> x) noexcept -> fp::t<B2, I2 - b2, S2>;
-  template <u8 B1, i8 I1, typename S1, u8 B2, i8 I2, typename S2>
-  requires ((B1 <= kSystemBits) and (B2 <= kSystemBits))
-  friend PURE_NOATTR auto operator*(t<B1, I1, S1> const& x, t<B2, I2, S2> const& z) noexcept -> mul_rtn_t<B1, I1, S1, B2, I2, S2>;
 };
 
 template <ufull_t N, u8 B, i8 I, typename S>
 requires (B <= kSystemBits)
-class a {
+struct a {  // NOLINT(altera-struct-pack-align)
  public:
   static constexpr ufull_t n = N;
   static constexpr u8 b = B;
@@ -151,12 +123,7 @@ class a {
   using floor_t = typename scalar_t::floor_t;
   using arr_t = std::array<internal_t, N>;
   using self_t = a<N, B, I, S>;
- private:
-  arr_t internal;
-  template <ufull_t N2, u8 B2, i8 I2, typename S2>
-  requires (B2 <= kSystemBits)
-  friend class a;
- public:
+  arr_t internal;  // NOLINT(misc-non-private-member-variables-in-classes)
   // constexpr explicit a(arr_t const& x) : internal{x} {}
   // constexpr explicit a(arr_t&& x) : internal{std::move(x)} {}
   // template <typename... T> constexpr explicit a(T&&... x) : internal{static_cast<internal_t>(std::forward<T>(x))...} {}
@@ -225,9 +192,7 @@ operator+(t<B, I, S1> const& x, t<B, I, S2> const& z) NOX->t<B, I, S1> {
   using rtn_t = t<B, I, S1>;
 #ifndef NDEBUG
   if (((x.internal < 0) == (z.internal < 0)) and (static_cast<typename rtn_t::internal_t>(x.internal + z.internal) < 0) != (x.internal < 0)) {
-    throw std::overflow_error{
-          "Overflow in fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S1> ? "signed" : "unsigned") + "> + fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S2> ? "signed" : "unsigned") +
-          ">: " + static_cast<std::string>(x) + " + " + static_cast<std::string>(z) + " overflows to " + static_cast<std::string>(rtn_t{static_cast<typename rtn_t::internal_t>(x.internal + z.internal)})};
+    throw std::overflow_error{"Overflow in fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S1> ? "signed" : "unsigned") + "> + fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S2> ? "signed" : "unsigned") + ">: " + static_cast<std::string>(x) + " + " + static_cast<std::string>(z) + " overflows to " + static_cast<std::string>(rtn_t{static_cast<typename rtn_t::internal_t>(x.internal + z.internal)})};
   }
 #endif
   return rtn_t{x.internal + z.internal};
@@ -246,9 +211,7 @@ operator-(t<B, I, S1> const& x, t<B, I, S2> const& z) NOX->t<B, I, S1> {
   using rtn_t = t<B, I, S1>;
 #ifndef NDEBUG
   if (((x.internal < 0) != (z.internal < 0)) and (static_cast<typename rtn_t::internal_t>(x.internal - z.internal) < 0) != (x.internal < 0)) {
-    throw std::overflow_error{
-          "Overflow in fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S1> ? "signed" : "unsigned") + "> - fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S2> ? "signed" : "unsigned") +
-          ">: " + static_cast<std::string>(x) + " - " + static_cast<std::string>(z) + " overflows to " + static_cast<std::string>(rtn_t{static_cast<typename rtn_t::internal_t>(x.internal - z.internal)})};
+    throw std::overflow_error{"Overflow in fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S1> ? "signed" : "unsigned") + "> - fp::t<" + std::to_string(B) + ", " + std::to_string(I) + ", " + (std::is_signed_v<S2> ? "signed" : "unsigned") + ">: " + static_cast<std::string>(x) + " - " + static_cast<std::string>(z) + " overflows to " + static_cast<std::string>(rtn_t{static_cast<typename rtn_t::internal_t>(x.internal - z.internal)})};
   }
 #endif
   return rtn_t{static_cast<typename rtn_t::internal_t>(x.internal - z.internal)};

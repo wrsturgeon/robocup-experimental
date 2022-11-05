@@ -4,7 +4,7 @@
 namespace fp {
 template <u8 B, i8 I, typename S>
 requires (B <= kSystemBits)
-class t;
+struct t;
 }  // namespace fp
 
 inline constexpr i8 kMostNegative = -128;

@@ -23,8 +23,8 @@ main() -> int {
     std::cerr << e.what() << std::endl;
     return 1;
   }
-  auto x = fp::t<fp::kCompactBits, 0, signed>::p2<-1>();
-  auto adam = ml::AdamL1<fp::t<fp::kCompactBits, 0, signed>>{x};
+  auto x = fp::t<kHalfSystemBits, 0, signed>::p2<-1>();
+  auto adam = ml::AdamL1<fp::t<kHalfSystemBits, 0, signed>>{x};
   auto s = uninitialized<decltype(adam(x, x))>();
   u8 i = 0;
   do {
